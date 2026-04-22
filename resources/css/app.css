@@ -150,3 +150,5 @@
         @apply bg-background text-foreground;
     }
 }
+
+@import './studyhub.css';

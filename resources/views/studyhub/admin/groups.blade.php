@@ -2,84 +2,6 @@
 
 @section('title', 'Group Monitoring')
 
-@push('page-styles')
-    <style>
-        .group-monitor-list {
-            display: grid;
-            gap: 14px;
-        }
-
-        .monitor-card {
-            padding: 18px 20px;
-        }
-
-        .monitor-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            margin-bottom: 10px;
-        }
-
-        .monitor-top h3 {
-            margin: 0;
-            font-size: 1.15rem;
-        }
-
-        .status-badge,
-        .activity-badge {
-            padding: 5px 10px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            display: inline-flex;
-        }
-
-        .status-badge.active {
-            background: #eaf7ee;
-            color: var(--green-main);
-        }
-
-        .status-badge.flagged {
-            background: #f6ece8;
-            color: #c45d40;
-        }
-
-        .activity-badge.very-high {
-            background: #e8f8ef;
-            color: #1e8f54;
-        }
-
-        .activity-badge.high {
-            background: #eef6ff;
-            color: #4d6e93;
-        }
-
-        .activity-badge.medium {
-            background: #fff6df;
-            color: #aa7a00;
-        }
-
-        .activity-badge.low {
-            background: #f9ebe4;
-            color: #c45d40;
-        }
-
-        .monitor-meta {
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .monitor-actions {
-            display: flex;
-            gap: 10px;
-        }
-    </style>
-@endpush
-
 @section('page')
     <div class="toolbar">
         <div>
@@ -121,3 +43,4 @@
         @endforeach
     </section>
 @endsection
+

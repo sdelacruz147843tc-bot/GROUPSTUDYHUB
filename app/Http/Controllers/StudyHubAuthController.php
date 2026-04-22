@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 
 class StudyHubAuthController extends Controller
 {
@@ -67,6 +69,29 @@ class StudyHubAuthController extends Controller
                 'role' => 'This account does not have access to the selected dashboard.',
             ]);
         }
+
+        return $this->redirectForRole($user->role);
+    }
+
+    public function register(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+            'role' => ['required', 'in:student'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role' => $validated['role'],
+            'display_name' => $validated['name'],
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
 
         return $this->redirectForRole($user->role);
     }

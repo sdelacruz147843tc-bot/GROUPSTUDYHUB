@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             'interface_density' => 'comfortable',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'password' => Hash::make('password'),
         ]);
 
         $sampleUsers = collect([

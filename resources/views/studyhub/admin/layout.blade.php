@@ -29,216 +29,29 @@
     $currentRoute = request()->route()?->getName();
 @endphp
 
-@push('styles')
-    <style>
-        .app-shell {
-            display: grid;
-            grid-template-columns: 212px minmax(0, 1fr);
-            min-height: 100vh;
-            background: #f7f7f5;
-        }
-
-        .app-sidebar {
-            background: #2f5540;
-            color: white;
-            padding: 22px 0 0;
-            display: flex;
-            flex-direction: column;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            weight: 100px;
-            overflow: hidden;
-        }
-
-        .sidebar-brand {
-            padding: 0 22px 24px;
-        }
-
-        .sidebar-brand h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 800;
-        }
-
-        .sidebar-brand p {
-            margin: 4px 0 0;
-            color: rgba(255,255,255,0.75);
-        }
-
-        .sidebar-nav {
-            display: grid;
-            gap: 12px;
-            padding: 12px 14px 0;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            padding: 14px 16px;
-            border-radius: 14px;
-            color: rgba(255,255,255,0.94);
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .sidebar-link.active {
-            background: rgba(255,255,255,0.16);
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.12);
-            padding: 16px 14px;
-        }
-
-        .app-main {
-            padding: 28px 30px 32px;
-            min-height: 100vh;
-        }
-
-        .page-title {
-            margin: 0;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #111;
-        }
-
-        .layout-status {
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: #eef4ef;
-            border: 1px solid #d4e2d7;
-            color: #2f5540;
-        }
-
-        .page-subtitle {
-            margin: 8px 0 26px;
-            color: var(--text-muted);
-            font-size: 1.02rem;
-        }
-
-        .content-card,
-        .stat-card {
-            background: white;
-            border: 1px solid var(--border-soft);
-            border-radius: 18px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-            margin-bottom: 24px;
-        }
-
-        .toolbar-actions,
-        .toolbar-filters {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .action-button,
-        .secondary-button {
-            border: 0;
-            border-radius: 12px;
-            padding: 12px 18px;
-            font: inherit;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .action-button {
-            background: #2f5540;
-            color: white;
-        }
-
-        .secondary-button {
-            background: #edf1f5;
-            color: #33404a;
-            border: 1px solid var(--border-soft);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            padding: 18px;
-        }
-
-        .search-box {
-            position: relative;
-            max-width: 560px;
-            width: 100%;
-        }
-
-        .search-box input {
-            width: 100%;
-            height: 48px;
-            border-radius: 14px;
-            border: 1px solid var(--border-soft);
-            background: white;
-            padding: 0 16px 0 48px;
-            font: inherit;
-        }
-
-        .search-box .icon-box {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            color: var(--text-muted);
-        }
-
-        @media (max-width: 1100px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 800px) {
-            .app-shell {
-                grid-template-columns: 1fr;
-            }
-
-            .app-sidebar {
-                position: static;
-                height: auto;
-            }
-
-            .app-main {
-                padding: 20px;
-            }
-
-            .page-title {
-                font-size: 2.2rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    @stack('page-styles')
-@endpush
-
 @section('content')
     <div class="studyhub-shell app-shell">
         <aside class="app-sidebar">
             <div class="sidebar-brand">
-                <h1>StudyHub</h1>
-                <p>Admin Panel</p>
+                <div class="sidebar-brand-lockup">
+                    <span class="sidebar-brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M48 8 16 22l32 14 32-14L48 8Z" fill="#122D5D"/>
+                            <path d="M31 27c0-3 8-8 17-8s17 5 17 8v11H31V27Z" fill="#122D5D"/>
+                            <path d="M48 31c2 0 4 2 5 5l4 18H39l4-18c1-3 3-5 5-5Z" fill="#122D5D"/>
+                            <path d="M21 44 15 71c10-4 22-6 33-6V50c-9 0-18-2-27-6Z" fill="#1F8BFF"/>
+                            <path d="M75 44c-9 4-18 6-27 6v15c11 0 23 2 33 6l-6-27Z" fill="#4CCB68"/>
+                            <path d="M48 50v15c-12 0-25 2-37 7l3-13c10-4 22-6 34-6v-3Z" fill="#122D5D"/>
+                            <path d="M48 50v15c12 0 25 2 37 7l-3-13c-10-4-22-6-34-6v-3Z" fill="#122D5D"/>
+                            <path d="M80 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="#122D5D"/>
+                            <path d="M80 35v14" stroke="#122D5D" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M80 49c-3 0-4 4-4 7h8c0-3-1-7-4-7Z" fill="#4CCB68"/>
+                        </svg>
+                    </span>
+                    <span class="sidebar-brand-copy">
+                        <h1>Study<span>Hub</span></h1>
+                    </span>
+                </div>
             </div>
 
             <nav class="sidebar-nav">
@@ -269,3 +82,4 @@
         </main>
     </div>
 @endsection
+

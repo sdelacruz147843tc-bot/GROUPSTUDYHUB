@@ -2,75 +2,6 @@
 
 @section('title', 'Reports & Analytics')
 
-@push('page-styles')
-    <style>
-        .report-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 18px;
-        }
-
-        .report-panel {
-            padding: 20px;
-        }
-
-        .report-panel h3 {
-            margin: 0 0 16px;
-            font-size: 1.3rem;
-        }
-
-        .bar-list,
-        .pie-list,
-        .activity-list {
-            display: grid;
-            gap: 14px;
-        }
-
-        .bar-row {
-            display: grid;
-            gap: 6px;
-        }
-
-        .bar-track {
-            height: 10px;
-            border-radius: 999px;
-            background: #edf1f5;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #2f5540, #63bb7a);
-        }
-
-        .pie-row,
-        .activity-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            padding: 14px;
-            border: 1px solid var(--border-soft);
-            border-radius: 14px;
-        }
-
-        .color-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 999px;
-            display: inline-block;
-            margin-right: 8px;
-        }
-
-        @media (max-width: 900px) {
-            .report-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-@endpush
-
 @section('page')
     <div class="toolbar">
         <div>
@@ -139,3 +70,4 @@
         </div>
     </section>
 @endsection
+

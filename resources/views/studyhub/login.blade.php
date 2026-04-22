@@ -2,461 +2,51 @@
 
 @section('title', 'StudyHub Login')
 
-@push('styles')
-    <style>
-        @keyframes loginFloat {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        @keyframes loginFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-shell {
-            display: grid;
-            grid-template-columns: minmax(360px, 1.05fr) minmax(360px, 0.95fr);
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at top left, rgba(227, 179, 123, 0.18), transparent 28%),
-                linear-gradient(180deg, #f7f1ea 0%, #eef3ed 100%);
-        }
-
-        .login-brand {
-            position: relative;
-            overflow: hidden;
-            padding: 56px 42px 48px;
-            color: white;
-            background:
-                radial-gradient(circle at top, rgba(255,255,255,0.15), transparent 36%),
-                linear-gradient(135deg, #22553b 0%, #2f7c56 42%, #5fb981 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .login-brand::before,
-        .login-brand::after {
-            content: '';
-            position: absolute;
-            border-radius: 999px;
-            filter: blur(50px);
-            opacity: 0.22;
-        }
-
-        .login-brand::before {
-            width: 260px;
-            height: 260px;
-            background: rgba(255,255,255,0.8);
-            top: 34px;
-            right: -40px;
-        }
-
-        .login-brand::after {
-            width: 320px;
-            height: 320px;
-            background: #9fe0b9;
-            left: -60px;
-            bottom: -40px;
-        }
-
-        .login-brand-content,
-        .login-feature-list,
-        .login-brand-stats,
-        .login-brand-topbar {
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-brand-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 48px;
-        }
-
-        .brand-pill {
-            display: inline-flex;
-            align-items: center;
-            min-height: 34px;
-            padding: 0 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.14);
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .brand-status {
-            color: rgba(247,255,250,0.84);
-            font-size: 0.92rem;
-            font-weight: 600;
-        }
-
-        .login-brand h1 {
-            margin: 0;
-            font-size: 4rem;
-            line-height: 0.95;
-            font-weight: 800;
-            letter-spacing: -0.06em;
-            max-width: 520px;
-        }
-
-        .login-brand p {
-            max-width: 420px;
-            margin: 20px 0 0;
-            font-size: 1.12rem;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.92);
-        }
-
-        .login-brand-copy {
-            animation: loginFadeUp 520ms ease both;
-        }
-
-        .login-brand-stats {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 26px;
-            max-width: 540px;
-        }
-
-        .brand-stat {
-            padding: 14px 14px 16px;
-            border-radius: 18px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(6px);
-        }
-
-        .brand-stat-value {
-            margin: 0 0 4px;
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-
-        .brand-stat-label {
-            color: rgba(245,255,248,0.8);
-            font-size: 0.88rem;
-        }
-
-        .login-feature-list {
-            display: grid;
-            gap: 18px;
-            max-width: 500px;
-            animation: loginFadeUp 620ms ease both;
-            animation-delay: 120ms;
-        }
-
-        .login-feature {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            padding: 16px;
-            border-radius: 22px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(8px);
-        }
-
-        .login-feature-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-            flex-shrink: 0;
-        }
-
-        .login-feature-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin: 0 0 6px;
-        }
-
-        .login-feature-copy {
-            margin: 0;
-            color: rgba(255, 255, 255, 0.84);
-            font-size: 0.95rem;
-        }
-
-        .login-panel {
-            background:
-                radial-gradient(circle at top right, rgba(123, 190, 149, 0.12), transparent 22%),
-                linear-gradient(180deg, #f7f3ed 0%, #f1f5f1 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 24px;
-        }
-
-        .login-card {
-            width: min(100%, 470px);
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(198, 214, 203, 0.9);
-            border-radius: 30px;
-            box-shadow: 0 28px 56px rgba(41, 67, 88, 0.16);
-            padding: 34px 30px 30px;
-            animation: loginFadeUp 520ms ease both;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            inset: 0 auto auto 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, #65c889 0%, #82c6de 100%);
-        }
-
-        .login-card-topline {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .login-card-topline span {
-            display: inline-flex;
-            align-items: center;
-            min-height: 32px;
-            padding: 0 12px;
-            border-radius: 999px;
-            background: #eef6f0;
-            border: 1px solid #d5e4da;
-            color: #476553;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .login-card-copy {
-            margin-bottom: 26px;
-        }
-
-        .login-card h2 {
-            margin: 0 0 8px;
-            color: #111;
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-        }
-
-        .login-card-copy p {
-            margin: 0;
-            color: #6b7673;
-            line-height: 1.55;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            color: #3f454b;
-        }
-
-        .form-input {
-            width: 100%;
-            height: 52px;
-            border-radius: 16px;
-            border: 1px solid #cfddd5;
-            background: rgba(255,255,255,0.96);
-            padding: 0 16px;
-            font: inherit;
-            color: #1a2332;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-        }
-
-        .role-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .role-pill {
-            height: 52px;
-            border-radius: 16px;
-            border: 1px solid #d2ddd7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4a535a;
-            font-weight: 700;
-            background: rgba(255,255,255,0.92);
-            cursor: pointer;
-            transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .role-pill.is-active {
-            background: linear-gradient(135deg, #65c889 0%, #4ab872 100%);
-            border-color: transparent;
-            color: white;
-            box-shadow: 0 14px 26px rgba(99, 187, 122, 0.26);
-        }
-
-        .login-submit {
-            width: 100%;
-            height: 54px;
-            border: 0;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #65c889 0%, #4ab872 100%);
-            color: white;
-            font: inherit;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 8px;
-            box-shadow: 0 16px 28px rgba(99, 187, 122, 0.24);
-        }
-
-        .login-footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #7f8585;
-            font-size: 0.95rem;
-        }
-
-        .login-footer a {
-            color: #3d9c5d;
-            font-weight: 700;
-        }
-
-        .login-status,
-        .login-errors {
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            border-radius: 16px;
-            font-size: 0.94rem;
-            line-height: 1.5;
-        }
-
-        .login-status {
-            background: #eef8f1;
-            border: 1px solid #cfe7d5;
-            color: #2f6a41;
-        }
-
-        .login-errors {
-            background: #fff1f0;
-            border: 1px solid #f0c8c3;
-            color: #9a3b33;
-        }
-
-        .form-error {
-            margin-top: 8px;
-            color: #b2453d;
-            font-size: 0.84rem;
-            font-weight: 600;
-        }
-
-        @media (max-width: 900px) {
-            .login-shell {
-                grid-template-columns: 1fr;
-            }
-
-            .login-brand {
-                min-height: 460px;
-                padding: 40px 24px 28px;
-            }
-
-            .login-brand h1 {
-                font-size: 3rem;
-            }
-
-            .login-brand-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-@endpush
-
 @section('content')
     @php
-        $icons = [
-            'users' => '<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-            'book' => '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-            'calendar' => '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>',
-        ];
+        $activeAuthMode = old('auth_mode', 'login');
+        if ($errors->has('name') || $errors->has('password_confirmation')) {
+            $activeAuthMode = 'register';
+        }
     @endphp
 
     <div class="studyhub-shell login-shell">
-        <section class="login-brand">
-            <div class="login-brand-topbar">
-                <span class="brand-pill">StudyHub Portal</span>
-                <span class="brand-status">Student + Admin access</span>
-            </div>
-
-            <div class="login-brand-content">
-                <div class="login-brand-copy">
-                    <h1>Study smarter, together.</h1>
-                    <p>StudyHub brings groups, shared resources, discussions, and sessions into one focused learning workspace.</p>
-                </div>
-
-                <div class="login-brand-stats">
-                    <div class="brand-stat">
-                        <div class="brand-stat-value">24/7</div>
-                        <div class="brand-stat-label">Access to shared materials</div>
-                    </div>
-                    <div class="brand-stat">
-                        <div class="brand-stat-value">+89</div>
-                        <div class="brand-stat-label">Active study groups</div>
-                    </div>
-                    <div class="brand-stat">
-                        <div class="brand-stat-value">Live</div>
-                        <div class="brand-stat-label">Discussions and sessions</div>
+        <div class="login-frame">
+            <section class="login-panel">
+                <div class="login-brand">
+                    <div class="brand-lockup">
+                        <span class="brand-logo-mark" aria-hidden="true">
+                            <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M48 8 16 22l32 14 32-14L48 8Z" fill="#122D5D"/>
+                                <path d="M31 27c0-3 8-8 17-8s17 5 17 8v11H31V27Z" fill="#122D5D"/>
+                                <path d="M48 31c2 0 4 2 5 5l4 18H39l4-18c1-3 3-5 5-5Z" fill="#122D5D"/>
+                                <path d="M21 44 15 71c10-4 22-6 33-6V50c-9 0-18-2-27-6Z" fill="#1F8BFF"/>
+                                <path d="M75 44c-9 4-18 6-27 6v15c11 0 23 2 33 6l-6-27Z" fill="#4CCB68"/>
+                                <path d="M48 50v15c-12 0-25 2-37 7l3-13c10-4 22-6 34-6v-3Z" fill="#122D5D"/>
+                                <path d="M48 50v15c12 0 25 2 37 7l-3-13c-10-4-22-6-34-6v-3Z" fill="#122D5D"/>
+                                <path d="M80 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="#122D5D"/>
+                                <path d="M80 35v14" stroke="#122D5D" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M80 49c-3 0-4 4-4 7h8c0-3-1-7-4-7Z" fill="#4CCB68"/>
+                            </svg>
+                        </span>
+                        <span class="brand-copy">
+                            <span class="brand-wordmark">Study<span>Hub</span></span>
+                        </span>
                     </div>
                 </div>
-            </div>
 
-            <div class="login-feature-list">
-                @foreach ($features as $feature)
-                    <div class="login-feature">
-                        <div class="icon-box login-feature-icon">{!! $icons[$feature['icon']] !!}</div>
-                        <div>
-                            <h2 class="login-feature-title">{{ $feature['title'] }}</h2>
-                            <p class="login-feature-copy">{{ $feature['description'] }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="login-panel">
-            <div class="login-card">
-                <div class="login-card-topline">
-                    <span>Secure Sign In</span>
-                    <span>Campus Workspace</span>
+                <div class="login-copy">
+                    <h1>{{ $activeAuthMode === 'register' ? 'Create account' : 'Welcome back' }}</h1>
+                    <p>{{ $activeAuthMode === 'register' ? 'Start your student workspace.' : 'Sign in to continue.' }}</p>
                 </div>
 
-                <div class="login-card-copy">
-                    <h2>Welcome Back</h2>
-                    <p>Choose your role, then sign in to continue into your StudyHub workspace.</p>
+                <div class="auth-switch" role="tablist" aria-label="Authentication forms">
+                    <button class="auth-switch-button {{ $activeAuthMode === 'login' ? 'is-active' : '' }}" type="button" data-auth-target="login">
+                        Login
+                    </button>
+                    <button class="auth-switch-button {{ $activeAuthMode === 'register' ? 'is-active' : '' }}" type="button" data-auth-target="register">
+                        Sign Up
+                    </button>
                 </div>
 
                 @if (session('status'))
@@ -471,71 +61,216 @@
                     </div>
                 @endif
 
-                <form id="studyhub-login-form" action="{{ route('studyhub.authenticate') }}" method="post">
-                    @csrf
-                    <input id="studyhub-login-role" name="role" type="hidden" value="{{ old('role', 'student') }}">
-                    <div class="form-group">
-                        <label class="form-label" for="email">Email</label>
-                        <input class="form-input" id="email" name="email" type="email" value="{{ old('email') }}" placeholder="student@studyhub.test">
-                        @error('email')
-                            <div class="form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <div id="login-panel" class="auth-panel {{ $activeAuthMode === 'login' ? 'is-active' : '' }}">
+                    <form id="studyhub-login-form" class="login-form" action="{{ route('studyhub.authenticate') }}" method="post">
+                        @csrf
+                        <input name="auth_mode" type="hidden" value="login">
+                        <input id="studyhub-login-role" name="role" type="hidden" value="{{ old('auth_mode') === 'register' ? 'student' : old('role', 'student') }}">
 
-                    <div class="form-group">
-                        <label class="form-label" for="password">Password</label>
-                        <input class="form-input" id="password" name="password" type="password" placeholder="password">
-                        @error('password')
-                            <div class="form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Login as</label>
-                        <div class="role-grid">
-                            <button class="role-pill {{ old('role', 'student') === 'student' ? 'is-active' : '' }}" type="button" data-role="student">
-                                Student
-                            </button>
-                            <button class="role-pill {{ old('role') === 'admin' ? 'is-active' : '' }}" type="button" data-role="admin">
-                                Admin
-                            </button>
+                        <div class="form-group">
+                            <label class="form-label" for="login-email">Email</label>
+                            <input class="form-input" id="login-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? '' : old('email') }}" placeholder="you@example.com">
+                            @error('email')
+                                @if (old('auth_mode', 'login') === 'login' || ! old('auth_mode'))
+                                    <div class="form-error">{{ $message }}</div>
+                                @endif
+                            @enderror
                         </div>
-                        @error('role')
+
+                        <div class="form-group">
+                            <label class="form-label" for="login-password">Password</label>
+                            <input class="form-input" id="login-password" name="password" type="password" placeholder="Password">
+                            @error('password')
+                                @if (old('auth_mode', 'login') === 'login' || ! old('auth_mode'))
+                                    <div class="form-error">{{ $message }}</div>
+                                @endif
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Login as</label>
+                            <div class="role-grid">
+                                <button class="role-pill {{ (old('auth_mode') === 'register' ? 'student' : old('role', 'student')) === 'student' ? 'is-active' : '' }}" type="button" data-role-target="studyhub-login-role" data-role="student">
+                                    Student
+                                </button>
+                                <button class="role-pill {{ old('auth_mode') !== 'register' && old('role') === 'admin' ? 'is-active' : '' }}" type="button" data-role-target="studyhub-login-role" data-role="admin">
+                                    Admin
+                                </button>
+                            </div>
+                            @error('role')
+                                @if (old('auth_mode', 'login') === 'login' || ! old('auth_mode'))
+                                    <div class="form-error">{{ $message }}</div>
+                                @endif
+                            @enderror
+                        </div>
+
+                        <div class="password-row">
+                            <label class="show-password" for="show-login-password">
+                                <input id="show-login-password" type="checkbox" data-password-target="login-password">
+                                <span>Show password</span>
+                            </label>
+                        </div>
+
+                        <button class="login-submit" type="submit">Login</button>
+                    </form>
+
+                    <div class="login-footer">
+                        No account?
+                        <a href="#" data-auth-target="register">Create one.</a>
+                    </div>
+                </div>
+
+                <div id="register-panel" class="auth-panel {{ $activeAuthMode === 'register' ? 'is-active' : '' }}">
+                    <form id="studyhub-register-form" class="login-form" action="{{ route('studyhub.register') }}" method="post">
+                        @csrf
+                        <input name="auth_mode" type="hidden" value="register">
+                        <input id="studyhub-register-role" name="role" type="hidden" value="student">
+
+                        <div class="form-group">
+                            <label class="form-label" for="register-name">Full name</label>
+                            <input class="form-input" id="register-name" name="name" type="text" value="{{ old('name') }}" placeholder="Your name">
+                            @error('name')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="register-email">Email</label>
+                            <input class="form-input" id="register-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? old('email') : '' }}" placeholder="you@example.com">
+                            @error('email')
+                                @if (old('auth_mode') === 'register')
+                                    <div class="form-error">{{ $message }}</div>
+                                @endif
+                            @enderror
+                        </div>
+
+                        <div class="form-grid-two">
+                            <div class="form-group">
+                                <label class="form-label" for="register-password">Password</label>
+                                <input class="form-input" id="register-password" name="password" type="password" placeholder="Min. 8 characters">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="register-password-confirmation">Confirm password</label>
+                                <input class="form-input" id="register-password-confirmation" name="password_confirmation" type="password" placeholder="Repeat password">
+                            </div>
+                        </div>
+                        @error('password')
+                            @if (old('auth_mode') === 'register')
+                                <div class="form-error">{{ $message }}</div>
+                            @endif
+                        @enderror
+                        @error('password_confirmation')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+
+                        <div class="password-row">
+                            <label class="show-password" for="show-register-password">
+                                <input id="show-register-password" type="checkbox" data-password-target="register-password">
+                                <span>Show password</span>
+                            </label>
+                            <label class="show-password" for="show-register-confirmation">
+                                <input id="show-register-confirmation" type="checkbox" data-password-target="register-password-confirmation">
+                                <span>Show confirm</span>
+                            </label>
+                        </div>
+
+                        <button class="login-submit" type="submit">Sign Up</button>
+                    </form>
+
+                    <div class="login-footer">
+                        Have an account?
+                        <a href="#" data-auth-target="login">Back to login.</a>
                     </div>
-
-                    <button class="login-submit" type="submit">Sign In</button>
-                </form>
-
-                <div class="login-footer">
-                    Don't have an account?
-                    <a href="{{ url('/register') }}">Sign up</a>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <section class="login-visual" aria-hidden="true">
+                <div class="visual-card">
+                    <div class="visual-window">
+                        <img class="visual-image" src="{{ asset('studyhub-login-illustration.png') }}" alt="StudyHub learning illustration">
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('studyhub-login-form');
-            const roleInput = document.getElementById('studyhub-login-role');
+            const authButtons = document.querySelectorAll('[data-auth-target]');
+            const authPanels = {
+                login: document.getElementById('login-panel'),
+                register: document.getElementById('register-panel'),
+            };
+            const loginTitle = document.querySelector('.login-copy h1');
+            const loginSubtitle = document.querySelector('.login-copy p');
             const roleButtons = document.querySelectorAll('.role-pill[data-role]');
+            const passwordToggles = document.querySelectorAll('[data-password-target]');
 
-            if (!form || !roleInput || !roleButtons.length) {
-                return;
+            function setAuthMode(mode) {
+                Object.entries(authPanels).forEach(function (entry) {
+                    const panelMode = entry[0];
+                    const panel = entry[1];
+
+                    if (!panel) {
+                        return;
+                    }
+
+                    panel.classList.toggle('is-active', panelMode === mode);
+                });
+
+                authButtons.forEach(function (button) {
+                    button.classList.toggle('is-active', button.dataset.authTarget === mode);
+                });
+
+                if (loginTitle) {
+                    loginTitle.textContent = mode === 'register' ? 'Create Account' : 'StudyHub Login';
+                }
+
+                if (loginSubtitle) {
+                    loginSubtitle.textContent = mode === 'register' ? 'Set up your workspace.' : 'Sign in to continue.';
+                }
             }
 
+            authButtons.forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    setAuthMode(button.dataset.authTarget || 'login');
+                });
+            });
+
             roleButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        roleButtons.forEach(function (item) {
-                            item.classList.remove('is-active');
+                button.addEventListener('click', function () {
+                    const targetId = button.dataset.roleTarget;
+                    const targetInput = targetId ? document.getElementById(targetId) : null;
+
+                    if (!targetInput) {
+                        return;
+                    }
+
+                    document.querySelectorAll('.role-pill[data-role-target="' + targetId + '"]').forEach(function (item) {
+                        item.classList.remove('is-active');
                     });
 
                     button.classList.add('is-active');
-                    roleInput.value = button.dataset.role || 'student';
+                    targetInput.value = button.dataset.role || 'student';
                 });
             });
+
+            passwordToggles.forEach(function (toggle) {
+                toggle.addEventListener('change', function () {
+                    const target = document.getElementById(toggle.dataset.passwordTarget || '');
+
+                    if (!target) {
+                        return;
+                    }
+
+                    target.type = toggle.checked ? 'text' : 'password';
+                });
+            });
+
+            setAuthMode('{{ $activeAuthMode }}');
         });
     </script>
 @endsection
+

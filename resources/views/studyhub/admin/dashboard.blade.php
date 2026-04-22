@@ -2,87 +2,6 @@
 
 @section('title', 'Admin Dashboard')
 
-@push('page-styles')
-    <style>
-        .admin-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-            gap: 18px;
-            margin-bottom: 24px;
-        }
-
-        .panel {
-            padding: 20px;
-        }
-
-        .panel h3 {
-            margin: 0 0 16px;
-            font-size: 1.35rem;
-        }
-
-        .chart-list,
-        .resource-list,
-        .alert-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .chart-row,
-        .resource-row,
-        .alert-row {
-            display: grid;
-            gap: 6px;
-        }
-
-        .chart-bar-track {
-            height: 10px;
-            border-radius: 999px;
-            background: #edf1f5;
-            overflow: hidden;
-        }
-
-        .chart-bar-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #2f5540, #63bb7a);
-        }
-
-        .resource-row {
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
-        }
-
-        .resource-row strong,
-        .chart-row strong {
-            font-size: 0.98rem;
-        }
-
-        .muted {
-            color: var(--text-muted);
-        }
-
-        .alert-row {
-            border: 1px solid var(--border-soft);
-            border-radius: 14px;
-            padding: 14px;
-        }
-
-        .alert-meta {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-muted);
-            font-size: 0.92rem;
-        }
-
-        @media (max-width: 1000px) {
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-@endpush
-
 @section('page')
     <h2 class="page-title">Admin Dashboard</h2>
     <p class="page-subtitle">Monitor and manage the StudyHub platform.</p>
@@ -151,3 +70,4 @@
         </div>
     </section>
 @endsection
+

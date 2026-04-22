@@ -19,6 +19,7 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('/', [StudyHubAuthController::class, 'create'])->name('login');
         Route::post('/login', [StudyHubAuthController::class, 'store'])->name('authenticate');
+        Route::post('/register', [StudyHubAuthController::class, 'register'])->name('register');
     });
 
     Route::middleware('auth')->group(function () {
