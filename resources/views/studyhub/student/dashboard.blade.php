@@ -5,12 +5,22 @@
 @push('page-styles')
     <style>
         .page-title {
-            letter-spacing: -0.04em;
+            margin: 0;
+            font-size: clamp(2.6rem, 4vw, 3.4rem);
+            line-height: 0.95;
+            font-weight: 800;
+            letter-spacing: -0.065em;
+            text-wrap: balance;
         }
 
         .page-subtitle {
+            margin: 10px 0 0;
             max-width: 720px;
-            font-size: 1.08rem;
+            font-size: 1.03rem;
+            line-height: 1.45;
+            font-weight: 500;
+            letter-spacing: -0.015em;
+            color: #6c756f;
         }
 
         .stats-grid {
@@ -101,9 +111,9 @@
             background: rgba(255,255,255,0.74);
             border: 1px solid color-mix(in srgb, var(--student-accent) 14%, white 86%);
             color: var(--student-accent-text);
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.11em;
             text-transform: uppercase;
         }
 
@@ -140,10 +150,17 @@
 
         .panel-header h3 {
             margin: 0;
-            font-size: 1.75rem;
+            font-size: 1.62rem;
+            line-height: 1.05;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.045em;
             color: var(--student-accent-text);
+        }
+
+        .panel-heading-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .panel-header a {
@@ -156,7 +173,9 @@
             background: rgba(255,255,255,0.78);
             border: 1px solid color-mix(in srgb, var(--student-accent) 24%, white 76%);
             color: var(--student-accent-text);
+            font-size: 0.9rem;
             font-weight: 700;
+            letter-spacing: -0.01em;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
         }
 
@@ -203,9 +222,10 @@
             background: rgba(255,255,255,0.78);
             border: 1px solid color-mix(in srgb, var(--student-accent) 20%, white 80%);
             color: var(--student-accent-text);
-            font-size: 0.8rem;
+            font-size: 0.76rem;
             font-weight: 800;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         .dashboard-empty {
@@ -214,7 +234,10 @@
             border: 1px dashed color-mix(in srgb, var(--student-accent) 26%, white 74%);
             background: color-mix(in srgb, var(--student-accent-pale) 42%, white 58%);
             color: var(--student-accent-text);
+            font-size: 0.98rem;
+            line-height: 1.45;
             font-weight: 600;
+            letter-spacing: -0.01em;
             text-align: center;
         }
 
@@ -255,11 +278,11 @@
         }
 
         .group-name {
-            font-size: 1.6rem;
+            font-size: 1.42rem;
             font-weight: 800;
             color: #163524;
-            line-height: 1.2;
-            letter-spacing: -0.03em;
+            line-height: 1.15;
+            letter-spacing: -0.045em;
         }
 
         .open-pill {
@@ -272,14 +295,17 @@
             background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-soft) 22%, white 78%) 100%);
             color: var(--student-accent-text);
             border: 1px solid color-mix(in srgb, var(--student-accent) 28%, white 72%);
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 700;
+            letter-spacing: -0.01em;
         }
 
         .notification-row p {
             margin: 0 0 10px;
-            font-size: 1.05rem;
-            line-height: 1.45;
+            font-size: 1rem;
+            line-height: 1.5;
+            font-weight: 500;
+            letter-spacing: -0.012em;
             color: #203328;
         }
 
@@ -301,8 +327,9 @@
 
         .notification-row span {
             color: #6e7f73;
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
         .activity-card {
@@ -321,9 +348,10 @@
 
         .activity-header h3 {
             margin: 0;
-            font-size: 2rem;
+            font-size: 1.82rem;
+            line-height: 1.05;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.05em;
             color: var(--student-accent-text);
         }
 
@@ -355,8 +383,9 @@
 
         .activity-text {
             margin: 0 0 8px;
-            font-size: 1.15rem;
-            line-height: 1.5;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            letter-spacing: -0.014em;
             color: #173223;
         }
 
@@ -371,27 +400,29 @@
 
         .activity-time {
             color: #728376;
-            font-size: 0.94rem;
+            font-size: 0.88rem;
             font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
         .stat-value {
             position: relative;
             z-index: 1;
             margin: 0;
-            font-size: 2.5rem;
-            line-height: 1;
+            font-size: 2.35rem;
+            line-height: 0.95;
             font-weight: 800;
             color: #173223;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.06em;
         }
 
         .stat-label {
             position: relative;
             z-index: 1;
             color: #67776d;
-            font-size: 0.98rem;
-            font-weight: 700;
+            font-size: 0.93rem;
+            font-weight: 650;
+            letter-spacing: -0.012em;
         }
 
         @media (max-width: 1100px) {
@@ -446,9 +477,9 @@
 
         <article class="content-card dashboard-panel-card notifications-panel">
             <div class="panel-header">
-                <div style="display:flex;align-items:center;gap:10px;">
+                <div class="panel-heading-wrap">
                     <span class="icon-box">{!! $icons['bell'] !!}</span>
-                    <h3 style="font-size:1.8rem;">Notification</h3>
+                    <h3>Notification</h3>
                 </div>
                 <span class="panel-meta">{{ count($notifications) }} updates</span>
             </div>
