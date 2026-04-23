@@ -66,7 +66,7 @@
             <div class="sidebar-bottom">
                 <form method="POST" action="{{ route('studyhub.logout') }}">
                     @csrf
-                    <button class="sidebar-link" type="submit" style="width: 100%; border: 0; background: transparent; text-align: left;">
+                    <button class="sidebar-link w-full border-0 bg-transparent text-left" type="submit">
                         <span class="icon-box">{!! $icons['logout'] !!}</span>
                         <span>Logout</span>
                     </button>
@@ -82,4 +82,3 @@
         </main>
     </div>
 @endsection
-

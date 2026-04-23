@@ -10,6 +10,12 @@
 
         return $first.$last;
     };
+
+    $discussionStatIconClasses = [
+        1 => 'bg-[linear-gradient(135deg,var(--student-accent-soft)_0%,var(--student-accent)_100%)] text-white',
+        2 => 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--student-accent-soft)_44%,white_56%)_0%,color-mix(in_srgb,var(--student-accent)_68%,white_32%)_100%)] text-white',
+        3 => 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--student-accent-pale)_24%,white_76%)_0%,color-mix(in_srgb,var(--student-accent-soft)_82%,white_18%)_100%)] text-white',
+    ];
 @endphp
 
 @section('page')
@@ -29,18 +35,7 @@
     <section class="discussion-stats-grid">
         @foreach ($stats as $stat)
             <article class="discussion-stat-card">
-                <div
-                    class="icon-box discussion-stat-icon"
-                    style="
-                        @if ($loop->first)
-                            background:linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%); color:#ffffff;
-                        @elseif ($loop->iteration === 2)
-                            background:linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 44%, white 56%) 0%, color-mix(in srgb, var(--student-accent) 68%, white 32%) 100%); color:#ffffff;
-                        @else
-                            background:linear-gradient(135deg, color-mix(in srgb, var(--student-accent-pale) 24%, white 76%) 0%, color-mix(in srgb, var(--student-accent-soft) 82%, white 18%) 100%); color:#ffffff;
-                        @endif
-                    "
-                >
+                <div class="icon-box discussion-stat-icon {{ $discussionStatIconClasses[$loop->iteration] ?? $discussionStatIconClasses[3] }}">
                     {!! $icons[$stat['icon']] !!}
                 </div>
                 <div>
@@ -165,7 +160,7 @@
 
             const setModalState = function (isOpen) {
                 modal.classList.toggle('is-open', isOpen);
-                document.body.style.overflow = isOpen ? 'hidden' : '';
+                document.body.classList.toggle('overflow-hidden', isOpen);
             };
 
             openButton.addEventListener('click', function () {
@@ -185,9 +180,8 @@
             });
 
             if (modal.classList.contains('is-open')) {
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('overflow-hidden');
             }
         });
     </script>
 @endsection
-

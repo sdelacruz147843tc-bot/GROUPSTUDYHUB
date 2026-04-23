@@ -4,12 +4,12 @@
 
 @php
     $groupCoverThemes = [
-        'Computer Science 301' => "linear-gradient(135deg, rgba(15, 76, 117, 0.82), rgba(50, 130, 184, 0.58)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%230f4c75'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.22' stroke-width='3'%3E%3Cpath d='M70 174h76l34-42h92l32-54h76'/%3E%3Ccircle cx='70' cy='174' r='13'/%3E%3Ccircle cx='180' cy='132' r='13'/%3E%3Ccircle cx='272' cy='132' r='13'/%3E%3Ccircle cx='304' cy='78' r='13'/%3E%3Ccircle cx='380' cy='78' r='13'/%3E%3C/g%3E%3Ctext x='404' y='170' fill='%23ffffff' fill-opacity='.18' font-size='84' font-family='Arial, sans-serif' font-weight='700'%3ECS%3C/text%3E%3C/svg%3E\")",
-        'Data Structures Study' => "linear-gradient(135deg, rgba(31, 99, 72, 0.78), rgba(110, 193, 145, 0.56)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%23257a56'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='3'%3E%3Crect x='92' y='64' width='80' height='34' rx='8'/%3E%3Crect x='260' y='44' width='80' height='34' rx='8'/%3E%3Crect x='430' y='64' width='80' height='34' rx='8'/%3E%3Crect x='174' y='144' width='80' height='34' rx='8'/%3E%3Crect x='348' y='144' width='80' height='34' rx='8'/%3E%3Cpath d='M172 81h88M300 78v40M214 144v-29M388 144v-29M340 81h90'/%3E%3C/g%3E%3Ctext x='34' y='202' fill='%23ffffff' fill-opacity='.14' font-size='58' font-family='Arial, sans-serif' font-weight='700'%3Etrees %26 graphs%3C/text%3E%3C/svg%3E\")",
-        'Calculus II Prep' => "linear-gradient(135deg, rgba(121, 83, 30, 0.78), rgba(255, 193, 94, 0.55)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%23c78a2c'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='3'%3E%3Cpath d='M32 166c48 0 48-92 96-92s48 92 96 92 48-92 96-92 48 92 96 92 48-92 96-92'/%3E%3Cpath d='M32 146c48 0 48-62 96-62s48 62 96 62 48-62 96-62 48 62 96 62 48-62 96-62'/%3E%3C/g%3E%3Ctext x='380' y='78' fill='%23ffffff' fill-opacity='.18' font-size='58' font-family='Georgia, serif'%E2%88%ABf(x)dx%3C/text%3E%3C/svg%3E\")",
-        'Web Development' => "linear-gradient(135deg, rgba(94, 61, 138, 0.8), rgba(140, 118, 255, 0.56)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%236b4ca5'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='3'%3E%3Cpath d='M96 74l-38 46 38 46'/%3E%3Cpath d='M178 56l-30 128'/%3E%3Cpath d='M246 74l38 46-38 46'/%3E%3Crect x='332' y='54' width='176' height='118' rx='16'/%3E%3Cpath d='M332 86h176M376 54v118'/%3E%3C/g%3E%3Ctext x='356' y='144' fill='%23ffffff' fill-opacity='.18' font-size='44' font-family='Arial, sans-serif'%3Cdiv%3E%3C/text%3E%3C/svg%3E\")",
-        'Database Systems' => "linear-gradient(135deg, rgba(20, 88, 104, 0.82), rgba(77, 186, 208, 0.56)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%231a7086'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='3'%3E%3Cellipse cx='172' cy='72' rx='82' ry='24'/%3E%3Cpath d='M90 72v76c0 14 37 24 82 24s82-10 82-24V72'/%3E%3Cellipse cx='172' cy='148' rx='82' ry='24'/%3E%3Cellipse cx='402' cy='96' rx='82' ry='24'/%3E%3Cpath d='M320 96v52c0 14 37 24 82 24s82-10 82-24V96'/%3E%3Cellipse cx='402' cy='148' rx='82' ry='24'/%3E%3C/g%3E%3C/svg%3E\")",
-        'Machine Learning Basics' => "linear-gradient(135deg, rgba(151, 62, 93, 0.8), rgba(241, 138, 177, 0.54)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 240'%3E%3Crect width='600' height='240' fill='%23b64f75'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.2' stroke-width='3'%3E%3Ccircle cx='144' cy='76' r='14'/%3E%3Ccircle cx='236' cy='56' r='14'/%3E%3Ccircle cx='220' cy='150' r='14'/%3E%3Ccircle cx='324' cy='106' r='14'/%3E%3Ccircle cx='414' cy='66' r='14'/%3E%3Ccircle cx='448' cy='156' r='14'/%3E%3Cpath d='M158 76h64M236 70v66M250 60l60 36M232 144l78-28M338 100l62-28M334 112l100 38'/%3E%3C/g%3E%3Ctext x='40' y='204' fill='%23ffffff' fill-opacity='.16' font-size='52' font-family='Arial, sans-serif' font-weight='700'%3ENN%3C/text%3E%3C/svg%3E\")",
+        'Computer Science 301' => 'bg-gradient-to-br from-[#0f4c75] to-[#3282b8]',
+        'Data Structures Study' => 'bg-gradient-to-br from-[#1f6348] to-[#6ec191]',
+        'Calculus II Prep' => 'bg-gradient-to-br from-[#79531e] to-[#ffc15e]',
+        'Web Development' => 'bg-gradient-to-br from-[#5e3d8a] to-[#8c76ff]',
+        'Database Systems' => 'bg-gradient-to-br from-[#145868] to-[#4dbad0]',
+        'Machine Learning Basics' => 'bg-gradient-to-br from-[#973e5d] to-[#f18ab1]',
     ];
 @endphp
 
@@ -55,7 +55,7 @@
                 data-joined="{{ in_array((int) $group['id'], $joinedGroupIds ?? [], true) ? 'yes' : 'no' }}"
             >
                 <a class="group-card-link" href="{{ route('studyhub.student.group.show', $group['id']) }}">
-                    <div class="group-card-cover" style="background-image: {{ $groupCoverThemes[$group['name']] ?? 'linear-gradient(180deg, #9be3ae 0%, #8fdda5 100%)' }};">
+                    <div class="group-card-cover {{ $groupCoverThemes[$group['name']] ?? 'bg-gradient-to-b from-[#9be3ae] to-[#8fdda5]' }}">
                         <span class="icon-box group-card-icon">{!! $icons['users'] !!}</span>
                     </div>
                     <div class="group-card-body">
@@ -237,7 +237,7 @@
 
             const setModalState = function (isOpen) {
                 modal.classList.toggle('is-open', isOpen);
-                document.body.style.overflow = isOpen ? 'hidden' : '';
+                document.body.classList.toggle('overflow-hidden', isOpen);
             };
 
             openButton.addEventListener('click', function () {
@@ -287,7 +287,7 @@
                 });
 
                 if (emptyState) {
-                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                    emptyState.classList.toggle('hidden', visibleCount !== 0);
                 }
             };
 
@@ -297,9 +297,8 @@
             applyGroupFilters();
 
             if (modal.classList.contains('is-open')) {
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('overflow-hidden');
             }
         });
     </script>
 @endsection
-

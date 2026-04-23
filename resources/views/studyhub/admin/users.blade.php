@@ -5,6 +5,12 @@
 @section('page')
     @php
         $showCreateModal = $errors->has('name') || $errors->has('email') || $errors->has('role') || $errors->has('password');
+        $statTextClasses = [
+            '#0F4C75' => 'text-[#0F4C75]',
+            '#3282B8' => 'text-[#3282B8]',
+            '#06D6A0' => 'text-[#06D6A0]',
+            '#FF6B35' => 'text-[#FF6B35]',
+        ];
     @endphp
 
     <div class="toolbar">
@@ -20,8 +26,8 @@
         </div>
     </div>
 
-    <div class="toolbar" style="margin-top:-8px;">
-        <div class="toolbar-filters" style="width:100%;">
+    <div class="toolbar -mt-2">
+        <div class="toolbar-filters w-full">
             <div class="search-box">
                 <span class="icon-box">{!! $icons['search'] !!}</span>
                 <input type="text" placeholder="Search users..." data-user-search>
@@ -47,8 +53,8 @@
     <section class="stats-grid">
         @foreach ($stats as $stat)
             <article class="stat-card">
-                <div style="color:var(--text-muted);margin-bottom:8px;">{{ $stat['label'] }}</div>
-                <div style="font-size:2rem;font-weight:800;color:{{ $stat['color'] }};">{{ $stat['value'] }}</div>
+                <div class="mb-2 text-[var(--text-muted)]">{{ $stat['label'] }}</div>
+                <div class="text-[2rem] font-extrabold {{ $statTextClasses[$stat['color']] ?? 'text-[#0F4C75]' }}">{{ $stat['value'] }}</div>
             </article>
         @endforeach
     </section>
@@ -326,7 +332,7 @@
                 });
 
                 if (emptyState) {
-                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                    emptyState.classList.toggle('hidden', visibleCount !== 0);
                 }
             };
 
@@ -337,4 +343,3 @@
         });
     </script>
 @endsection
-

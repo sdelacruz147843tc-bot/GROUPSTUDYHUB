@@ -141,6 +141,22 @@
     --sidebar-ring: oklch(0.439 0 0);
 }
 
+html {
+    background-color: oklch(1 0 0);
+    color-scheme: light;
+}
+
+html.dark {
+    background-color: oklch(0.145 0 0);
+    color-scheme: dark;
+}
+
+.toaster {
+    --normal-bg: var(--popover);
+    --normal-text: var(--popover-foreground);
+    --normal-border: var(--border);
+}
+
 @layer base {
     * {
         @apply border-border;

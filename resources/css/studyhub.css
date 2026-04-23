@@ -1,3 +1,60 @@
+@layer utilities {
+    .student-theme-forest {
+        --student-page-bg: radial-gradient(circle at top left, rgba(145, 212, 164, 0.28), transparent 28%), linear-gradient(180deg, #f4f6f1 0%, #edf2ec 100%);
+        --student-sidebar-bg: linear-gradient(180deg, rgba(17, 66, 40, 0.96) 0%, rgba(32, 95, 59, 0.98) 52%, rgba(41, 117, 72, 1) 100%);
+        --student-accent: #49b670;
+        --student-accent-soft: #67d38b;
+        --student-accent-pale: #dff6e3;
+        --student-accent-text: #133521;
+    }
+
+    .student-theme-ocean {
+        --student-page-bg: radial-gradient(circle at top left, rgba(152, 205, 226, 0.26), transparent 26%), linear-gradient(180deg, #f2f7fa 0%, #e8f0f6 100%);
+        --student-sidebar-bg: linear-gradient(180deg, rgba(20, 58, 94, 0.98) 0%, rgba(28, 89, 130, 0.98) 54%, rgba(45, 123, 171, 1) 100%);
+        --student-accent: #3f8fcb;
+        --student-accent-soft: #64afdf;
+        --student-accent-pale: #deeffa;
+        --student-accent-text: #163655;
+    }
+
+    .student-theme-sunset {
+        --student-page-bg: radial-gradient(circle at top left, rgba(255, 205, 169, 0.26), transparent 26%), linear-gradient(180deg, #f9f4ef 0%, #f4ece4 100%);
+        --student-sidebar-bg: linear-gradient(180deg, rgba(105, 49, 31, 0.98) 0%, rgba(144, 73, 45, 0.98) 54%, rgba(191, 110, 67, 1) 100%);
+        --student-accent: #d17344;
+        --student-accent-soft: #e09362;
+        --student-accent-pale: #f9e1d3;
+        --student-accent-text: #5c2d18;
+    }
+
+    .student-surface-soft {
+        --student-card-radius: 22px;
+        --student-card-shadow: 0 24px 42px rgba(66, 95, 76, 0.10);
+        --student-card-border: rgba(195, 215, 203, 0.92);
+    }
+
+    .student-surface-glass {
+        --student-card-radius: 24px;
+        --student-card-shadow: 0 24px 46px rgba(45, 75, 62, 0.12);
+        --student-card-border: rgba(255, 255, 255, 0.40);
+    }
+
+    .student-surface-contrast {
+        --student-card-radius: 18px;
+        --student-card-shadow: 0 20px 38px rgba(37, 58, 48, 0.16);
+        --student-card-border: rgba(149, 176, 159, 0.95);
+    }
+
+    .student-density-comfortable {
+        --student-density-gap: 10px;
+        --student-main-padding: 30px 34px 34px;
+    }
+
+    .student-density-compact {
+        --student-density-gap: 8px;
+        --student-main-padding: 24px 28px 28px;
+    }
+}
+
 @layer components {
     /* Source: resources/views/studyhub/layout.blade.php */
     :root {
@@ -114,10 +171,9 @@
             .login-frame {
                 position: relative;
                 z-index: 1;
-                width: min(100%, 1020px);
-                min-height: min(620px, calc(100vh - 28px));
-                display: grid;
-                grid-template-columns: minmax(360px, 0.92fr) minmax(380px, 1.08fr);
+                width: min(100%, 560px);
+                min-height: auto;
+                display: block;
                 border-radius: 26px;
                 overflow: hidden;
                 border: 1px solid rgba(115, 158, 126, 0.34);
@@ -131,7 +187,10 @@
     
             .login-panel {
                 position: relative;
-                padding: 34px 34px 28px;
+                width: 100%;
+                max-width: 560px;
+                margin: 0 auto;
+                padding: 38px 36px 32px;
                 background:
                     radial-gradient(circle at top left, rgba(167, 214, 179, 0.18), transparent 28%),
                     linear-gradient(180deg, rgba(249, 252, 249, 0.97) 0%, rgba(239, 247, 241, 0.98) 100%);
@@ -139,13 +198,7 @@
             }
     
             .login-panel::before {
-                content: '';
-                position: absolute;
-                top: 34px;
-                bottom: 34px;
-                right: 0;
-                width: 1px;
-                background: linear-gradient(180deg, rgba(124, 167, 136, 0) 0%, rgba(124, 167, 136, 0.36) 20%, rgba(124, 167, 136, 0.36) 80%, rgba(124, 167, 136, 0) 100%);
+                content: none;
             }
     
             .login-panel-topline {
@@ -167,12 +220,15 @@
                 display: inline-grid;
                 gap: 8px;
                 margin-bottom: 14px;
+                width: 100%;
+                justify-items: center;
             }
     
             .brand-lockup {
                 display: inline-flex;
                 align-items: center;
                 gap: 14px;
+                justify-content: center;
             }
     
             .brand-logo-mark {
@@ -213,12 +269,13 @@
     
             .login-copy {
                 margin-top: 0;
-                margin-bottom: 18px;
+                margin-bottom: 22px;
+                text-align: center;
             }
     
             .login-copy h1 {
                 margin: 0;
-                max-width: 260px;
+                max-width: none;
                 color: #13271a;
                 font-size: clamp(1.85rem, 3vw, 2.3rem);
                 line-height: 0.95;
@@ -229,7 +286,8 @@
     
             .login-copy p {
                 margin: 6px 0 0;
-                max-width: 260px;
+                max-width: 360px;
+                margin-inline: auto;
                 color: #63746a;
                 font-size: 0.88rem;
                 line-height: 1.4;
@@ -245,6 +303,15 @@
                 border-radius: 16px;
                 background: rgba(226, 239, 230, 0.86);
                 border: 1px solid rgba(171, 198, 178, 0.42);
+            }
+
+            .login-status,
+            .login-errors,
+            .auth-switch,
+            .auth-panel {
+                max-width: 420px;
+                margin-left: auto;
+                margin-right: auto;
             }
     
             .auth-switch-button {
@@ -431,96 +498,8 @@
                 gap: 12px;
             }
     
-            .login-visual {
-                position: relative;
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-                background:
-                    radial-gradient(circle at 18% 22%, rgba(255,255,255,0.22), transparent 18%),
-                    radial-gradient(circle at 78% 24%, rgba(110, 185, 130, 0.28), transparent 22%),
-                    linear-gradient(160deg, #d3e8d9 0%, #b9dbbf 52%, #d9ebde 100%);
-            }
-    
-            .login-visual::before,
-            .login-visual::after {
-                content: '';
-                position: absolute;
-                inset: auto;
-                border-radius: 50%;
-                pointer-events: none;
-            }
-    
-            .login-visual::before {
-                width: 420px;
-                height: 420px;
-                top: -120px;
-                right: -100px;
-                background: radial-gradient(circle, rgba(114, 179, 133, 0.24) 0%, rgba(114, 179, 133, 0) 72%);
-            }
-    
-            .login-visual::after {
-                width: 360px;
-                height: 360px;
-                bottom: -120px;
-                left: -80px;
-                background: radial-gradient(circle, rgba(74, 139, 94, 0.18) 0%, rgba(74, 139, 94, 0) 72%);
-            }
-    
-            .visual-card {
-                position: relative;
-                z-index: 1;
-                width: 100%;
-                max-width: 100%;
-                min-height: 500px;
-                height: 100%;
-                padding: 0;
-                border-radius: 22px;
-                border: 1px solid rgba(140, 182, 149, 0.34);
-                background: linear-gradient(180deg, rgba(244, 250, 245, 0.42) 0%, rgba(232, 243, 235, 0.18) 100%);
-                box-shadow: 0 18px 34px rgba(57, 95, 67, 0.1);
-                overflow: hidden;
-            }
-    
-            .visual-window {
-                position: relative;
-                min-height: 500px;
-                height: 100%;
-                border-radius: 22px;
-                background:
-                    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), transparent 20%),
-                    radial-gradient(circle at 80% 78%, rgba(206, 235, 214, 0.16), transparent 20%),
-                    linear-gradient(135deg, #73b785 0%, #4f9967 56%, #34734b 100%);
-                overflow: hidden;
-            }
-    
-            .visual-image {
-                position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: center center;
-                display: block;
-                padding: 24px;
-                z-index: 2;
-            }
-    
-            .login-panel::after,
-            .login-visual::after {
+            .login-panel::after {
                 filter: blur(0);
-            }
-    
-            .visual-window::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                border-radius: inherit;
-                border: 1px solid rgba(255,255,255,0.14);
-                pointer-events: none;
-                z-index: 1;
             }
     
             .scene-halo {
@@ -953,21 +932,7 @@
                 }
     
                 .login-frame {
-                    grid-template-columns: 1fr;
-                }
-    
-                .login-visual {
-                    order: -1;
-                    min-height: 340px;
-                    padding: 16px;
-                }
-    
-                .visual-card {
-                    min-height: 320px;
-                }
-    
-                .visual-window {
-                    min-height: 320px;
+                    width: min(100%, 540px);
                 }
     
                 .scene-halo {
@@ -1026,7 +991,7 @@
     
             @media (max-width: 640px) {
                 .login-panel {
-                    padding: 24px 18px 18px;
+                    padding: 24px 18px 20px;
                 }
     
                 .login-copy h1 {
@@ -1725,10 +1690,12 @@
                 display: grid;
                 grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
                 gap: 18px;
-                align-items: start;
+                align-items: stretch;
             }
     
             .dashboard-panel-card {
+                display: flex;
+                flex-direction: column;
                 overflow: hidden;
                 border: 1px solid rgba(196, 219, 204, 0.95);
                 background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,252,249,0.98) 100%);
@@ -1776,20 +1743,18 @@
             }
     
             .panel-body {
+                flex: 1;
                 padding: 16px;
                 display: grid;
                 gap: 14px;
             }
     
-            .notifications-panel {
-                display: flex;
-                flex-direction: column;
-            }
-    
             .notifications-panel .panel-body {
-                max-height: 360px;
+                grid-auto-rows: minmax(96px, 1fr);
+                min-height: 230px;
+                max-height: none;
                 overflow-y: auto;
-                padding-right: 12px;
+                padding: 18px 12px 18px 16px;
                 scrollbar-width: thin;
                 scrollbar-color: color-mix(in srgb, var(--student-accent) 38%, white 62%) transparent;
             }
@@ -1907,7 +1872,9 @@
     
             .notification-row {
                 position: relative;
-                padding-left: 20px;
+                display: grid;
+                align-content: center;
+                padding: 20px 20px 20px 22px;
             }
     
             .notification-row::before {
@@ -3178,9 +3145,9 @@
             }
     
             .session-rsvp.joined {
-                background: color-mix(in srgb, var(--student-accent-pale) 72%, white 28%);
-                color: var(--student-accent-text);
-                border: 1px solid color-mix(in srgb, var(--student-accent) 18%, white 82%);
+                background: linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%);
+                color: #ffffff;
+                border: 0;
                 cursor: default;
             }
     
@@ -5050,9 +5017,9 @@
             }
     
             .session-primary.joined {
-                background: color-mix(in srgb, var(--student-accent-pale) 74%, white 26%);
-                color: var(--student-accent-text);
-                border: 1px solid color-mix(in srgb, var(--student-accent) 22%, white 78%);
+                background: linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%);
+                color: #ffffff;
+                border: 0;
                 cursor: default;
             }
     
@@ -7108,6 +7075,7 @@
 
 .student-shell .session-primary {
     background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent) 88%, white 12%) 100%);
+    color: #ffffff;
     box-shadow: 0 14px 26px color-mix(in srgb, var(--student-accent) 18%, transparent 82%);
 }
 
@@ -7201,4 +7169,3 @@
     font-size: 0.82rem;
     font-weight: 700;
 }
-

@@ -184,14 +184,6 @@
                     </div>
                 </div>
             </section>
-
-            <section class="login-visual" aria-hidden="true">
-                <div class="visual-card">
-                    <div class="visual-window">
-                        <img class="visual-image" src="{{ asset('studyhub-login-illustration.png') }}" alt="StudyHub learning illustration">
-                    </div>
-                </div>
-            </section>
         </div>
     </div>
 
@@ -273,4 +265,3 @@
         });
     </script>
 @endsection
-

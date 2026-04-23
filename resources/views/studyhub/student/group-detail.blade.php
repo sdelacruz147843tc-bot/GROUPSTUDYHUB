@@ -64,7 +64,7 @@
                         <span>Upload</span>
                     </button>
                 @else
-                    <span class="detail-panel-action" style="opacity: 0.72; cursor: default;">
+                    <span class="detail-panel-action cursor-default opacity-70">
                         <span>Join to upload</span>
                     </span>
                 @endif
@@ -344,7 +344,7 @@
                     const hasOpenModal = uploadModal?.classList.contains('is-open')
                         || sessionModal?.classList.contains('is-open')
                         || detailsModal?.classList.contains('is-open');
-                    document.body.style.overflow = hasOpenModal ? 'hidden' : '';
+                    document.body.classList.toggle('overflow-hidden', hasOpenModal);
                 };
 
                 const setModalState = function (modal, isOpen) {
@@ -412,4 +412,3 @@
         </script>
     @endif
 @endsection
-

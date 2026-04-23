@@ -33,25 +33,13 @@
     ];
 
     $currentRoute = request()->route()?->getName();
+    $studentThemeClass = 'student-theme-'.($studentProfile['theme'] ?? 'forest');
+    $studentSurfaceClass = 'student-surface-'.($studentProfile['surface_style'] ?? 'soft');
+    $studentDensityClass = 'student-density-'.($studentProfile['interface_density'] ?? 'comfortable');
 @endphp
 
 @section('content')
-    <div
-        class="studyhub-shell app-shell student-shell"
-        style="
-            --student-page-bg: {{ $studentTheme['page_bg'] }};
-            --student-sidebar-bg: {{ $studentTheme['sidebar_bg'] }};
-            --student-accent: {{ $studentTheme['accent'] }};
-            --student-accent-soft: {{ $studentTheme['accent_soft'] }};
-            --student-accent-pale: {{ $studentTheme['accent_pale'] }};
-            --student-accent-text: {{ $studentTheme['accent_text'] }};
-            --student-card-radius: {{ $studentTheme['card_radius'] }};
-            --student-card-shadow: {{ $studentTheme['card_shadow'] }};
-            --student-card-border: {{ $studentTheme['card_border'] }};
-            --student-density-gap: {{ $studentProfile['interface_density'] === 'compact' ? '8px' : '10px' }};
-            --student-main-padding: {{ $studentProfile['interface_density'] === 'compact' ? '24px 28px 28px' : '30px 34px 34px' }};
-        "
-    >
+    <div class="studyhub-shell app-shell student-shell {{ $studentThemeClass }} {{ $studentSurfaceClass }} {{ $studentDensityClass }}">
         <aside class="app-sidebar">
             <div class="sidebar-brand">
                 <span class="sidebar-kicker">Student Workspace</span>
@@ -125,4 +113,3 @@
         </main>
     </div>
 @endsection
-

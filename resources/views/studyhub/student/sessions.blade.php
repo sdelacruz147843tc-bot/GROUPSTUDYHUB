@@ -28,7 +28,7 @@
                 $isFull = (int) $session['attendees'] >= (int) $session['max_attendees'];
             @endphp
             <article class="content-card session-card">
-                <div class="session-topline" style="background: {{ $session['status'] === 'confirmed' ? 'linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%)' : 'linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 70%, #f6b066 30%) 0%, color-mix(in srgb, var(--student-accent) 45%, #d98045 55%) 100%)' }}"></div>
+                <div class="session-topline {{ $session['status'] === 'confirmed' ? 'bg-[linear-gradient(135deg,var(--student-accent-soft)_0%,var(--student-accent)_100%)]' : 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--student-accent-soft)_70%,#f6b066_30%)_0%,color-mix(in_srgb,var(--student-accent)_45%,#d98045_55%)_100%)]' }}"></div>
                 <div class="session-body">
                     <div class="session-header">
                         <div>
@@ -127,7 +127,7 @@
             <article class="past-row">
                 <div>
                     <h3>{{ $session['title'] }}</h3>
-                    <p><strong style="color:var(--student-accent);">{{ $session['group'] }}</strong> | {{ $session['date'] }} | {{ $session['time'] }} | {{ $session['attendees'] }} attendees</p>
+                    <p><strong class="text-[var(--student-accent)]">{{ $session['group'] }}</strong> | {{ $session['date'] }} | {{ $session['time'] }} | {{ $session['attendees'] }} attendees</p>
                 </div>
                 <button
                     class="secondary-button"
@@ -288,7 +288,7 @@
                 }
 
                 modal.classList.toggle('is-open', isOpen);
-                document.body.style.overflow = (scheduleModal?.classList.contains('is-open') || detailsModal?.classList.contains('is-open')) ? 'hidden' : '';
+                document.body.classList.toggle('overflow-hidden', scheduleModal?.classList.contains('is-open') || detailsModal?.classList.contains('is-open'));
             };
 
             scheduleOpenButtons.forEach(function (button) {
@@ -332,9 +332,8 @@
             });
 
             if (scheduleModal && scheduleModal.classList.contains('is-open')) {
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('overflow-hidden');
             }
         });
     </script>
 @endsection
-

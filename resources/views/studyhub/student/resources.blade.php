@@ -159,7 +159,7 @@
 
             const setModalState = function (isOpen) {
                 modal.classList.toggle('is-open', isOpen);
-                document.body.style.overflow = isOpen ? 'hidden' : '';
+                document.body.classList.toggle('overflow-hidden', isOpen);
             };
 
             openButton.addEventListener('click', function () {
@@ -209,7 +209,7 @@
                 });
 
                 if (emptyState) {
-                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                    emptyState.classList.toggle('hidden', visibleCount !== 0);
                 }
             };
 
@@ -232,9 +232,8 @@
             applyResourceFilters();
 
             if (modal.classList.contains('is-open')) {
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('overflow-hidden');
             }
         });
     </script>
 @endsection
-
