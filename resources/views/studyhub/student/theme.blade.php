@@ -2,110 +2,106 @@
 
 @section('title', 'Theme')
 
+@php
+    $appearance = old('appearance', ($studentProfileForm['theme'] ?? 'forest') === 'dark' ? 'dark' : 'light');
+@endphp
+
 @section('page')
     <div class="theme-page-header">
         <h2 class="page-title">Theme</h2>
-        <p class="page-subtitle">Control the visual style of your StudyHub student workspace separately from your personal profile details.</p>
+        <p class="page-subtitle">Switch your StudyHub workspace between light and dark mode.</p>
     </div>
 
-    <div class="theme-layout">
+    <div class="theme-layout theme-layout-simple">
         <div>
-            <form method="POST" action="{{ route('studyhub.student.theme.update') }}">
+            <form method="POST" action="{{ route('studyhub.student.theme.update') }}" data-student-theme-form>
                 @csrf
                 @method('PUT')
 
-                <section class="content-card theme-card">
-                    <h3>Color Theme</h3>
-                    <p class="theme-card-copy">Choose the overall mood for your student workspace.</p>
-
-                    <div class="option-grid">
-                        @foreach ($profileOptions['themes'] as $option)
-                            <label class="option-card">
-                                <input type="radio" name="theme" value="{{ $option['value'] }}" {{ old('theme', $studentProfileForm['theme']) === $option['value'] ? 'checked' : '' }}>
-                                <span class="option-card-body">
-                                    <span class="theme-swatch theme-{{ $option['value'] }}">
-                                        <span></span><span></span><span></span>
-                                    </span>
-                                    <span class="option-card-title">{{ $option['label'] }}</span>
-                                    <span class="option-card-copy">{{ $option['description'] }}</span>
-                                </span>
-                            </label>
-                        @endforeach
+                <section class="content-card theme-card theme-mode-card">
+                    <div class="theme-section-head">
+                        <h3>Appearance</h3>
                     </div>
-                </section>
 
-                <section class="content-card theme-card">
-                    <h3>Surface Style</h3>
-                    <p class="theme-card-copy">Adjust how cards and panels feel across the student pages.</p>
+                    <input name="appearance" type="hidden" value="{{ $appearance }}" data-student-theme-input>
 
-                    <div class="option-grid two-column">
-                        @foreach ($profileOptions['surface_styles'] as $option)
-                            <label class="option-card">
-                                <input type="radio" name="surface_style" value="{{ $option['value'] }}" {{ old('surface_style', $studentProfileForm['surface_style']) === $option['value'] ? 'checked' : '' }}>
-                                <span class="option-card-body">
-                                    <span class="option-card-title">{{ $option['label'] }}</span>
-                                    <span class="option-card-copy">{{ $option['description'] }}</span>
-                                </span>
-                            </label>
-                        @endforeach
-                    </div>
-                </section>
-
-                <section class="content-card theme-card">
-                    <h3>Interface Density</h3>
-                    <p class="theme-card-copy">Choose whether the layout feels roomy or more information-dense.</p>
-
-                    <div class="option-grid two-column">
-                        @foreach ($profileOptions['densities'] as $option)
-                            <label class="option-card">
-                                <input type="radio" name="interface_density" value="{{ $option['value'] }}" {{ old('interface_density', $studentProfileForm['interface_density']) === $option['value'] ? 'checked' : '' }}>
-                                <span class="option-card-body">
-                                    <span class="option-card-title">{{ $option['label'] }}</span>
-                                    <span class="option-card-copy">{{ $option['description'] }}</span>
-                                </span>
-                            </label>
-                        @endforeach
-                    </div>
+                    <button class="student-theme-toggle {{ $appearance === 'dark' ? 'is-dark' : '' }}" type="button" aria-pressed="{{ $appearance === 'dark' ? 'true' : 'false' }}" data-student-theme-toggle>
+                        <span class="student-theme-toggle-label" data-student-theme-label>{{ $appearance === 'dark' ? 'Dark' : 'Light' }}</span>
+                        <span class="student-theme-toggle-track" aria-hidden="true">
+                            <span class="student-theme-toggle-thumb"></span>
+                        </span>
+                    </button>
 
                     <div class="theme-actions">
-                        <button class="action-button" type="submit">Save Theme</button>
+                        <button class="action-button" type="submit" data-loading-label="Saving theme...">Save Theme</button>
                         <a class="secondary-button" href="{{ route('studyhub.student.profile') }}">Back To Profile</a>
-                    </div>
-                </section>
-            </form>
-
-            <form method="POST" action="{{ route('studyhub.student.theme.update') }}">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="reset_defaults" value="1">
-                <section class="content-card theme-card">
-                    <h3>Reset Appearance</h3>
-                    <p class="theme-card-copy">Reset your colors, surfaces, and spacing back to the default StudyHub theme.</p>
-                    <div class="theme-actions">
-                        <button class="secondary-button" type="submit">Reset Theme</button>
                     </div>
                 </section>
             </form>
         </div>
 
         <aside class="theme-preview">
-            <h3>Theme Preview</h3>
-            <p class="theme-card-copy">Your current appearance settings shape the student pages right away.</p>
+            <h3>Preview</h3>
 
             <div class="preview-shell">
                 <div class="preview-sidebar">
-                    <span class="preview-chip">{{ ucfirst($studentProfile['theme']) }}</span>
-                    <span class="preview-chip">{{ ucfirst($studentProfile['surface_style']) }}</span>
-                    <span class="preview-chip">{{ ucfirst($studentProfile['interface_density']) }}</span>
+                    <span class="preview-chip" data-student-theme-preview>{{ ucfirst($appearance) }}</span>
                 </div>
 
                 <div class="preview-card">
                     <h4>Student Workspace</h4>
-                    <p>Cards, spacing, and accents update from the choices on this page.</p>
                     <span class="preview-button">Preview Style</span>
                 </div>
             </div>
         </aside>
     </div>
-@endsection
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const shell = document.querySelector('.student-shell');
+            const toggle = document.querySelector('[data-student-theme-toggle]');
+            const input = document.querySelector('[data-student-theme-input]');
+            const label = document.querySelector('[data-student-theme-label]');
+            const preview = document.querySelector('[data-student-theme-preview]');
+
+            function applyTheme(theme) {
+                const isDark = theme === 'dark';
+
+                if (shell) {
+                    shell.classList.toggle('student-theme-dark', isDark);
+                }
+
+                if (toggle) {
+                    toggle.classList.toggle('is-dark', isDark);
+                    toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                }
+
+                if (input) {
+                    input.value = isDark ? 'dark' : 'light';
+                }
+
+                if (label) {
+                    label.textContent = isDark ? 'Dark' : 'Light';
+                }
+
+                if (preview) {
+                    preview.textContent = isDark ? 'Dark' : 'Light';
+                }
+
+                try {
+                    localStorage.setItem('studyhub-login-theme', isDark ? 'dark' : 'light');
+                } catch (error) {
+                    // Browser storage can be unavailable in private contexts.
+                }
+            }
+
+            if (toggle && input) {
+                toggle.addEventListener('click', function () {
+                    applyTheme(input.value === 'dark' ? 'light' : 'dark');
+                });
+
+                applyTheme(input.value === 'dark' ? 'dark' : 'light');
+            }
+        });
+    </script>
+@endsection

@@ -3,14 +3,90 @@
 @section('title', 'Study Groups')
 
 @php
-    $groupCoverThemes = [
-        'Computer Science 301' => 'bg-gradient-to-br from-[#0f4c75] to-[#3282b8]',
-        'Data Structures Study' => 'bg-gradient-to-br from-[#1f6348] to-[#6ec191]',
-        'Calculus II Prep' => 'bg-gradient-to-br from-[#79531e] to-[#ffc15e]',
-        'Web Development' => 'bg-gradient-to-br from-[#5e3d8a] to-[#8c76ff]',
-        'Database Systems' => 'bg-gradient-to-br from-[#145868] to-[#4dbad0]',
-        'Machine Learning Basics' => 'bg-gradient-to-br from-[#973e5d] to-[#f18ab1]',
+    $createGroupErrors = $errors->createGroup;
+    $joinGroupErrors = $errors->joinGroup;
+    $failedJoinGroupId = (int) old('join_group_id');
+    $failedJoinGroup = collect($groups)->firstWhere('id', $failedJoinGroupId);
+    $groupCategoryChips = ['All Groups', 'Mathematics', 'Programming', 'Science', 'Language', 'Business', 'Design', 'Other'];
+    $groupCategoryAliases = [
+        'mathematics' => ['mathematics', 'math', 'calculus', 'algebra', 'geometry', 'statistics', 'trigonometry'],
+        'programming' => ['programming', 'computer science', 'coding', 'code', 'web', 'software', 'database', 'artificial intelligence', 'ai'],
+        'science' => ['science', 'biology', 'chemistry', 'physics', 'research'],
+        'language' => ['language', 'english', 'filipino', 'writing', 'literature'],
+        'business' => ['business', 'finance', 'accounting', 'marketing', 'information system', 'information systems'],
+        'design' => ['design', 'art', 'ui', 'ux', 'graphics'],
+        'other' => ['other', 'general'],
     ];
+    $groupImages = [
+        'artificial intelligence' => 'Artificial intelegence.png',
+        'business' => 'business.png',
+        'calculus' => 'Mathematics.png',
+        'computer science' => 'Computer Science.png',
+        'database' => 'Information system.png',
+        'design' => 'design.png',
+        'english' => 'General.png',
+        'general' => 'General.png',
+        'information system' => 'Information system.png',
+        'information systems' => 'Information system.png',
+        'language' => 'language.png',
+        'math' => 'Mathematics.png',
+        'mathematics' => 'Mathematics.png',
+        'other' => 'General.png',
+        'programming' => 'Programming.png',
+        'research' => 'General.png',
+        'science' => 'science.png',
+        'web' => 'Programming.png',
+    ];
+    $groupThemes = [
+        'artificial intelligence' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+        'business' => ['rgb' => '37, 18, 82', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+        'calculus' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'computer science' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'database' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+        'design' => ['rgb' => '92, 43, 4', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+        'english' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+        'general' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+        'information system' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+        'information systems' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+        'language' => ['rgb' => '8, 46, 95', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'math' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'mathematics' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'other' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+        'programming' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+        'research' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+        'science' => ['rgb' => '6, 52, 27', 'accent' => '34, 197, 94', 'accentHex' => '#86efac'],
+        'web' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+    ];
+    $groupThemeFor = function (array $group) use ($groupImages, $groupThemes): array {
+        $haystack = strtolower(($group['category'] ?? '').' '.($group['name'] ?? '').' '.($group['description'] ?? ''));
+
+        foreach ($groupImages as $keyword => $image) {
+            if (str_contains($haystack, $keyword)) {
+                return [
+                    'image' => asset('images/'.$image),
+                    'theme' => $groupThemes[$keyword] ?? $groupThemes['general'],
+                ];
+            }
+        }
+
+        return [
+            'image' => asset('images/General.png'),
+            'theme' => $groupThemes['general'],
+        ];
+    };
+    $groupFilterCategoryFor = function (array $group) use ($groupCategoryAliases): string {
+        $haystack = strtolower(($group['category'] ?? '').' '.($group['name'] ?? '').' '.($group['description'] ?? ''));
+
+        foreach ($groupCategoryAliases as $category => $aliases) {
+            foreach ($aliases as $alias) {
+                if (str_contains($haystack, $alias)) {
+                    return $category;
+                }
+            }
+        }
+
+        return 'other';
+    };
 @endphp
 
 @section('page')
@@ -22,12 +98,12 @@
         <div class="groups-controls">
             <div class="search-box">
                 <span class="icon-box">{!! $icons['search'] !!}</span>
-                <input type="text" placeholder="Search groups..." data-group-search>
+                <input type="text" placeholder="Search groups by name, subject, or keyword..." data-group-search>
             </div>
             <select class="groups-filter-select" data-group-category>
                 <option value="">All Categories</option>
-                @foreach (collect($groups)->pluck('category')->filter()->unique()->sort()->values() as $category)
-                    <option value="{{ $category }}">{{ $category }}</option>
+                @foreach (collect($groupCategories)->reject(fn ($category) => $category === 'General')->values() as $category)
+                    <option value="{{ strtolower($category) }}">{{ $category }}</option>
                 @endforeach
             </select>
             <select class="groups-filter-select" data-group-visibility>
@@ -43,27 +119,74 @@
         </div>
     </div>
 
+    <div class="groups-category-strip" aria-label="Group categories">
+        @foreach ($groupCategoryChips as $chip)
+            @php $chipValue = $chip === 'All Groups' ? '' : strtolower($chip); @endphp
+            <button
+                class="group-category-chip {{ $loop->first ? 'is-active' : '' }}"
+                type="button"
+                data-group-category-chip="{{ $chipValue }}"
+            >
+                {{ $chip }}
+            </button>
+        @endforeach
+    </div>
+
+    <section class="groups-feature-strip">
+        <button class="groups-feature-dismiss" type="button" aria-label="Dismiss">&times;</button>
+        <div class="groups-feature-art" style="--groups-feature-image: url('{{ asset('images/up.png') }}');"></div>
+        <div class="groups-feature-copy">
+            <h3>Study better together!</h3>
+            <p>Collaborate, share resources, and achieve more as a team.</p>
+        </div>
+        <div class="groups-feature-item">
+            <span class="icon-box">{!! $icons['users'] !!}</span>
+            <strong>Collaborate</strong>
+            <span>Work together seamlessly</span>
+        </div>
+        <div class="groups-feature-item">
+            <span class="icon-box">{!! $icons['file'] ?? $icons['resources'] ?? $icons['book'] !!}</span>
+            <strong>Share Resources</strong>
+            <span>Access quality materials</span>
+        </div>
+        <div class="groups-feature-item">
+            <span class="icon-box">{!! $icons['chart'] ?? $icons['sparkles'] ?? $icons['users'] !!}</span>
+            <strong>Achieve Goals</strong>
+            <span>Learn and grow together</span>
+        </div>
+    </section>
+
     <section class="groups-grid">
         @foreach ($groups as $group)
+            @php
+                $isJoined = in_array((int) $group['id'], $joinedGroupIds ?? [], true);
+                $meetingStyle = ucfirst(str_replace('-', ' ', $group['meeting_style'] ?? 'in-person'));
+                $groupTheme = $groupThemeFor($group);
+                $filterCategory = $groupFilterCategoryFor($group);
+            @endphp
             <article
                 class="content-card group-card"
+                style="--group-bg-image: url('{{ $groupTheme['image'] }}'); --group-card-rgb: {{ $groupTheme['theme']['rgb'] }}; --group-card-accent-rgb: {{ $groupTheme['theme']['accent'] }}; --group-card-accent: {{ $groupTheme['theme']['accentHex'] }};"
                 data-group-card
                 data-name="{{ strtolower($group['name']) }}"
                 data-description="{{ strtolower($group['description']) }}"
                 data-category="{{ strtolower($group['category'] ?? 'general') }}"
+                data-filter-category="{{ $filterCategory }}"
                 data-visibility="{{ strtolower($group['visibility'] ?? 'public') }}"
-                data-joined="{{ in_array((int) $group['id'], $joinedGroupIds ?? [], true) ? 'yes' : 'no' }}"
+                data-joined="{{ $isJoined ? 'yes' : 'no' }}"
             >
                 <a class="group-card-link" href="{{ route('studyhub.student.group.show', $group['id']) }}">
-                    <div class="group-card-cover {{ $groupCoverThemes[$group['name']] ?? 'bg-gradient-to-b from-[#9be3ae] to-[#8fdda5]' }}">
+                    <div class="group-card-cover">
                         <span class="icon-box group-card-icon">{!! $icons['users'] !!}</span>
                     </div>
                     <div class="group-card-body">
                         <div class="group-card-content">
+                            <span class="group-card-access">{{ $meetingStyle }}</span>
                             <h3 class="group-card-title">{{ $group['name'] }}</h3>
+                            <p class="group-card-copy">{{ $group['description'] }}</p>
                             <div class="group-card-tags">
                                 <span class="group-card-tag">{{ $group['category'] ?? 'General' }}</span>
-                                <span class="group-card-tag">{{ ucfirst(str_replace('-', ' ', $group['meeting_style'] ?? 'in-person')) }}</span>
+                                <span class="group-card-tag">{{ $meetingStyle }}</span>
                                 @if (($group['visibility'] ?? 'public') === 'private')
                                     <span class="group-card-tag private">
                                         <span class="icon-box">{!! $icons['lock'] !!}</span>
@@ -71,7 +194,6 @@
                                     </span>
                                 @endif
                             </div>
-                            <p class="group-card-copy">{{ $group['description'] }}</p>
                             <div class="group-card-meta">
                                 <span class="group-card-meta-item">
                                     <span class="icon-box">{!! $icons['users'] !!}</span>
@@ -86,14 +208,21 @@
                 </a>
                 <div class="group-card-actions">
                     <a class="group-open-link" href="{{ route('studyhub.student.group.show', $group['id']) }}">Open</a>
-                    @if (in_array((int) $group['id'], $joinedGroupIds ?? [], true))
-                        <span class="group-join-button joined">Joined</span>
+                    @if ($isJoined)
+                        <span class="group-join-button joined">Joined ✓</span>
                     @elseif (($group['visibility'] ?? 'public') === 'private')
-                        <a class="group-join-button private" href="{{ route('studyhub.student.group.show', $group['id']) }}">Private</a>
+                        <button
+                            class="group-join-button private"
+                            type="button"
+                            data-private-join-open
+                            data-join-action="{{ route('studyhub.student.groups.join', $group['id']) }}"
+                            data-join-group-id="{{ $group['id'] }}"
+                            data-join-group-name="{{ $group['name'] }}"
+                        >Join</button>
                     @else
                         <form class="group-join-form" method="POST" action="{{ route('studyhub.student.groups.join', $group['id']) }}">
                             @csrf
-                            <button class="group-join-button" type="submit">Join</button>
+                            <button class="group-join-button" type="submit" data-loading-label="Joining...">Join</button>
                         </form>
                     @endif
                 </div>
@@ -101,53 +230,97 @@
         @endforeach
     </section>
 
-    <div class="groups-empty-state" data-groups-empty>
-        No study groups match your current search or filters.
+    <div class="groups-empty-state app-empty-state hidden" data-groups-empty>
+        <span class="app-empty-icon">{!! $icons['users'] !!}</span>
+        <strong>No groups found</strong>
+        <span>Try a different search or start a new study group.</span>
+        <button class="app-empty-action" type="button" data-create-group-open>Create Group</button>
     </div>
 
-    <div class="groups-create-modal @if ($errors->any()) is-open @endif" data-create-group-modal>
-        <button class="groups-create-backdrop" type="button" aria-label="Close create group form" data-create-group-close></button>
-        <div class="groups-create-panel">
-            <div class="groups-create-header">
-                <div class="groups-create-intro">
-                    <span class="groups-create-kicker">New Workspace</span>
-                    <h3 class="groups-create-title">Start a new study group</h3>
-                    <p class="groups-create-copy">Set up a space for classmates to share resources, plan sessions, and keep discussions in one place.</p>
-                </div>
-                <button class="groups-create-close" type="button" aria-label="Close create group form" data-create-group-close>&times;</button>
+    <x-studyhub.modal
+        title="Join private group"
+        :subtitle="$failedJoinGroup ? $failedJoinGroup['name'] : 'Enter the group code'"
+        close-data="data-private-join-close"
+        :open="$joinGroupErrors->any()"
+        size="sm"
+        data-private-join-modal
+    >
+        @if ($joinGroupErrors->any())
+            <div class="groups-errors" role="alert" aria-live="polite">
+                {{ $joinGroupErrors->first('join_code') }}
             </div>
+        @endif
 
-            <div class="groups-create-body">
-                @if ($errors->any())
-                    <div class="groups-errors">
-                        Please fix the following before creating the group:
+        <form class="grid gap-4" method="POST" action="{{ $failedJoinGroup ? route('studyhub.student.groups.join', $failedJoinGroup['id']) : '#' }}" data-private-join-form>
+            @csrf
+            <input type="hidden" name="join_group_id" value="{{ $failedJoinGroupId ?: '' }}" data-private-join-group-id>
+
+            <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                <span class="text-sm font-extrabold text-[#244231]">Join code</span>
+                <input
+                    class="h-[54px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                    type="text"
+                    name="join_code"
+                    maxlength="24"
+                    placeholder="Enter the private group code"
+                    value="{{ old('join_code') }}"
+                    data-private-join-code
+                    required
+                >
+            </label>
+
+            <div class="flex justify-end gap-3">
+                <button class="secondary-button" type="button" data-private-join-close>Cancel</button>
+                <button class="group-join-button" type="submit" data-loading-label="Joining...">Join Group</button>
+            </div>
+        </form>
+    </x-studyhub.modal>
+
+    <x-studyhub.modal
+        title="Start a new study group"
+        subtitle="Set up a space for classmates to share resources, plan sessions, and keep discussions in one place."
+        close-data="data-create-group-close"
+        :open="$createGroupErrors->any()"
+        size="xl"
+        data-create-group-modal
+    >
+        <x-slot:kicker>
+            <span class="inline-flex min-h-8 items-center rounded-full bg-white/75 px-4 text-xs font-black uppercase tracking-[0.08em] text-[#244231]">New Workspace</span>
+        </x-slot:kicker>
+                @if ($createGroupErrors->any())
+                    <div class="groups-errors" role="alert" aria-live="polite">
+                        <strong>Group was not created</strong>
                         <ul>
-                            @foreach ($errors->all() as $error)
+                            @foreach ($createGroupErrors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
 
-                <form class="groups-form" method="POST" action="{{ route('studyhub.student.groups.store') }}">
+                <form class="grid grid-cols-1 gap-3 md:grid-cols-2" method="POST" action="{{ route('studyhub.student.groups.store') }}">
                     @csrf
-                    <label class="groups-field">
-                        <span class="groups-label">Group name</span>
-                        <input class="groups-input" type="text" name="name" maxlength="80" placeholder="Operating Systems Review" value="{{ old('name') }}" required>
+                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                        <span class="text-sm font-extrabold text-[#244231]">Group name</span>
+                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="name" maxlength="80" placeholder="Operating Systems Review" value="{{ old('name') }}" required>
                     </label>
 
-                    <label class="groups-field">
-                        <span class="groups-label">Category</span>
-                        <input class="groups-input" type="text" name="category" maxlength="40" placeholder="Computer Science" value="{{ old('category') }}">
+                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                        <span class="text-sm font-extrabold text-[#244231]">Category</span>
+                        <select class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="category">
+                            @foreach ($groupCategories as $category)
+                                <option value="{{ $category }}" @selected(old('category', 'General') === $category)>{{ $category }}</option>
+                            @endforeach
+                        </select>
                     </label>
 
-                    <label class="groups-field groups-field-full">
-                        <span class="groups-label">Description</span>
-                        <textarea class="groups-textarea" name="description" maxlength="160" placeholder="Share notes and plan review sessions." required>{{ old('description') }}</textarea>
+                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
+                        <span class="text-sm font-extrabold text-[#244231]">Description</span>
+                        <textarea class="min-h-[120px] w-full resize-y rounded-2xl border border-emerald-100 bg-white/95 p-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="description" maxlength="160" placeholder="Share notes and plan review sessions." required>{{ old('description') }}</textarea>
                     </label>
 
-                    <div class="groups-field groups-field-full">
-                        <span class="groups-label">Meeting style</span>
+                    <div class="rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
+                        <span class="mb-3 block text-sm font-extrabold text-[#244231]">Meeting style</span>
                         <div class="groups-style-grid">
                             <label class="groups-style-option">
                                 <input type="radio" name="meeting_style" value="in-person" @checked(old('meeting_style', 'in-person') === 'in-person')>
@@ -184,8 +357,8 @@
                         </div>
                     </div>
 
-                    <div class="groups-field groups-field-full">
-                        <span class="groups-label">Visibility</span>
+                    <div class="rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
+                        <span class="mb-3 block text-sm font-extrabold text-[#244231]">Visibility</span>
                         <div class="groups-visibility-grid">
                             <label class="groups-style-option">
                                 <input type="radio" name="visibility" value="public" @checked(old('visibility', 'public') === 'public')>
@@ -211,56 +384,105 @@
                         </div>
                     </div>
 
-                    <label class="groups-field groups-field-full">
-                        <span class="groups-label">Join code</span>
-                        <input class="groups-input" type="text" name="join_code" maxlength="24" placeholder="Only for private groups" value="{{ old('join_code') }}">
-                        <span class="groups-join-hint">Leave blank for public groups.</span>
+                    <label class="groups-join-code-field flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2" data-join-code-field>
+                        <span class="text-sm font-extrabold text-[#244231]">Join code</span>
+                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="join_code" maxlength="24" placeholder="Only for private groups" value="{{ old('join_code') }}">
                     </label>
 
-                    <div class="groups-form-actions">
-                        <button class="groups-submit" type="submit">Create group</button>
+                    <div class="sticky bottom-0 -mx-5 mt-1 flex justify-end border-t border-emerald-100 bg-white/90 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6 md:col-span-2">
+                        <button class="min-h-[54px] w-full rounded-2xl bg-emerald-500 px-6 font-extrabold text-white shadow-[0_14px_28px_rgba(73,182,112,0.22)] transition hover:bg-emerald-600 sm:w-auto sm:min-w-[180px]" type="submit" data-loading-label="Creating group...">Create Group</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
+    </x-studyhub.modal>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const modal = document.querySelector('[data-create-group-modal]');
+            const privateJoinModal = document.querySelector('[data-private-join-modal]');
+            const privateJoinForm = document.querySelector('[data-private-join-form]');
+            const privateJoinGroupIdInput = document.querySelector('[data-private-join-group-id]');
+            const privateJoinCodeInput = document.querySelector('[data-private-join-code]');
+            const privateJoinOpenButtons = document.querySelectorAll('[data-private-join-open]');
+            const privateJoinCloseButtons = document.querySelectorAll('[data-private-join-close]');
             const openButton = document.querySelector('[data-create-group-open]');
             const closeButtons = document.querySelectorAll('[data-create-group-close]');
+            const visibilityInputs = document.querySelectorAll('input[name="visibility"]');
+            const joinCodeField = document.querySelector('[data-join-code-field]');
 
-            if (! modal || ! openButton) {
+            if (! modal || ! openButton || ! privateJoinModal) {
                 return;
             }
 
-            const setModalState = function (isOpen) {
-                modal.classList.toggle('is-open', isOpen);
-                document.body.classList.toggle('overflow-hidden', isOpen);
+            const syncBodyOverflow = function () {
+                document.body.classList.toggle('overflow-hidden', modal.classList.contains('is-open') || privateJoinModal.classList.contains('is-open'));
+            };
+
+            const setModalState = function (targetModal, isOpen) {
+                targetModal.classList.toggle('is-open', isOpen);
+                syncBodyOverflow();
             };
 
             openButton.addEventListener('click', function () {
-                setModalState(true);
+                setModalState(modal, true);
             });
 
             closeButtons.forEach(function (button) {
                 button.addEventListener('click', function () {
-                    setModalState(false);
+                    setModalState(modal, false);
+                });
+            });
+
+            privateJoinOpenButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    privateJoinForm.action = button.dataset.joinAction;
+                    privateJoinGroupIdInput.value = button.dataset.joinGroupId;
+                    privateJoinModal.querySelector('p')?.replaceChildren(document.createTextNode(button.dataset.joinGroupName || 'Enter the group code'));
+                    privateJoinCodeInput.value = '';
+                    setModalState(privateJoinModal, true);
+                    privateJoinCodeInput.focus();
+                });
+            });
+
+            privateJoinCloseButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setModalState(privateJoinModal, false);
                 });
             });
 
             document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-                    setModalState(false);
+                if (event.key === 'Escape') {
+                    setModalState(modal, false);
+                    setModalState(privateJoinModal, false);
                 }
             });
+
+            const syncJoinCodeField = function () {
+                const selectedVisibility = document.querySelector('input[name="visibility"]:checked')?.value || 'public';
+                joinCodeField?.classList.toggle('is-visible', selectedVisibility === 'private');
+            };
+
+            visibilityInputs.forEach(function (input) {
+                input.addEventListener('change', syncJoinCodeField);
+            });
+            syncJoinCodeField();
 
             const searchInput = document.querySelector('[data-group-search]');
             const categorySelect = document.querySelector('[data-group-category]');
             const visibilitySelect = document.querySelector('[data-group-visibility]');
+            const categoryChips = Array.from(document.querySelectorAll('[data-group-category-chip]'));
             const cards = Array.from(document.querySelectorAll('[data-group-card]'));
             const emptyState = document.querySelector('[data-groups-empty]');
+            const featureStrip = document.querySelector('.groups-feature-strip');
+            const featureDismiss = document.querySelector('.groups-feature-dismiss');
+
+            const syncCategoryChips = function () {
+                const category = (categorySelect?.value || '').trim().toLowerCase();
+
+                categoryChips.forEach(function (chip) {
+                    chip.classList.toggle('is-active', (chip.dataset.groupCategoryChip || '') === category);
+                    chip.setAttribute('aria-pressed', (chip.dataset.groupCategoryChip || '') === category ? 'true' : 'false');
+                });
+            };
 
             const applyGroupFilters = function () {
                 const searchTerm = (searchInput?.value || '').trim().toLowerCase();
@@ -272,8 +494,11 @@
                     const matchesSearch = searchTerm === ''
                         || card.dataset.name.includes(searchTerm)
                         || card.dataset.description.includes(searchTerm)
-                        || card.dataset.category.includes(searchTerm);
-                    const matchesCategory = category === '' || card.dataset.category === category;
+                        || card.dataset.category.includes(searchTerm)
+                        || card.dataset.filterCategory.includes(searchTerm);
+                    const matchesCategory = category === ''
+                        || card.dataset.filterCategory === category
+                        || card.dataset.category === category;
                     const matchesVisibility = visibility === ''
                         || (visibility === 'joined' && card.dataset.joined === 'yes')
                         || (visibility !== 'joined' && card.dataset.visibility === visibility);
@@ -292,13 +517,33 @@
             };
 
             searchInput?.addEventListener('input', applyGroupFilters);
-            categorySelect?.addEventListener('change', applyGroupFilters);
+            categorySelect?.addEventListener('change', function () {
+                syncCategoryChips();
+                applyGroupFilters();
+            });
+            categoryChips.forEach(function (chip) {
+                chip.setAttribute('aria-pressed', chip.classList.contains('is-active') ? 'true' : 'false');
+
+                chip.addEventListener('click', function () {
+                    if (categorySelect) {
+                        categorySelect.value = chip.dataset.groupCategoryChip || '';
+                    }
+
+                    syncCategoryChips();
+                    applyGroupFilters();
+                });
+            });
             visibilitySelect?.addEventListener('change', applyGroupFilters);
+            featureDismiss?.addEventListener('click', function () {
+                featureStrip?.classList.add('is-hidden');
+            });
+            syncCategoryChips();
             applyGroupFilters();
 
-            if (modal.classList.contains('is-open')) {
-                document.body.classList.add('overflow-hidden');
+            if (privateJoinModal.classList.contains('is-open')) {
+                privateJoinCodeInput?.focus();
             }
+            syncBodyOverflow();
         });
     </script>
 @endsection

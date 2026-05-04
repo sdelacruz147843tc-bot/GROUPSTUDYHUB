@@ -33,13 +33,30 @@
     ];
 
     $currentRoute = request()->route()?->getName();
-    $studentThemeClass = 'student-theme-'.($studentProfile['theme'] ?? 'forest');
+    $studentAppearance = ($studentProfile['theme'] ?? 'forest') === 'dark' ? 'dark' : 'light';
+    $studentThemeClass = 'student-theme-forest';
     $studentSurfaceClass = 'student-surface-'.($studentProfile['surface_style'] ?? 'soft');
     $studentDensityClass = 'student-density-'.($studentProfile['interface_density'] ?? 'comfortable');
 @endphp
 
 @section('content')
-    <div class="studyhub-shell app-shell student-shell {{ $studentThemeClass }} {{ $studentSurfaceClass }} {{ $studentDensityClass }}">
+    <div class="studyhub-shell app-shell student-shell student-dashboard-shell {{ $studentThemeClass }} {{ $studentSurfaceClass }} {{ $studentDensityClass }}">
+        <script>
+            (function () {
+                try {
+                    var theme = '{{ $studentAppearance }}';
+                    var shell = document.currentScript.parentElement;
+
+                    if (shell) {
+                        shell.classList.toggle('student-theme-dark', theme === 'dark');
+                    }
+
+                    localStorage.setItem('studyhub-login-theme', theme);
+                } catch (error) {
+                    // Keep the default light dashboard when browser storage is unavailable.
+                }
+            })();
+        </script>
         <aside class="app-sidebar">
             <div class="sidebar-brand">
                 <span class="sidebar-kicker">Student Workspace</span>
@@ -77,39 +94,97 @@
                 @endforeach
             </nav>
 
-            <a class="sidebar-profile profile-card-button" href="{{ route('studyhub.student.profile') }}">
-                <span class="profile-avatar">
-                    @if (! empty($studentProfile['avatar_url']))
-                        <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $studentProfile['display_name'] }}">
-                    @else
-                        {{ strtoupper(substr($studentProfile['display_name'], 0, 1)) }}{{ strtoupper(substr(trim(strrchr($studentProfile['display_name'], ' ')) ?: $studentProfile['display_name'], 0, 1)) }}
-                    @endif
-                </span>
-                <span class="profile-copy">
-                    <span class="profile-name">{{ $studentProfile['display_name'] }}</span>
-                    <span class="profile-role">{{ $studentProfile['email'] }}</span>
-                </span>
-            </a>
-
-            <div class="sidebar-bottom">
-                <form method="POST" action="{{ route('studyhub.logout') }}">
-                    @csrf
-                    <button class="sidebar-link sidebar-logout-button" type="submit">
-                        <span class="icon-box">{!! $icons['logout'] !!}</span>
-                        <span class="nav-copy">
-                            <span class="nav-title">Logout</span>
-                            <span class="nav-meta">Return to sign in</span>
-                        </span>
-                    </button>
-                </form>
-            </div>
         </aside>
 
         <main class="app-main">
+            <div class="student-global-topbar">
+                <livewire:student-notifications :icons="$icons" />
+
+                <div class="student-global-profile-menu" data-profile-menu>
+                    <button class="student-top-profile profile-card-button" type="button" aria-expanded="false" data-profile-menu-button>
+                        <span class="profile-avatar">
+                            @if (! empty($studentProfile['avatar_url']))
+                                <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $studentProfile['display_name'] }}">
+                            @else
+                                {{ strtoupper(substr($studentProfile['display_name'], 0, 1)) }}{{ strtoupper(substr(trim(strrchr($studentProfile['display_name'], ' ')) ?: $studentProfile['display_name'], 0, 1)) }}
+                            @endif
+                        </span>
+                        <span class="profile-copy">
+                            <span class="profile-name">{{ $studentProfile['display_name'] }}</span>
+                        </span>
+                        <span class="profile-menu-caret" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                        </span>
+                    </button>
+
+                    <div class="profile-dropdown" data-profile-menu-panel>
+                        <a class="profile-dropdown-item" href="{{ route('studyhub.student.profile') }}">
+                            <span class="icon-box">{!! $icons['user'] !!}</span>
+                            <span>Profile</span>
+                        </a>
+                        <form method="POST" action="{{ route('studyhub.logout') }}">
+                            @csrf
+                            <button class="profile-dropdown-item profile-dropdown-logout" type="submit" data-loading-label="Logging out...">
+                                <span class="icon-box">{!! $icons['logout'] !!}</span>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             @if (session('status'))
                 <div class="layout-status">{{ session('status') }}</div>
             @endif
             @yield('page')
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menu = document.querySelector('[data-profile-menu]');
+            const button = document.querySelector('[data-profile-menu-button]');
+
+            if (!menu || !button) {
+                return;
+            }
+
+            function setOpen(isOpen) {
+                menu.classList.toggle('is-open', isOpen);
+                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                setOpen(!menu.classList.contains('is-open'));
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!menu.contains(event.target)) {
+                    setOpen(false);
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    setOpen(false);
+                }
+            });
+
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    const submitButton = form.querySelector('button[type="submit"][data-loading-label]');
+
+                    if (!submitButton || submitButton.disabled) {
+                        return;
+                    }
+
+                    submitButton.dataset.originalLabel = submitButton.innerHTML;
+                    submitButton.innerHTML = '<span class="student-button-spinner" aria-hidden="true"></span><span>' + submitButton.dataset.loadingLabel + '</span>';
+                    submitButton.disabled = true;
+                    submitButton.classList.add('is-loading');
+                });
+            });
+        });
+    </script>
 @endsection

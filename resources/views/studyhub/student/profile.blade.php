@@ -3,104 +3,114 @@
 @section('title', 'Profile')
 
 @section('page')
+    @php
+        $profileInitials = strtoupper(substr($studentProfile['display_name'], 0, 1)).strtoupper(substr(trim(strrchr($studentProfile['display_name'], ' ')) ?: $studentProfile['display_name'], 0, 1));
+    @endphp
+
     <div class="profile-page-header">
-        <h2 class="page-title">Profile</h2>
-        <p class="page-subtitle">Update your student identity, contact details, short bio, and profile picture without mixing it into appearance settings.</p>
+        <div>
+            <h2 class="page-title">Profile</h2>
+            <p class="page-subtitle">Shape how classmates see you across groups, resources, and discussions.</p>
+        </div>
+        <a class="secondary-button profile-theme-link" href="{{ route('studyhub.student.theme') }}">Customize Theme</a>
     </div>
 
     <section class="content-card profile-banner">
-        <div class="profile-banner-avatar">
-            @if (! empty($studentProfile['avatar_url']))
-                <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $studentProfile['display_name'] }}">
-            @else
-                {{ strtoupper(substr($studentProfile['display_name'], 0, 1)) }}{{ strtoupper(substr(trim(strrchr($studentProfile['display_name'], ' ')) ?: $studentProfile['display_name'], 0, 1)) }}
-            @endif
+        <div class="profile-hero-visual">
+            <div class="profile-banner-avatar">
+                @if (! empty($studentProfile['avatar_url']))
+                    <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $studentProfile['display_name'] }}">
+                @else
+                    {{ $profileInitials }}
+                @endif
+            </div>
+            <span class="profile-hero-status">Student</span>
         </div>
-        <div>
+        <div class="profile-banner-main">
+            <span class="profile-eyebrow">StudyHub Identity</span>
             <h3>{{ $studentProfile['display_name'] }}</h3>
-            <p>{{ $studentProfile['bio'] ?: 'Set a short bio so your StudyHub space feels a bit more like your own workspace.' }}</p>
+            <p>{{ $studentProfile['bio'] ?: 'No bio yet.' }}</p>
             <div class="profile-banner-meta">
                 <span class="profile-banner-chip">{{ $studentProfile['email'] }}</span>
-                <span class="profile-banner-chip">{{ ucfirst($studentProfile['theme']) }} theme</span>
-                <span class="profile-banner-chip">{{ ucfirst($studentProfile['surface_style']) }} surfaces</span>
-                <span class="profile-banner-chip">{{ ucfirst($studentProfile['interface_density']) }} spacing</span>
+                <span class="profile-banner-chip">{{ $studentProfile['theme'] === 'dark' ? 'Dark' : 'Light' }}</span>
             </div>
+        </div>
+        <div class="profile-hero-summary">
+            <span>Focus Group</span>
+            <strong>{{ $profileHighlights['primary_group'] }}</strong>
         </div>
     </section>
 
+    <section class="profile-stat-grid">
+        @foreach ($profileStats as $stat)
+            <article class="profile-stat-card">
+                <strong>{{ $stat['value'] }}</strong>
+                <span>{{ $stat['label'] }}</span>
+                <small>{{ $stat['hint'] }}</small>
+            </article>
+        @endforeach
+    </section>
+
     <div class="profile-layout">
-        <div>
-            <form method="POST" action="{{ route('studyhub.student.profile.update') }}">
-                @csrf
-                @method('PUT')
+        <form method="POST" action="{{ route('studyhub.student.profile.update') }}">
+            @csrf
+            @method('PUT')
 
-                <section class="content-card settings-card">
-                    <h3>Student Identity</h3>
-                    <p class="settings-card-copy">Keep your display information current so the portal, sidebar profile card, and future collaboration features feel personalized.</p>
-
-                    <div class="settings-grid">
-                        <div class="settings-field">
-                            <label for="display_name">Display name</label>
-                            <input id="display_name" name="display_name" type="text" value="{{ old('display_name', $studentProfileForm['display_name']) }}">
-                        </div>
-
-                        <div class="settings-field">
-                            <label for="email">Email</label>
-                            <input id="email" name="email" type="email" value="{{ old('email', $studentProfileForm['email']) }}">
-                        </div>
-
-                        <div class="settings-field">
-                            <label for="avatar_url">Profile photo URL</label>
-                            <input id="avatar_url" name="avatar_url" type="url" placeholder="https://example.com/avatar.jpg" value="{{ old('avatar_url', $studentProfileForm['avatar_url']) }}">
-                            <span class="field-help">Paste an image link to use as your profile picture in the sidebar and profile page.</span>
-                        </div>
-
-                        <div class="settings-field">
-                            <label for="bio">Short bio</label>
-                            <textarea id="bio" name="bio">{{ old('bio', $studentProfileForm['bio']) }}</textarea>
-                            <span class="field-help">A short line about your study focus, goals, or working style.</span>
-                        </div>
+            <section class="content-card profile-form-card">
+                <div class="profile-form-header">
+                    <div>
+                        <span class="profile-eyebrow">Profile Details</span>
+                        <h3>Edit Details</h3>
                     </div>
-                </section>
-
-                <section class="content-card settings-card">
-                    <h3>Save Profile</h3>
-                    <p class="settings-card-copy">When you save here, the sidebar card and your student identity update immediately.</p>
-                    <div class="settings-actions">
-                        <button class="action-button" type="submit">Save Profile</button>
-                        <a class="secondary-button" href="{{ route('studyhub.student.theme') }}">Open Theme Page</a>
-                    </div>
-                </section>
-            </form>
-        </div>
-
-        <aside class="preview-panel">
-            <h3>Profile Card Preview</h3>
-            <p class="settings-card-copy">This mirrors how your profile button appears in the sidebar.</p>
-
-            <div class="preview-shell">
-                <div class="preview-sidebar">
-                    <div class="preview-card">
-                        <div class="preview-avatar">
-                            @if (! empty($studentProfile['avatar_url']))
-                                <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $studentProfile['display_name'] }}">
-                            @else
-                                {{ strtoupper(substr($studentProfile['display_name'], 0, 1)) }}{{ strtoupper(substr(trim(strrchr($studentProfile['display_name'], ' ')) ?: $studentProfile['display_name'], 0, 1)) }}
-                            @endif
-                        </div>
-                        <h4>{{ $studentProfile['display_name'] }}</h4>
-                        <p>{{ $studentProfile['email'] }}</p>
-                        <span class="preview-button">Open Profile</span>
-                    </div>
+                    <button class="action-button" type="submit" data-loading-label="Saving...">Save</button>
                 </div>
 
-                <div class="preview-card theme-link-card">
-                    <h4>Theme Settings</h4>
-                    <p>Appearance choices now live on their own dedicated page so profile details stay separate.</p>
-                    <a class="action-button" href="{{ route('studyhub.student.theme') }}">Go To Theme Page</a>
+                <div class="profile-form-grid">
+                    <label class="profile-field" for="display_name">
+                        <span>Name</span>
+                        <input id="display_name" name="display_name" type="text" value="{{ old('display_name', $studentProfileForm['display_name']) }}">
+                    </label>
+
+                    <label class="profile-field" for="email">
+                        <span>Email</span>
+                        <input id="email" name="email" type="email" value="{{ old('email', $studentProfileForm['email']) }}">
+                    </label>
+
+                    <label class="profile-field profile-field-full" for="avatar_url">
+                        <span>Photo URL</span>
+                        <input id="avatar_url" name="avatar_url" type="url" placeholder="https://example.com/avatar.jpg" value="{{ old('avatar_url', $studentProfileForm['avatar_url']) }}">
+                    </label>
+
+                    <label class="profile-field profile-field-full" for="bio">
+                        <span>Bio</span>
+                        <textarea id="bio" name="bio" maxlength="240" placeholder="Share what you are studying, what you can help with, or what kind of group you like joining.">{{ old('bio', $studentProfileForm['bio']) }}</textarea>
+                    </label>
                 </div>
-            </div>
+            </section>
+        </form>
+
+        <aside class="profile-side-panel">
+            <article class="content-card profile-insight-card">
+                <span class="profile-eyebrow">Workspace</span>
+                <h3>Current Setup</h3>
+                <div class="profile-insight-list">
+                    <div>
+                        <span>Theme</span>
+                        <strong>{{ $profileHighlights['theme'] }}</strong>
+                    </div>
+                    <div>
+                        <span>Next Session</span>
+                        <strong>{{ $profileHighlights['next_session'] }}</strong>
+                    </div>
+                </div>
+                <a class="secondary-button" href="{{ route('studyhub.student.theme') }}">Adjust Look</a>
+            </article>
+
+            <article class="content-card profile-insight-card">
+                <span class="profile-eyebrow">Profile Strength</span>
+                <h3>{{ $studentProfile['bio'] && $studentProfile['avatar_url'] ? 'Looking Complete' : 'Add More Detail' }}</h3>
+                <p>{{ $studentProfile['bio'] && $studentProfile['avatar_url'] ? 'Your profile has the key pieces classmates need.' : 'A short bio and photo make it easier for classmates to recognize you.' }}</p>
+            </article>
         </aside>
     </div>
 @endsection
-

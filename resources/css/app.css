@@ -168,3 +168,9 @@ html.dark {
 }
 
 @import './studyhub.css';
+@import './studyhub/student-layout.css';
+@import './studyhub/dashboard.css';
+@import './studyhub/groups.css';
+@import './studyhub/resources.css';
+@import './studyhub/sessions.css';
+@import './studyhub/discussions.css';

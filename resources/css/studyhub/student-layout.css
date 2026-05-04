@@ -1,0 +1,3173 @@
+/* Source: resources/views/studyhub/student/layout.blade.php */
+    @keyframes pageFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(16px);
+                }
+    
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+    
+            @keyframes sidebarGlow {
+                0%,
+                100% {
+                    opacity: 0.7;
+                    transform: scale(1);
+                }
+    
+                50% {
+                    opacity: 1;
+                    transform: scale(1.04);
+                }
+            }
+    
+            .app-shell {
+                display: grid;
+                grid-template-columns: 320px minmax(0, 1fr);
+                min-height: 100vh;
+                background: var(--student-page-bg);
+            }
+    
+            .app-sidebar {
+                background: var(--student-sidebar-bg);
+                color: white;
+                padding: 24px 18px 18px;
+                display: flex;
+                flex-direction: column;
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                overflow: hidden;
+                border-right: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 24px 0 48px rgba(23, 54, 33, 0.14);
+            }
+    
+            .app-sidebar::before {
+                content: '';
+                position: absolute;
+                inset: 20px 18px auto;
+                height: 160px;
+                border-radius: 28px;
+                background: radial-gradient(circle at top, rgba(255,255,255,0.16), transparent 68%);
+                pointer-events: none;
+            }
+    
+            .sidebar-brand {
+                position: relative;
+                padding: 20px 22px 22px;
+                border-radius: 28px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.07));
+                border: 1px solid rgba(255,255,255,0.14);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+                overflow: hidden;
+            }
+    
+            .sidebar-brand-lockup {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+    
+            .sidebar-brand-mark {
+                width: 58px;
+                height: 58px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                border-radius: 18px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(227, 244, 233, 0.96) 100%);
+                box-shadow: 0 14px 24px rgba(8, 28, 16, 0.16);
+            }
+    
+            .sidebar-brand-mark svg {
+                width: 46px;
+                height: 46px;
+                display: block;
+            }
+    
+            .sidebar-brand-copy {
+                display: grid;
+                gap: 2px;
+            }
+    
+            .sidebar-brand::after {
+                content: '';
+                position: absolute;
+                right: -42px;
+                top: -34px;
+                width: 128px;
+                height: 128px;
+                border-radius: 50%;
+                background: rgba(196, 255, 216, 0.12);
+                animation: sidebarGlow 7s ease-in-out infinite;
+            }
+    
+            .sidebar-brand h1 {
+                position: relative;
+                margin: 0;
+                font-size: 1.72rem;
+                line-height: 0.95;
+                letter-spacing: -0.06em;
+                font-weight: 800;
+                color: #e7f3ea;
+                text-shadow: 0 1px 0 rgba(12, 32, 20, 0.12);
+            }
+    
+            .sidebar-brand h1 span {
+                color: #67df8f;
+            }
+    
+            .sidebar-kicker {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 10px;
+                margin-bottom: 12px;
+                border-radius: 999px;
+                background: rgba(212, 255, 225, 0.14);
+                border: 1px solid rgba(255,255,255,0.14);
+                color: rgba(242,255,246,0.88);
+                font-size: 0.76rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+    
+            .sidebar-section-label {
+                padding: 18px 14px 10px;
+                color: rgba(234, 248, 237, 0.62);
+                font-size: 0.76rem;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+            }
+    
+            .sidebar-nav {
+                display: grid;
+                gap: var(--student-density-gap);
+                padding: 0 4px;
+            }
+    
+            .sidebar-link {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 14px 16px;
+                border-radius: 18px;
+                color: rgba(245,255,248,0.82);
+                font-size: 0.94rem;
+                font-weight: 600;
+                transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+            }
+    
+            .sidebar-link .icon-box {
+                width: 42px;
+                height: 42px;
+                border-radius: 14px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.08);
+                flex-shrink: 0;
+                transition: inherit;
+            }
+    
+            .sidebar-link .nav-copy {
+                display: grid;
+                gap: 2px;
+            }
+    
+            .sidebar-link .nav-title {
+                line-height: 1.1;
+                letter-spacing: -0.01em;
+            }
+    
+            .sidebar-link .nav-meta {
+                color: rgba(237, 248, 240, 0.56);
+                font-size: 0.76rem;
+                font-weight: 500;
+                transition: inherit;
+            }
+    
+            .sidebar-link:hover {
+                transform: translateX(4px);
+                color: white;
+                background: rgba(255,255,255,0.08);
+            }
+    
+            .sidebar-link:hover .icon-box {
+                background: rgba(255,255,255,0.14);
+            }
+    
+            .sidebar-link.active {
+                color: var(--student-accent-text);
+                background: linear-gradient(90deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-pale) 68%, white 32%) 100%);
+                box-shadow: 0 18px 30px rgba(10, 35, 18, 0.18);
+            }
+    
+            .sidebar-link.active::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 14px;
+                bottom: 14px;
+                width: 5px;
+                border-radius: 999px;
+                background: var(--student-accent-soft);
+            }
+    
+            .sidebar-link.active .icon-box {
+                background: color-mix(in srgb, var(--student-accent-soft) 18%, white 82%);
+                border-color: color-mix(in srgb, var(--student-accent) 24%, white 76%);
+                color: var(--student-accent-text);
+            }
+    
+            .sidebar-link.active .nav-meta {
+                color: color-mix(in srgb, var(--student-accent-text) 68%, transparent 32%);
+            }
+    
+            .sidebar-profile {
+                margin-top: 18px;
+                width: 100%;
+                padding: 16px 18px;
+                border-radius: 24px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+                border: 1px solid rgba(255,255,255,0.14);
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: inherit;
+                font: inherit;
+                text-align: left;
+                cursor: pointer;
+                transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+            }
+    
+            .sidebar-profile:hover {
+                transform: translateY(-2px);
+                background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+                box-shadow: 0 16px 24px rgba(8, 28, 16, 0.12);
+            }
+    
+            .profile-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-soft) 42%, white 58%) 100%);
+                color: var(--student-accent-text);
+                font-size: 1rem;
+                font-weight: 800;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+            }
+    
+            .profile-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: inherit;
+                display: block;
+            }
+    
+            .profile-copy {
+                display: grid;
+                gap: 3px;
+            }
+    
+            .profile-name {
+                font-size: 1rem;
+                font-weight: 700;
+            }
+    
+            .profile-role {
+                color: rgba(240,255,245,0.68);
+                font-size: 0.82rem;
+            }
+    
+            .profile-card-button {
+                text-decoration: none;
+            }
+    
+            .profile-card-button .profile-copy {
+                min-width: 0;
+            }
+    
+            .profile-card-button .profile-name,
+            .profile-card-button .profile-role {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .sidebar-profile-menu {
+                position: relative;
+                margin-top: 18px;
+            }
+
+            .sidebar-profile-menu .sidebar-profile {
+                margin-top: 0;
+            }
+
+            .profile-menu-caret {
+                margin-left: auto;
+                color: rgba(240,255,245,0.72);
+                transition: transform 160ms ease;
+            }
+
+            .profile-menu-caret svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2.4;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            .sidebar-profile-menu.is-open .profile-menu-caret {
+                transform: rotate(180deg);
+            }
+
+            .profile-dropdown {
+                position: absolute;
+                left: 8px;
+                right: 8px;
+                bottom: calc(100% + 10px);
+                z-index: 20;
+                display: grid;
+                gap: 6px;
+                padding: 8px;
+                border: 1px solid rgba(255,255,255,0.16);
+                border-radius: 18px;
+                background: rgba(8, 35, 22, 0.98);
+                box-shadow: 0 18px 36px rgba(8, 28, 16, 0.28);
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(8px);
+                transition: opacity 160ms ease, transform 160ms ease;
+            }
+
+            .sidebar-profile-menu.is-open .profile-dropdown {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+
+            .profile-dropdown form {
+                margin: 0;
+            }
+
+            .profile-dropdown-item {
+                width: 100%;
+                min-height: 42px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 12px;
+                border: 0;
+                border-radius: 12px;
+                background: transparent;
+                color: rgba(245,255,248,0.86);
+                font: inherit;
+                font-size: 0.88rem;
+                font-weight: 700;
+                text-align: left;
+                cursor: pointer;
+                transition: background 160ms ease, color 160ms ease;
+            }
+
+            .profile-dropdown-item:hover {
+                background: rgba(255,255,255,0.09);
+                color: white;
+            }
+
+            .profile-dropdown-item .icon-box {
+                width: 28px;
+                height: 28px;
+                border-radius: 9px;
+                background: rgba(255,255,255,0.08);
+                color: var(--student-accent-soft);
+            }
+
+            .profile-dropdown-item .icon-box svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .profile-dropdown-logout {
+                color: #ffd6cf;
+            }
+
+            .profile-dropdown-logout .icon-box {
+                color: #ff9d8f;
+            }
+    
+            .sidebar-bottom {
+                margin-top: auto;
+                padding: 18px 4px 0;
+            }
+    
+            .sidebar-bottom .sidebar-link {
+                border: 1px solid rgba(255,255,255,0.08);
+            }
+    
+            .sidebar-bottom .sidebar-link .icon-box {
+                background: rgba(255,255,255,0.1);
+            }
+    
+            .app-main {
+                position: relative;
+                padding: var(--student-main-padding);
+                min-height: 100vh;
+            }
+
+            .student-global-topbar {
+                position: relative;
+                z-index: 30;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 10px;
+                min-height: 48px;
+                margin-bottom: 16px;
+            }
+
+            .student-top-icon-button,
+            .student-top-profile {
+                min-height: 46px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(108, 148, 122, 0.22);
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.76);
+                color: var(--student-accent-text);
+                box-shadow: 0 12px 24px rgba(49, 84, 61, 0.08);
+            }
+
+            .student-top-icon-button {
+                width: 46px;
+            }
+
+            .student-top-profile {
+                gap: 10px;
+                padding: 0 13px 0 7px;
+                font: inherit;
+                font-weight: 800;
+                cursor: pointer;
+            }
+
+            .student-top-profile .profile-avatar {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+            }
+
+            .student-top-profile .profile-name {
+                max-width: 112px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 0.9rem;
+            }
+
+            .student-global-profile-menu {
+                position: relative;
+            }
+
+            .student-global-profile-menu .profile-dropdown {
+                top: calc(100% + 10px);
+                right: 0;
+                bottom: auto;
+                left: auto;
+                width: 220px;
+                border-color: rgba(108, 148, 122, 0.22);
+                background: rgba(18, 58, 36, 0.98);
+            }
+
+            .student-global-profile-menu.is-open .profile-dropdown {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+
+            .student-global-profile-menu.is-open .profile-menu-caret {
+                transform: rotate(180deg);
+            }
+    
+            .app-main > * {
+                animation: pageFadeIn 420ms ease both;
+            }
+    
+            .app-main > *:nth-child(2) {
+                animation-delay: 70ms;
+            }
+    
+            .app-main > *:nth-child(3) {
+                animation-delay: 140ms;
+            }
+    
+            .app-main > *:nth-child(4) {
+                animation-delay: 210ms;
+            }
+    
+            .page-title {
+                margin: 0;
+                font-size: 2.3rem;
+                font-weight: 750;
+                color: #111;
+            }
+    
+            .layout-status {
+                margin-bottom: 18px;
+                padding: 14px 16px;
+                border-radius: 16px;
+                background: rgba(255,255,255,0.88);
+                border: 1px solid color-mix(in srgb, var(--student-accent-pale) 80%, white 20%);
+                color: var(--student-accent-text);
+                box-shadow: var(--student-card-shadow);
+            }
+    
+            .page-subtitle {
+                margin: 8px 0 26px;
+                color: var(--text-muted);
+                font-size: 0.98rem;
+            }
+    
+            .content-card,
+            .stat-card {
+                background: white;
+                border: 1px solid var(--student-card-border);
+                border-radius: var(--student-card-radius);
+                box-shadow: var(--student-card-shadow);
+                transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+            }
+    
+            .content-card:hover,
+            .stat-card:hover {
+                transform: translateY(-3px);
+                border-color: rgba(165, 203, 178, 0.9);
+                box-shadow: 0 24px 40px rgba(47, 77, 95, 0.14);
+            }
+    
+            .toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 18px;
+                margin-bottom: 24px;
+            }
+    
+            .toolbar-actions,
+            .toolbar-filters {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+    
+            .action-button,
+            .secondary-button {
+                border: 0;
+                border-radius: 12px;
+                padding: 12px 18px;
+                font: inherit;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, background 180ms ease;
+            }
+    
+            .action-button:hover,
+            .secondary-button:hover {
+                transform: translateY(-2px);
+                filter: brightness(1.02);
+            }
+    
+            .action-button:active,
+            .secondary-button:active {
+                transform: translateY(0);
+            }
+    
+            .action-button {
+                background: linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%);
+                color: white;
+            }
+    
+            .secondary-button {
+                background: rgba(255,255,255,0.92);
+                color: #33404a;
+                border: 1px solid color-mix(in srgb, var(--student-card-border) 92%, white 8%);
+            }
+    
+            .search-box {
+                position: relative;
+                max-width: 560px;
+                width: 100%;
+            }
+    
+            .search-box input {
+                width: 100%;
+                height: 48px;
+                border-radius: 14px;
+                border: 1px solid var(--border-soft);
+                background: white;
+                padding: 0 16px 0 48px;
+                font: inherit;
+            }
+    
+            .search-box .icon-box {
+                position: absolute;
+                top: 14px;
+                left: 14px;
+                color: var(--text-muted);
+            }
+    
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 14px;
+                margin-bottom: 24px;
+            }
+    
+            .stat-card {
+                padding: 18px;
+            }
+    
+            .stat-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 10px;
+                margin-bottom: 16px;
+                color: white;
+            }
+    
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 800;
+                margin: 0 0 4px;
+            }
+    
+            .stat-label {
+                color: var(--text-muted);
+            }
+    
+            .empty-state {
+                text-align: center;
+                padding: 56px 24px;
+                color: var(--text-muted);
+            }
+    
+            @media (max-width: 1100px) {
+                .stats-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+    
+            @media (max-width: 900px) {
+                .toolbar {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+    
+                .toolbar-actions,
+                .toolbar-filters {
+                    flex-wrap: wrap;
+                }
+            }
+    
+            @media (max-width: 800px) {
+                .app-shell {
+                    grid-template-columns: 1fr;
+                }
+    
+                .app-sidebar {
+                    position: static;
+                    height: auto;
+                    margin: 0 0 18px;
+                }
+    
+                .app-main {
+                    padding: 20px;
+                }
+    
+                .page-title {
+                    font-size: 1.75rem;
+                }
+    
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+/* Shared student page consistency, loading, validation, and skeleton states. */
+.student-dashboard-shell {
+    --student-page-gap: 20px;
+    --student-page-radius: 18px;
+    --student-page-radius-sm: 12px;
+    --student-page-border: rgba(126, 230, 164, 0.16);
+    --student-page-border-strong: rgba(126, 230, 164, 0.26);
+    --student-page-panel: linear-gradient(180deg, rgba(10, 31, 22, 0.88), rgba(5, 20, 14, 0.98));
+    --student-page-panel-soft: linear-gradient(180deg, rgba(15, 38, 27, 0.78), rgba(7, 24, 17, 0.96));
+    --student-page-muted: #9eb2a7;
+    --student-page-text: #f4fff8;
+    --student-page-button: linear-gradient(135deg, #6ee99a 0%, #2fbf6a 100%);
+    --student-page-button-soft: rgba(85, 217, 135, 0.13);
+    --student-page-shadow: 0 22px 48px rgba(0, 0, 0, 0.26);
+}
+
+.student-dashboard-shell .resources-header,
+.student-dashboard-shell .discussion-header,
+.student-dashboard-shell .toolbar,
+.student-dashboard-shell .groups-toolbar,
+.student-dashboard-shell .thread-back,
+.student-dashboard-shell .detail-back {
+    margin-bottom: var(--student-page-gap);
+}
+
+.student-dashboard-shell .resources-header,
+.student-dashboard-shell .discussion-header,
+.student-dashboard-shell .toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.student-dashboard-shell .page-title,
+.student-dashboard-shell .groups-toolbar .page-title,
+.student-dashboard-shell .resources-header .page-title,
+.student-dashboard-shell .discussion-header .page-title {
+    margin: 0 0 6px;
+    color: var(--student-page-text);
+    font-size: clamp(2.15rem, 3vw, 3rem);
+    line-height: 0.98;
+    letter-spacing: 0;
+}
+
+.student-dashboard-shell .page-subtitle,
+.student-dashboard-shell .groups-toolbar .page-subtitle,
+.student-dashboard-shell .resources-header .page-subtitle,
+.student-dashboard-shell .discussion-header .page-subtitle {
+    margin: 0;
+    color: var(--student-page-muted);
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.student-dashboard-shell .resources-toolbar,
+.student-dashboard-shell .discussion-toolbar,
+.student-dashboard-shell .groups-filters,
+.student-dashboard-shell .content-card.discussion-toolbar {
+    min-height: 58px;
+    margin-bottom: var(--student-page-gap);
+    gap: 12px;
+}
+
+.student-dashboard-shell .resources-toolbar .search-box,
+.student-dashboard-shell .discussion-toolbar .search-box,
+.student-dashboard-shell .groups-filters .search-box,
+.student-dashboard-shell .student-global-search,
+.student-dashboard-shell .search-box {
+    min-height: 50px;
+    border-radius: var(--student-page-radius-sm);
+}
+
+.student-dashboard-shell .resources-toolbar .search-box input,
+.student-dashboard-shell .discussion-toolbar .search-box input,
+.student-dashboard-shell .groups-filters .search-box input,
+.student-dashboard-shell .search-box input,
+.student-dashboard-shell .resources-filter-select,
+.student-dashboard-shell .discussion-filter-select,
+.student-dashboard-shell .groups-filter-select {
+    min-height: 50px;
+    border-radius: var(--student-page-radius-sm);
+    border-color: var(--student-page-border);
+    background: rgba(9, 16, 14, 0.78);
+    color: #ecfff2;
+}
+
+.student-dashboard-shell .resources-filter-select,
+.student-dashboard-shell .discussion-filter-select,
+.student-dashboard-shell .groups-filter-select {
+    height: 50px;
+    box-shadow: none;
+}
+
+.student-dashboard-shell .content-card:not(.group-card):not(.dashboard-hero):not(.dashboard-chart-card):not(.dashboard-side-card):not(.detail-hero),
+.student-dashboard-shell .resource-card,
+.student-dashboard-shell .discussion-row,
+.student-dashboard-shell .discussion-stat-card,
+.student-dashboard-shell .sessions-stat-card,
+.student-dashboard-shell .session-card,
+.student-dashboard-shell .calendar-card,
+.student-dashboard-shell .past-list,
+.student-dashboard-shell .thread-hero,
+.student-dashboard-shell .thread-card,
+.student-dashboard-shell .detail-panel.content-card {
+    border-radius: var(--student-page-radius);
+    border-color: var(--student-page-border);
+    background: var(--student-page-panel);
+    box-shadow: var(--student-page-shadow);
+}
+
+.student-dashboard-shell .resource-grid,
+.student-dashboard-shell .discussion-list,
+.student-dashboard-shell .session-grid,
+.student-dashboard-shell .discussion-stats-grid,
+.student-dashboard-shell .sessions-stat-grid,
+.student-dashboard-shell .thread-layout,
+.student-dashboard-shell .detail-grid {
+    gap: var(--student-page-gap);
+}
+
+.student-dashboard-shell .section-title {
+    margin: 26px 0 14px;
+    color: var(--student-page-text);
+    font-size: 1.35rem;
+    line-height: 1.1;
+    letter-spacing: 0;
+}
+
+.student-dashboard-shell .action-button,
+.student-dashboard-shell .secondary-button,
+.student-dashboard-shell .thread-button,
+.student-dashboard-shell .download-button,
+.student-dashboard-shell .session-primary,
+.student-dashboard-shell .session-secondary,
+.student-dashboard-shell .detail-panel-action,
+.student-dashboard-shell .schedule-button,
+.student-dashboard-shell .resource-download,
+.student-dashboard-shell .session-rsvp,
+.student-dashboard-shell .session-detail-button,
+.student-dashboard-shell .discussion-delete-button,
+.student-dashboard-shell .thread-delete-button,
+.student-dashboard-shell .thread-notify-button,
+.student-dashboard-shell .thread-submit,
+.student-dashboard-shell .app-empty-action {
+    min-height: 42px;
+    border-radius: 10px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.student-dashboard-shell .action-button,
+.student-dashboard-shell .download-button,
+.student-dashboard-shell .session-primary,
+.student-dashboard-shell .thread-submit,
+.student-dashboard-shell .app-empty-action {
+    border-color: rgba(126, 230, 164, 0.34);
+    background: var(--student-page-button);
+    color: #06120c;
+    box-shadow: 0 16px 30px rgba(47, 191, 106, 0.2);
+}
+
+.student-dashboard-shell .secondary-button,
+.student-dashboard-shell .thread-button,
+.student-dashboard-shell .session-secondary,
+.student-dashboard-shell .resource-download,
+.student-dashboard-shell .session-detail-button,
+.student-dashboard-shell .discussion-delete-button,
+.student-dashboard-shell .thread-delete-button,
+.student-dashboard-shell .thread-notify-button {
+    border: 1px solid var(--student-page-border-strong);
+    background: var(--student-page-button-soft);
+    color: #dfffe9;
+    box-shadow: none;
+}
+
+.student-dashboard-shell .thread-notify-button.is-watching,
+.student-dashboard-shell .session-primary.joined,
+.student-dashboard-shell .session-rsvp.joined {
+    border-color: rgba(126, 230, 164, 0.36);
+    background: rgba(126, 230, 164, 0.18);
+    color: #effff4;
+}
+
+.student-dashboard-shell .app-empty-state,
+.student-dashboard-shell .resources-empty-state,
+.student-dashboard-shell .discussion-empty-state,
+.student-dashboard-shell .session-empty,
+.student-dashboard-shell .groups-empty-state,
+.student-dashboard-shell .thread-empty {
+    width: 100%;
+    min-height: 240px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 12px;
+    padding: 34px 24px;
+    border: 1px dashed var(--student-page-border-strong);
+    border-radius: var(--student-page-radius);
+    background:
+        radial-gradient(circle at 50% 18%, rgba(85, 217, 135, 0.1), transparent 34%),
+        rgba(8, 22, 16, 0.78);
+    color: #bfcec4;
+    text-align: center;
+    box-shadow: none;
+}
+
+.student-dashboard-shell .app-empty-state.compact,
+.student-dashboard-shell .thread-empty.compact {
+    min-height: 170px;
+    padding: 26px 20px;
+}
+
+.student-dashboard-shell .app-empty-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    border: 1px solid var(--student-page-border);
+    background: rgba(85, 217, 135, 0.14);
+    color: #dfffe9;
+}
+
+.student-dashboard-shell .app-empty-state strong,
+.student-dashboard-shell .resources-empty-state strong,
+.student-dashboard-shell .discussion-empty-state strong,
+.student-dashboard-shell .session-empty strong,
+.student-dashboard-shell .groups-empty-state strong,
+.student-dashboard-shell .thread-empty strong {
+    color: var(--student-page-text);
+    font-size: 1.05rem;
+}
+
+.student-dashboard-shell .resources-empty-state.hidden,
+.student-dashboard-shell .discussion-empty-state.hidden {
+    display: none !important;
+}
+
+.student-dashboard-shell .thread-card-header,
+.student-dashboard-shell .detail-panel-header,
+.student-dashboard-shell .past-row,
+.student-dashboard-shell .resource-row {
+    border-color: var(--student-page-border);
+}
+
+.student-dashboard-shell .thread-textarea,
+.student-dashboard-shell .thread-replying-to,
+.student-dashboard-shell .thread-reply,
+.student-dashboard-shell .thread-child-reply,
+.student-dashboard-shell .sessions-detail-card,
+.student-dashboard-shell .upload-dropzone {
+    border-radius: var(--student-page-radius-sm);
+    border-color: var(--student-page-border);
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.student-shell .student-button-spinner {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    flex: 0 0 auto;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: studentButtonSpin 720ms linear infinite;
+}
+
+.student-shell button.is-loading,
+.student-shell button[disabled] {
+    cursor: wait;
+    opacity: 0.78;
+}
+
+.student-shell button.is-loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.student-shell .thread-submit span[wire\:loading],
+.student-shell .thread-submit [wire\:loading] {
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+@keyframes studentButtonSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.student-dashboard-shell .thread-errors,
+.student-dashboard-shell .resources-errors,
+.student-dashboard-shell .discussion-errors,
+.student-dashboard-shell .sessions-errors,
+.student-dashboard-shell .groups-errors,
+.student-dashboard-shell .detail-upload-errors {
+    position: relative;
+    margin: 0 0 16px;
+    padding: 14px 16px 14px 44px;
+    border: 1px solid rgba(248, 113, 113, 0.26);
+    border-radius: var(--student-page-radius-sm);
+    background:
+        radial-gradient(circle at top left, rgba(248, 113, 113, 0.13), transparent 44%),
+        rgba(40, 15, 15, 0.78);
+    color: #fecaca;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1.45;
+}
+
+.student-dashboard-shell .thread-errors::before,
+.student-dashboard-shell .resources-errors::before,
+.student-dashboard-shell .discussion-errors::before,
+.student-dashboard-shell .sessions-errors::before,
+.student-dashboard-shell .groups-errors::before,
+.student-dashboard-shell .detail-upload-errors::before {
+    content: '!';
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(248, 113, 113, 0.22);
+    color: #fee2e2;
+    font-size: 0.75rem;
+    font-weight: 950;
+}
+
+.student-dashboard-shell .thread-errors ul,
+.student-dashboard-shell .resources-errors ul,
+.student-dashboard-shell .discussion-errors ul,
+.student-dashboard-shell .sessions-errors ul,
+.student-dashboard-shell .groups-errors ul,
+.student-dashboard-shell .detail-upload-errors ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    color: #fecaca;
+    font-weight: 700;
+}
+
+.student-dashboard-shell .thread-errors strong,
+.student-dashboard-shell .resources-errors strong,
+.student-dashboard-shell .discussion-errors strong,
+.student-dashboard-shell .sessions-errors strong,
+.student-dashboard-shell .groups-errors strong,
+.student-dashboard-shell .detail-upload-errors strong {
+    display: block;
+    color: #fee2e2;
+    font-size: 0.95rem;
+    font-weight: 950;
+}
+
+.student-dashboard-shell .student-field-error {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -4px;
+    color: #fecaca;
+    font-size: 0.82rem;
+    font-weight: 850;
+}
+
+.student-dashboard-shell .student-field-error::before {
+    content: '!';
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(248, 113, 113, 0.18);
+    color: #fee2e2;
+    font-size: 0.68rem;
+    font-weight: 950;
+}
+
+.student-dashboard-shell .thread-textarea.is-invalid {
+    border-color: rgba(248, 113, 113, 0.46);
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.1);
+}
+
+.student-dashboard-shell .thread-form.is-saving {
+    opacity: 0.82;
+    pointer-events: none;
+}
+
+.student-dashboard-shell .thread-status {
+    margin: 0 0 16px;
+    padding: 13px 15px;
+    border: 1px solid rgba(126, 230, 164, 0.24);
+    border-radius: var(--student-page-radius-sm);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+    font-weight: 850;
+}
+
+.student-dashboard-shell .thread-livewire-skeleton,
+.student-notification-skeleton {
+    display: none;
+    gap: 12px;
+}
+
+.student-dashboard-shell .thread-livewire-skeleton {
+    padding: 0 0 14px;
+}
+
+.student-dashboard-shell .thread-livewire-skeleton span,
+.student-notification-skeleton span {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--student-page-radius-sm, 12px);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(126, 230, 164, 0.16), rgba(255, 255, 255, 0.05));
+    background-size: 220% 100%;
+    animation: studentSkeleton 1.15s ease-in-out infinite;
+}
+
+.student-dashboard-shell .thread-livewire-skeleton span {
+    height: 86px;
+}
+
+.student-notification-skeleton span {
+    height: 58px;
+}
+
+.student-dashboard-shell .thread-livewire-skeleton span:nth-child(2),
+.student-notification-skeleton span:nth-child(2) {
+    opacity: 0.65;
+}
+
+.student-shell .is-livewire-updating {
+    opacity: 0.55;
+    transition: opacity 160ms ease;
+    pointer-events: none;
+}
+
+@keyframes studentSkeleton {
+    0% {
+        background-position: 120% 0;
+    }
+
+    100% {
+        background-position: -120% 0;
+    }
+}
+
+@media (max-width: 900px) {
+    .student-dashboard-shell .resources-header,
+    .student-dashboard-shell .discussion-header,
+    .student-dashboard-shell .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .student-dashboard-shell .resources-toolbar,
+    .student-dashboard-shell .discussion-toolbar,
+    .student-dashboard-shell .groups-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .student-dashboard-shell .action-button,
+    .student-dashboard-shell .secondary-button,
+    .student-dashboard-shell .toolbar-actions,
+    .student-dashboard-shell .toolbar-actions > * {
+        width: 100%;
+    }
+}
+
+/* Legacy shared student controls and dark-theme compatibility. */
+/* Student button and dashboard fixes */
+.student-shell .action-button,
+.student-shell .secondary-button {
+    border-radius: 16px;
+    min-height: 50px;
+    padding: 0 20px;
+    font: inherit;
+    font-size: 0.96rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.student-shell .action-button {
+    border: 1px solid color-mix(in srgb, var(--student-accent) 14%, white 86%);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent) 88%, white 12%) 100%);
+    color: #ffffff;
+    box-shadow: 0 16px 30px color-mix(in srgb, var(--student-accent) 20%, transparent 80%);
+}
+
+.student-shell .action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px color-mix(in srgb, var(--student-accent) 24%, transparent 76%);
+}
+
+.student-shell .secondary-button {
+    border: 1px solid color-mix(in srgb, var(--student-accent) 18%, white 82%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, color-mix(in srgb, var(--student-accent-pale) 18%, white 82%) 100%);
+    color: #284536;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.student-shell .secondary-button:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--student-accent) 24%, white 76%);
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, color-mix(in srgb, var(--student-accent-pale) 28%, white 72%) 100%);
+}
+
+.student-shell .sessions-cta,
+.student-shell .discussion-cta,
+.student-shell .upload-button,
+.student-shell .groups-action {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent) 88%, white 12%) 100%);
+    box-shadow: 0 16px 30px color-mix(in srgb, var(--student-accent) 20%, transparent 80%);
+}
+
+.student-shell .filter-button {
+    border: 1px solid color-mix(in srgb, var(--student-accent) 18%, white 82%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, color-mix(in srgb, var(--student-accent-pale) 18%, white 82%) 100%);
+    color: #284536;
+}
+
+.student-shell .session-primary {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent) 88%, white 12%) 100%);
+    color: #ffffff;
+    box-shadow: 0 14px 26px color-mix(in srgb, var(--student-accent) 18%, transparent 82%);
+}
+
+.student-shell .session-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.student-shell .session-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.student-shell .session-secondary {
+    border: 1px solid color-mix(in srgb, var(--student-accent) 18%, white 82%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, color-mix(in srgb, var(--student-accent-pale) 18%, white 82%) 100%);
+    color: #284536;
+}
+
+.student-shell .panel-header a,
+.student-shell .open-pill {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, color-mix(in srgb, var(--student-accent-pale) 24%, white 76%) 100%);
+    color: var(--student-accent-text);
+    border-color: color-mix(in srgb, var(--student-accent) 24%, white 76%);
+}
+
+.student-shell .activity-card {
+    margin-top: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(196, 215, 204, 0.95);
+    background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(248,252,249,0.99) 100%);
+    box-shadow: 0 24px 44px rgba(63, 93, 77, 0.1);
+}
+
+.student-shell .activity-header {
+    padding: 24px 30px;
+    border-bottom: 1px solid rgba(213, 224, 216, 0.94);
+    background: linear-gradient(90deg, #ffffff 0%, color-mix(in srgb, var(--student-accent-pale) 38%, white 62%) 58%, color-mix(in srgb, var(--student-accent-pale) 56%, white 44%) 100%);
+}
+
+.student-shell .activity-list {
+    display: grid;
+    gap: 18px;
+    padding: 18px 30px 22px;
+    background: transparent;
+}
+
+.student-shell .activity-row {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+    padding: 20px 18px;
+    border: 1px solid rgba(210, 224, 216, 0.94);
+    border-radius: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fcfa 100%);
+    box-shadow: 0 12px 24px rgba(95, 126, 104, 0.06);
+}
+
+.student-shell .activity-row:last-child {
+    border-bottom: 1px solid rgba(210, 224, 216, 0.94);
+}
+
+.student-shell .activity-dot {
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+}
+
+.student-shell .activity-content {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.student-shell .activity-text {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: #173223;
+}
+
+.student-shell .activity-time {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--student-accent-pale) 46%, white 54%);
+    color: #708174;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+/* Performance pass: keep the student workspace responsive on lower-end devices. */
+.student-shell .app-main > * {
+    animation: none;
+}
+
+.student-shell .sidebar-brand::after {
+    animation: none;
+}
+
+.student-shell .content-card,
+.student-shell .stat-card,
+.student-shell .activity-row,
+.student-shell .resource-card,
+.student-shell .discussion-card,
+.student-shell .session-card,
+.student-shell .group-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 220px;
+}
+
+.student-shell .content-card:hover,
+.student-shell .stat-card:hover {
+    transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .student-shell *,
+    .student-shell *::before,
+    .student-shell *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+/* App-wide UI polish, intentionally scoped away from the login page. */
+.student-shell,
+.app-shell:not(.student-shell) {
+    --ui-radius-lg: 22px;
+    --ui-radius-md: 16px;
+    --ui-radius-sm: 12px;
+    --ui-shadow-soft: 0 18px 38px rgba(39, 67, 53, 0.09);
+    --ui-shadow-hover: 0 22px 46px rgba(39, 67, 53, 0.13);
+}
+
+.student-shell .app-main,
+.app-shell:not(.student-shell) .app-main {
+    isolation: isolate;
+}
+
+.student-shell .page-title,
+.app-shell:not(.student-shell) .page-title {
+    line-height: 0.98;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+}
+
+.student-shell .page-subtitle,
+.app-shell:not(.student-shell) .page-subtitle {
+    color: color-mix(in srgb, var(--text-muted, #6f767d) 82%, #1a1f24 18%);
+    line-height: 1.45;
+}
+
+.student-shell .content-card,
+.student-shell .stat-card,
+.student-shell .discussion-stat-card,
+.student-shell .profile-form-card,
+.student-shell .theme-card,
+.student-shell .calendar-card,
+.app-shell:not(.student-shell) .content-card,
+.app-shell:not(.student-shell) .stat-card,
+.app-shell:not(.student-shell) .monitor-card,
+.app-shell:not(.student-shell) .report-panel,
+.app-shell:not(.student-shell) .table-wrap {
+    border-radius: var(--ui-radius-lg);
+    border-color: rgba(190, 211, 199, 0.9);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 252, 249, 0.98) 100%);
+    box-shadow: var(--ui-shadow-soft);
+}
+
+.student-shell .content-card:hover,
+.student-shell .stat-card:hover,
+.student-shell .group-card:hover,
+.student-shell .resource-card:hover,
+.student-shell .session-card:hover,
+.app-shell:not(.student-shell) .content-card:hover,
+.app-shell:not(.student-shell) .stat-card:hover,
+.app-shell:not(.student-shell) .monitor-card:hover {
+    border-color: color-mix(in srgb, var(--student-accent, #49b670) 28%, white 72%);
+    box-shadow: var(--ui-shadow-hover);
+}
+
+.student-shell .action-button,
+.student-shell .secondary-button,
+.student-shell .thread-button,
+.student-shell .group-open-link,
+.student-shell .group-join-button,
+.student-shell .session-primary,
+.student-shell .session-secondary,
+.app-shell:not(.student-shell) .action-button,
+.app-shell:not(.student-shell) .secondary-button,
+.app-shell:not(.student-shell) .action-chip {
+    border-radius: var(--ui-radius-md);
+    font-weight: 800;
+}
+
+.student-shell .action-button,
+.student-shell .upload-button,
+.student-shell .groups-action,
+.student-shell .discussion-cta,
+.student-shell .sessions-cta,
+.app-shell:not(.student-shell) .action-button {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-soft, #67d38b) 88%, white 12%) 0%, var(--student-accent, #49b670) 100%);
+    box-shadow: 0 14px 28px color-mix(in srgb, var(--student-accent, #49b670) 22%, transparent 78%);
+}
+
+.app-shell:not(.student-shell) .action-button {
+    background: linear-gradient(135deg, var(--admin-accent) 0%, var(--admin-accent-strong) 100%);
+    box-shadow: 0 14px 28px rgba(43, 127, 255, 0.22);
+}
+
+.student-shell input,
+.student-shell select,
+.student-shell textarea,
+.app-shell:not(.student-shell) input,
+.app-shell:not(.student-shell) select,
+.app-shell:not(.student-shell) textarea {
+    border-radius: var(--ui-radius-md);
+}
+
+.student-shell .search-box input,
+.student-shell .groups-filter-select,
+.student-shell .resources-filter-select,
+.app-shell:not(.student-shell) .search-box input,
+.app-shell:not(.student-shell) .users-filter-select {
+    border-color: rgba(188, 211, 198, 0.96);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.student-shell .stats-grid,
+.app-shell:not(.student-shell) .stats-grid {
+    gap: 18px;
+}
+
+.student-shell .stat-card,
+.app-shell:not(.student-shell) .stat-card {
+    overflow: hidden;
+}
+
+.student-shell .stat-card::before,
+.app-shell:not(.student-shell) .stat-card::before {
+    opacity: 0.65;
+}
+
+.student-shell .dashboard-panels,
+.student-shell .resource-grid,
+.student-shell .session-grid,
+.student-shell .groups-grid,
+.student-shell .discussion-stats-grid,
+.app-shell:not(.student-shell) .admin-grid,
+.app-shell:not(.student-shell) .report-grid,
+.app-shell:not(.student-shell) .group-monitor-list {
+    gap: 18px;
+}
+
+.student-shell .group-card-cover {
+    min-height: 132px;
+}
+
+.student-shell .group-card-title,
+.student-shell .resource-copy h3,
+.student-shell .session-card h3,
+.student-shell .discussion-row h3,
+.app-shell:not(.student-shell) .monitor-top h3,
+.app-shell:not(.student-shell) .panel h3,
+.app-shell:not(.student-shell) .report-panel h3 {
+    letter-spacing: -0.02em;
+}
+
+.student-shell .resource-card,
+.student-shell .session-card,
+.student-shell .group-card,
+.student-shell .discussion-row,
+.app-shell:not(.student-shell) .monitor-card,
+.app-shell:not(.student-shell) .alert-row,
+.app-shell:not(.student-shell) .chart-row,
+.app-shell:not(.student-shell) .resource-row {
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.student-shell .discussion-row {
+    background: linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(246,251,248,0.98) 100%);
+}
+
+.student-shell .activity-row,
+.student-shell .past-row,
+.app-shell:not(.student-shell) .table-wrap tbody tr {
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.student-shell .activity-row:hover,
+.student-shell .past-row:hover {
+    background: color-mix(in srgb, var(--student-accent-pale, #dff6e3) 24%, white 76%);
+}
+
+.student-shell .profile-banner,
+.student-shell .calendar-card,
+.student-shell .theme-preview {
+    border-color: rgba(190, 211, 199, 0.92);
+    box-shadow: var(--ui-shadow-soft);
+}
+
+.student-shell .resources-upload-panel,
+.student-shell .groups-create-panel,
+.student-shell .discussion-modal-panel,
+.student-shell .sessions-panel,
+.student-shell .sessions-details-panel,
+.student-shell .detail-upload-panel,
+.student-shell .detail-session-panel,
+.app-shell:not(.student-shell) .users-create-panel,
+.app-shell:not(.student-shell) .users-delete-panel {
+    border-radius: 26px;
+    box-shadow: 0 30px 72px rgba(17, 31, 24, 0.24);
+}
+
+.app-shell:not(.student-shell) .app-sidebar,
+.student-shell .app-sidebar {
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.app-shell:not(.student-shell) .sidebar-link,
+.student-shell .sidebar-link {
+    border-radius: 16px;
+}
+
+.app-shell:not(.student-shell) .table-wrap {
+    overflow: hidden;
+}
+
+.app-shell:not(.student-shell) .table-wrap th {
+    background: rgba(241, 246, 250, 0.9);
+    color: #3b5368;
+}
+
+.app-shell:not(.student-shell) .table-wrap td {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.app-shell:not(.student-shell) .table-wrap tbody tr:hover td {
+    background: rgba(242, 248, 255, 0.92);
+}
+
+.student-shell .app-empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    min-height: 210px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 34px 24px;
+    border-radius: 22px;
+    border: 1px dashed color-mix(in srgb, var(--student-accent) 28%, white 72%);
+    background:
+        radial-gradient(circle at top, color-mix(in srgb, var(--student-accent-pale) 64%, white 36%), transparent 58%),
+        rgba(255, 255, 255, 0.86);
+    color: #5d7165;
+    text-align: center;
+}
+
+.student-shell .app-empty-state.compact {
+    min-height: 150px;
+    padding: 24px 18px;
+}
+
+.student-shell .app-empty-icon {
+    display: inline-flex;
+    width: 54px;
+    height: 54px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    color: white;
+    background: linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%);
+    box-shadow: 0 14px 28px color-mix(in srgb, var(--student-accent) 22%, transparent 78%);
+}
+
+.student-shell .app-empty-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.student-shell .app-empty-state strong {
+    color: #173223;
+    font-size: 1.08rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.student-shell .app-empty-state span:not(.app-empty-icon) {
+    max-width: 360px;
+    line-height: 1.45;
+    font-weight: 650;
+}
+
+.student-shell .app-empty-action {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--student-accent-soft) 0%, var(--student-accent) 100%);
+    color: white;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 850;
+    cursor: pointer;
+    box-shadow: 0 12px 22px color-mix(in srgb, var(--student-accent) 18%, transparent 82%);
+}
+
+.student-shell .groups-empty-state.hidden,
+.student-shell .resources-empty-state.hidden {
+    display: none;
+}
+
+.student-shell .groups-empty-state:not(.hidden),
+.student-shell .resources-empty-state:not(.hidden) {
+    display: flex;
+}
+
+@media (max-width: 900px) {
+    .student-shell .page-title,
+    .app-shell:not(.student-shell) .page-title {
+        font-size: 2.25rem;
+    }
+
+    .student-shell .content-card,
+    .student-shell .stat-card,
+    .app-shell:not(.student-shell) .content-card,
+    .app-shell:not(.student-shell) .stat-card {
+        border-radius: 18px;
+    }
+}
+
+/* Mobile responsiveness pass for the main StudyHub workspaces. */
+@media (max-width: 820px) {
+    .student-shell.app-shell,
+    .app-shell:not(.student-shell) {
+        min-height: auto;
+    }
+
+    .student-shell .app-sidebar,
+    .app-shell:not(.student-shell) .app-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        max-height: 48vh;
+        overflow: auto;
+        padding: 16px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .student-shell .app-sidebar {
+        background: var(--student-sidebar-bg);
+        color: white;
+        box-shadow: 0 18px 34px rgba(23, 54, 33, 0.14);
+    }
+
+    .student-shell .sidebar-brand,
+    .app-shell:not(.student-shell) .sidebar-brand {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+
+    .student-shell .sidebar-brand {
+        margin-bottom: 12px;
+    }
+
+    .student-shell .sidebar-brand-lockup {
+        gap: 10px;
+    }
+
+    .student-shell .sidebar-brand-mark,
+    .app-shell:not(.student-shell) .sidebar-brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
+
+    .student-shell .sidebar-brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
+
+    .student-shell .sidebar-brand h1 {
+        color: #e7f3ea;
+    }
+
+    .student-shell .sidebar-brand h1 span {
+        color: #67df8f;
+    }
+
+    .student-shell .sidebar-nav,
+    .app-shell:not(.student-shell) .sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .student-shell .sidebar-nav {
+        padding: 0;
+    }
+
+    .student-shell .sidebar-link,
+    .app-shell:not(.student-shell) .sidebar-link {
+        flex: 0 0 auto;
+        min-width: 0;
+        min-height: 46px;
+        padding: 10px;
+    }
+
+    .student-shell .sidebar-link {
+        color: rgba(245,255,248,0.82);
+    }
+
+    .student-shell .sidebar-link:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    .student-shell .sidebar-link.active {
+        color: var(--student-accent-text);
+        background: linear-gradient(90deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-pale) 68%, white 32%) 100%);
+        box-shadow: 0 18px 30px rgba(10, 35, 18, 0.18);
+    }
+
+    .student-shell .sidebar-link.active::before {
+        display: block;
+    }
+
+    .student-shell .sidebar-link .icon-box,
+    .app-shell:not(.student-shell) .sidebar-link .icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+    }
+
+    .student-shell .sidebar-link .icon-box {
+        width: 38px;
+        height: 38px;
+        color: inherit;
+    }
+
+    .student-shell .sidebar-link .icon-box svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .student-shell .sidebar-link .nav-title {
+        color: inherit;
+        font-size: 0.88rem;
+    }
+
+    .student-shell .sidebar-link .nav-meta,
+    .student-shell .sidebar-section-label,
+    .student-shell .profile-role {
+        display: none;
+    }
+
+    .student-shell .sidebar-profile,
+    .student-shell .sidebar-bottom,
+    .app-shell:not(.student-shell) .sidebar-bottom {
+        margin-top: 10px;
+    }
+
+    .student-shell .app-main,
+    .app-shell:not(.student-shell) .app-main {
+        min-width: 0;
+        padding: 22px 16px 32px;
+    }
+
+    .student-shell .app-main {
+        padding-top: 18px;
+    }
+
+    .student-shell .toolbar,
+    .app-shell:not(.student-shell) .toolbar,
+    .student-shell .groups-toolbar {
+        gap: 14px;
+    }
+
+    .student-shell .toolbar-actions,
+    .student-shell .toolbar-filters,
+    .app-shell:not(.student-shell) .toolbar-actions,
+    .app-shell:not(.student-shell) .toolbar-filters,
+    .student-shell .groups-toolbar .toolbar-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .student-shell .toolbar-actions > *,
+    .student-shell .toolbar-filters > *,
+    .app-shell:not(.student-shell) .toolbar-actions > *,
+    .app-shell:not(.student-shell) .toolbar-filters > *,
+    .student-shell .groups-toolbar .toolbar-actions > * {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .student-shell .resources-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .student-shell .resources-toolbar .search-box,
+    .student-shell .resources-filter-select,
+    .student-shell .upload-button,
+    .student-shell .groups-action,
+    .student-shell .discussion-cta,
+    .student-shell .sessions-cta,
+    .student-shell .action-button,
+    .student-shell .secondary-button,
+    .app-shell:not(.student-shell) .action-button,
+    .app-shell:not(.student-shell) .secondary-button {
+        width: 100%;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    .student-shell .dashboard-panels,
+    .student-shell .thread-layout,
+    .student-shell .detail-grid,
+    .student-shell .profile-layout,
+    .student-shell .theme-layout,
+    .student-shell .session-grid,
+    .student-shell .calendar-card,
+    .student-shell .resource-grid,
+    .student-shell .groups-grid,
+    .student-shell .discussion-stats-grid,
+    .app-shell:not(.student-shell) .admin-grid,
+    .app-shell:not(.student-shell) .report-grid,
+    .app-shell:not(.student-shell) .group-monitor-list {
+        grid-template-columns: 1fr;
+    }
+
+    .student-shell .content-card,
+    .student-shell .stat-card,
+    .student-shell .group-card,
+    .student-shell .resource-card,
+    .student-shell .session-card,
+    .student-shell .discussion-row,
+    .student-shell .thread-card,
+    .student-shell .theme-card,
+    .student-shell .profile-form-card,
+    .app-shell:not(.student-shell) .content-card,
+    .app-shell:not(.student-shell) .stat-card,
+    .app-shell:not(.student-shell) .panel,
+    .app-shell:not(.student-shell) .monitor-card,
+    .app-shell:not(.student-shell) .report-panel {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .student-shell .app-sidebar,
+    .app-shell:not(.student-shell) .app-sidebar {
+        padding: 10px;
+    }
+
+    .student-shell .sidebar-brand-copy {
+        display: grid;
+    }
+
+    .student-shell .sidebar-nav,
+    .app-shell:not(.student-shell) .sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .student-shell .sidebar-link,
+    .app-shell:not(.student-shell) .sidebar-link {
+        min-height: 48px;
+    }
+
+    .student-shell .sidebar-link {
+        min-height: 38px;
+        padding: 7px 10px;
+    }
+
+    .student-shell .app-main,
+    .app-shell:not(.student-shell) .app-main {
+        padding: 18px 12px 28px;
+    }
+
+    .student-shell .page-title,
+    .app-shell:not(.student-shell) .page-title,
+    .student-shell .groups-toolbar .page-title,
+    .student-shell .profile-page-header .page-title,
+    .student-shell .theme-page-header .page-title {
+        font-size: 2rem;
+        line-height: 1.02;
+        overflow-wrap: anywhere;
+    }
+
+    .student-shell .page-subtitle,
+    .app-shell:not(.student-shell) .page-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .student-shell .stats-grid,
+    .app-shell:not(.student-shell) .stats-grid,
+    .student-shell .option-grid,
+    .student-shell .option-grid.two-column,
+    .student-shell .profile-form-grid,
+    .student-shell .settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-shell .stat-card,
+    .student-shell .content-card,
+    .student-shell .group-card,
+    .student-shell .resource-card,
+    .student-shell .session-card,
+    .student-shell .discussion-row,
+    .student-shell .thread-hero,
+    .student-shell .thread-card,
+    .student-shell .profile-banner,
+    .student-shell .theme-card,
+    .student-shell .theme-preview,
+    .app-shell:not(.student-shell) .stat-card,
+    .app-shell:not(.student-shell) .content-card,
+    .app-shell:not(.student-shell) .panel,
+    .app-shell:not(.student-shell) .monitor-card,
+    .app-shell:not(.student-shell) .report-panel {
+        border-radius: 18px;
+    }
+
+    .student-shell .thread-hero,
+    .student-shell .profile-banner,
+    .student-shell .theme-card,
+    .student-shell .theme-preview,
+    .app-shell:not(.student-shell) .panel,
+    .app-shell:not(.student-shell) .monitor-card,
+    .app-shell:not(.student-shell) .report-panel {
+        padding: 16px;
+    }
+
+    .student-shell .profile-banner {
+        grid-template-columns: 1fr;
+        text-align: left;
+    }
+
+    .student-shell .profile-avatar-large {
+        width: 84px;
+        height: 84px;
+    }
+
+    .student-shell .thread-profile,
+    .student-shell .thread-reply-header,
+    .student-shell .discussion-row,
+    .student-shell .monitor-top,
+    .app-shell:not(.student-shell) .monitor-top {
+        align-items: flex-start;
+    }
+
+    .student-shell .thread-meta,
+    .student-shell .group-card-footer,
+    .student-shell .resource-actions,
+    .student-shell .session-card-actions,
+    .student-shell .monitor-actions,
+    .app-shell:not(.student-shell) .monitor-actions,
+    .app-shell:not(.student-shell) .actions-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .student-shell .thread-submit,
+    .student-shell .group-open-link,
+    .student-shell .group-join-button,
+    .student-shell .download-button,
+    .student-shell .session-primary,
+    .student-shell .session-secondary,
+    .app-shell:not(.student-shell) .action-chip {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .student-shell .group-private-join {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .student-shell .group-join-error {
+        text-align: left;
+    }
+
+    .student-shell .upload-dropzone {
+        min-height: 148px;
+        padding: 18px 14px;
+    }
+
+    .app-shell:not(.student-shell) .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .app-shell:not(.student-shell) .table-wrap table {
+        min-width: 720px;
+    }
+
+    .app-shell:not(.student-shell) .users-filter-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .student-shell .page-title,
+    .app-shell:not(.student-shell) .page-title,
+    .student-shell .groups-toolbar .page-title,
+    .student-shell .profile-page-header .page-title,
+    .student-shell .theme-page-header .page-title {
+        font-size: 1.72rem;
+    }
+
+    .student-shell .sidebar-brand h1,
+    .app-shell:not(.student-shell) .sidebar-brand h1 {
+        font-size: 1.45rem;
+    }
+
+    .student-shell .resource-meta,
+    .student-shell .session-meta,
+    .student-shell .group-card-meta,
+    .student-shell .discussion-meta {
+        gap: 6px;
+    }
+
+    .student-shell .resource-meta span,
+    .student-shell .session-meta span,
+    .student-shell .group-card-meta span,
+    .student-shell .discussion-meta span {
+        overflow-wrap: anywhere;
+    }
+}
+
+.student-shell.student-theme-dark {
+    color: #dcebe2;
+    color-scheme: dark;
+}
+
+.student-shell.student-theme-dark .app-main {
+    background: transparent;
+}
+
+.student-shell.student-theme-dark .page-title,
+.student-shell.student-theme-dark h2,
+.student-shell.student-theme-dark h3,
+.student-shell.student-theme-dark h4,
+.student-shell.student-theme-dark .stat-value,
+.student-shell.student-theme-dark .discussion-stat-value,
+.student-shell.student-theme-dark .sessions-stat-card strong,
+.student-shell.student-theme-dark .profile-stat-card strong,
+.student-shell.student-theme-dark .resource-copy h3,
+.student-shell.student-theme-dark .discussion-main h3,
+.student-shell.student-theme-dark .group-card-title,
+.student-shell.student-theme-dark .session-card h3,
+.student-shell.student-theme-dark .thread-title {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .page-subtitle,
+.student-shell.student-theme-dark p,
+.student-shell.student-theme-dark .stat-label,
+.student-shell.student-theme-dark .stat-kicker,
+.student-shell.student-theme-dark .discussion-stat-label,
+.student-shell.student-theme-dark .discussion-stat-hint,
+.student-shell.student-theme-dark .resource-detail-row,
+.student-shell.student-theme-dark .discussion-excerpt,
+.student-shell.student-theme-dark .discussion-stats,
+.student-shell.student-theme-dark .group-card-copy,
+.student-shell.student-theme-dark .session-meta,
+.student-shell.student-theme-dark .sessions-stat-label,
+.student-shell.student-theme-dark .sessions-stat-card small,
+.student-shell.student-theme-dark .profile-banner p,
+.student-shell.student-theme-dark .settings-card-copy,
+.student-shell.student-theme-dark .field-help {
+    color: #a8b9af;
+}
+
+.student-shell.student-theme-dark .content-card,
+.student-shell.student-theme-dark .stat-card,
+.student-shell.student-theme-dark .discussion-stat-card,
+.student-shell.student-theme-dark .sessions-stat-card,
+.student-shell.student-theme-dark .discussion-row,
+.student-shell.student-theme-dark .discussion-toolbar,
+.student-shell.student-theme-dark .resource-card,
+.student-shell.student-theme-dark .group-card,
+.student-shell.student-theme-dark .session-card,
+.student-shell.student-theme-dark .profile-form-card,
+.student-shell.student-theme-dark .profile-banner,
+.student-shell.student-theme-dark .profile-stat-card,
+.student-shell.student-theme-dark .profile-insight-card,
+.student-shell.student-theme-dark .settings-card,
+.student-shell.student-theme-dark .theme-card,
+.student-shell.student-theme-dark .theme-preview,
+.student-shell.student-theme-dark .preview-card,
+.student-shell.student-theme-dark .calendar-card {
+    border-color: rgba(126, 230, 164, 0.16);
+    background:
+        radial-gradient(circle at top right, rgba(85, 217, 135, 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(22, 32, 27, 0.98) 0%, rgba(14, 22, 19, 0.98) 100%);
+    box-shadow: 0 24px 52px rgba(0, 0, 0, 0.34);
+}
+
+.student-shell.student-theme-dark .content-card:hover,
+.student-shell.student-theme-dark .stat-card:hover,
+.student-shell.student-theme-dark .discussion-row:hover,
+.student-shell.student-theme-dark .resource-card:hover,
+.student-shell.student-theme-dark .group-card:hover,
+.student-shell.student-theme-dark .session-card:hover {
+    border-color: rgba(126, 230, 164, 0.34);
+    box-shadow: 0 30px 62px rgba(0, 0, 0, 0.42);
+}
+
+.student-shell.student-theme-dark .sidebar-link,
+.student-shell.student-theme-dark .sidebar-profile,
+.student-shell.student-theme-dark .sidebar-bottom .sidebar-link {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.student-shell.student-theme-dark .sidebar-link.active,
+.student-shell.student-theme-dark .sidebar-link:hover,
+.student-shell.student-theme-dark .sidebar-profile:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.student-shell.student-theme-dark .sidebar-link.active {
+    color: #f4fff8;
+    background:
+        linear-gradient(90deg, rgba(85, 217, 135, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
+}
+
+.student-shell.student-theme-dark .sidebar-link.active .icon-box {
+    border-color: rgba(126, 230, 164, 0.24);
+    background:
+        linear-gradient(135deg, rgba(126, 230, 164, 0.28) 0%, rgba(85, 217, 135, 0.16) 100%),
+        #143321;
+    color: #ecfff2;
+}
+
+.student-shell.student-theme-dark .sidebar-link.active .nav-meta {
+    color: #b7c9be;
+}
+
+.student-shell.student-theme-dark .sidebar-link:hover .icon-box {
+    border-color: rgba(126, 230, 164, 0.2);
+    background: rgba(126, 230, 164, 0.14);
+}
+
+.student-shell.student-theme-dark input,
+.student-shell.student-theme-dark select,
+.student-shell.student-theme-dark textarea,
+.student-shell.student-theme-dark .search-box input,
+.student-shell.student-theme-dark .groups-filter-select,
+.student-shell.student-theme-dark .resources-filter-select,
+.student-shell.student-theme-dark .discussion-filter-select {
+    border-color: rgba(126, 230, 164, 0.18);
+    background: rgba(9, 16, 14, 0.78);
+    color: #ecfff2;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.student-shell.student-theme-dark input::placeholder,
+.student-shell.student-theme-dark textarea::placeholder {
+    color: #72867a;
+}
+
+.student-shell.student-theme-dark .resource-tag,
+.student-shell.student-theme-dark .resource-size,
+.student-shell.student-theme-dark .discussion-group-pill,
+.student-shell.student-theme-dark .profile-banner-chip,
+.student-shell.student-theme-dark .group-card-tag,
+.student-shell.student-theme-dark .detail-hero-tag,
+.student-shell.student-theme-dark .session-date-pill,
+.student-shell.student-theme-dark .preview-chip {
+    border-color: rgba(126, 230, 164, 0.18);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .resource-icon,
+.student-shell.student-theme-dark .sessions-stat-icon,
+.student-shell.student-theme-dark .session-subject-icon,
+.student-shell.student-theme-dark .past-session-icon,
+.student-shell.student-theme-dark .discussion-author-avatar,
+.student-shell.student-theme-dark .profile-avatar,
+.student-shell.student-theme-dark .profile-banner-avatar,
+.student-shell.student-theme-dark .app-empty-icon,
+.student-shell.student-theme-dark .preview-avatar,
+.student-shell.student-theme-dark .thread-profile-avatar,
+.student-shell.student-theme-dark .thread-reply-avatar {
+    background:
+        linear-gradient(135deg, rgba(126, 230, 164, 0.24) 0%, rgba(85, 217, 135, 0.12) 100%),
+        #13251c;
+    color: #ecfff2;
+    border-color: rgba(126, 230, 164, 0.18);
+}
+
+.student-shell.student-theme-dark .resource-uploader-avatar,
+.student-shell.student-theme-dark .discussion-participants span,
+.student-shell.student-theme-dark .discussion-participants small {
+    border-color: #101813;
+    background: #172820;
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .resource-uploader-copy span,
+.student-shell.student-theme-dark .discussion-author-role,
+.student-shell.student-theme-dark .resource-date,
+.student-shell.student-theme-dark .group-card-meta,
+.student-shell.student-theme-dark .profile-role {
+    color: #93a69b;
+}
+
+.student-shell.student-theme-dark .resource-uploader-copy strong,
+.student-shell.student-theme-dark .resource-group,
+.student-shell.student-theme-dark .session-group,
+.student-shell.student-theme-dark .discussion-author-name,
+.student-shell.student-theme-dark .profile-name,
+.student-shell.student-theme-dark .profile-field span,
+.student-shell.student-theme-dark .settings-field label,
+.student-shell.student-theme-dark .option-group-title,
+.student-shell.student-theme-dark .option-card-title,
+.student-shell.student-theme-dark .theme-preview h3,
+.student-shell.student-theme-dark .preview-card h4,
+.student-shell.student-theme-dark .panel-header h3,
+.student-shell.student-theme-dark .activity-header h3,
+.student-shell.student-theme-dark .group-name,
+.student-shell.student-theme-dark .activity-text strong {
+    color: #e8fff0;
+}
+
+.student-shell.student-theme-dark .thread-button,
+.student-shell.student-theme-dark .secondary-button,
+.student-shell.student-theme-dark .group-open-link,
+.student-shell.student-theme-dark .session-secondary,
+.student-shell.student-theme-dark .panel-header a,
+.student-shell.student-theme-dark .open-pill {
+    border-color: rgba(126, 230, 164, 0.26);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .action-button,
+.student-shell.student-theme-dark .download-button,
+.student-shell.student-theme-dark .discussion-cta,
+.student-shell.student-theme-dark .upload-button,
+.student-shell.student-theme-dark .groups-action,
+.student-shell.student-theme-dark .thread-submit {
+    background: linear-gradient(135deg, #6ee99a 0%, #2fbf6a 100%);
+    color: #06120c;
+    box-shadow: 0 16px 30px rgba(47, 191, 106, 0.22);
+}
+
+.student-shell.student-theme-dark .app-empty-state,
+.student-shell.student-theme-dark .resources-empty-state,
+.student-shell.student-theme-dark .discussion-empty-state {
+    border-color: rgba(126, 230, 164, 0.24);
+    background:
+        radial-gradient(circle at top, rgba(85, 217, 135, 0.1), transparent 56%),
+        rgba(15, 25, 21, 0.82);
+    color: #a8b9af;
+}
+
+.student-shell.student-theme-dark .app-empty-state strong,
+.student-shell.student-theme-dark .resources-empty-state strong,
+.student-shell.student-theme-dark .discussion-empty-state strong {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .app-empty-state span:not(.app-empty-icon),
+.student-shell.student-theme-dark .resources-empty-state span:not(.app-empty-icon),
+.student-shell.student-theme-dark .discussion-empty-state span:not(.app-empty-icon) {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .fixed.inset-0 .relative,
+.student-shell.student-theme-dark [data-resource-upload-modal] > div,
+.student-shell.student-theme-dark [data-discussion-modal] > div,
+.student-shell.student-theme-dark [data-create-group-modal] > div,
+.student-shell.student-theme-dark [data-private-join-modal] > div,
+.student-shell.student-theme-dark [data-sessions-modal] > div,
+.student-shell.student-theme-dark [data-session-details-modal] > div,
+.student-shell.student-theme-dark [data-detail-upload-modal] > div,
+.student-shell.student-theme-dark [data-detail-session-modal] > div,
+.student-shell.student-theme-dark [data-detail-session-details-modal] > div {
+    border-color: rgba(126, 230, 164, 0.18);
+    background:
+        radial-gradient(circle at top right, rgba(85, 217, 135, 0.1), transparent 36%),
+        linear-gradient(180deg, #14261c 0%, #0b1511 100%);
+    color: #e8fff0;
+    box-shadow: 0 34px 80px rgba(0, 0, 0, 0.46);
+}
+
+.student-shell.student-theme-dark .fixed.inset-0 .relative > div:first-child,
+.student-shell.student-theme-dark [data-resource-upload-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-discussion-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-create-group-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-private-join-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-sessions-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-session-details-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-detail-upload-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-detail-session-modal] > div > div:first-child,
+.student-shell.student-theme-dark [data-detail-session-details-modal] > div > div:first-child {
+    border-color: rgba(126, 230, 164, 0.14);
+    background:
+        radial-gradient(circle at top left, rgba(126, 230, 164, 0.12), transparent 38%),
+        rgba(20, 62, 38, 0.76);
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] h3,
+.student-shell.student-theme-dark [data-discussion-modal] h3,
+.student-shell.student-theme-dark [data-create-group-modal] h3,
+.student-shell.student-theme-dark [data-private-join-modal] h3,
+.student-shell.student-theme-dark [data-sessions-modal] h3,
+.student-shell.student-theme-dark [data-session-details-modal] h3,
+.student-shell.student-theme-dark [data-detail-upload-modal] h3,
+.student-shell.student-theme-dark [data-detail-session-modal] h3,
+.student-shell.student-theme-dark [data-detail-session-details-modal] h3 {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] h3 + p,
+.student-shell.student-theme-dark [data-discussion-modal] h3 + p,
+.student-shell.student-theme-dark [data-create-group-modal] h3 + p,
+.student-shell.student-theme-dark [data-private-join-modal] h3 + p,
+.student-shell.student-theme-dark [data-sessions-modal] h3 + p,
+.student-shell.student-theme-dark [data-session-details-modal] h3 + p,
+.student-shell.student-theme-dark [data-detail-upload-modal] h3 + p,
+.student-shell.student-theme-dark [data-detail-session-modal] h3 + p,
+.student-shell.student-theme-dark [data-detail-session-details-modal] h3 + p {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-discussion-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-create-group-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-private-join-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-sessions-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-session-details-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-detail-upload-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-detail-session-modal] button[aria-label="Close"],
+.student-shell.student-theme-dark [data-detail-session-details-modal] button[aria-label="Close"] {
+    border-color: rgba(126, 230, 164, 0.28);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ecfff2;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] form > label,
+.student-shell.student-theme-dark [data-discussion-modal] form > label,
+.student-shell.student-theme-dark [data-create-group-modal] form > label,
+.student-shell.student-theme-dark [data-create-group-modal] form > div:not(.sticky),
+.student-shell.student-theme-dark [data-private-join-modal] form > label,
+.student-shell.student-theme-dark [data-sessions-modal] form > label,
+.student-shell.student-theme-dark [data-session-details-modal] .sessions-detail-card,
+.student-shell.student-theme-dark [data-detail-upload-modal] form > label,
+.student-shell.student-theme-dark [data-detail-session-modal] form > label,
+.student-shell.student-theme-dark [data-detail-session-details-modal] .detail-session-details-card {
+    border-color: rgba(216, 239, 223, 0.44) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.045) 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-discussion-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-create-group-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-create-group-modal] form > div:not(.sticky) > span:first-child,
+.student-shell.student-theme-dark [data-private-join-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-sessions-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-session-details-modal] [data-details-group],
+.student-shell.student-theme-dark [data-detail-upload-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-detail-session-modal] form > label > span:first-child,
+.student-shell.student-theme-dark [data-detail-session-details-modal] [data-detail-session-group] {
+    color: #dfffe9 !important;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] input,
+.student-shell.student-theme-dark [data-resource-upload-modal] select,
+.student-shell.student-theme-dark [data-resource-upload-modal] textarea,
+.student-shell.student-theme-dark [data-discussion-modal] input,
+.student-shell.student-theme-dark [data-discussion-modal] select,
+.student-shell.student-theme-dark [data-discussion-modal] textarea,
+.student-shell.student-theme-dark [data-create-group-modal] input,
+.student-shell.student-theme-dark [data-create-group-modal] select,
+.student-shell.student-theme-dark [data-create-group-modal] textarea,
+.student-shell.student-theme-dark [data-private-join-modal] input,
+.student-shell.student-theme-dark [data-private-join-modal] select,
+.student-shell.student-theme-dark [data-private-join-modal] textarea,
+.student-shell.student-theme-dark [data-sessions-modal] input,
+.student-shell.student-theme-dark [data-sessions-modal] select,
+.student-shell.student-theme-dark [data-sessions-modal] textarea,
+.student-shell.student-theme-dark [data-detail-upload-modal] input,
+.student-shell.student-theme-dark [data-detail-upload-modal] select,
+.student-shell.student-theme-dark [data-detail-upload-modal] textarea,
+.student-shell.student-theme-dark [data-detail-session-modal] input,
+.student-shell.student-theme-dark [data-detail-session-modal] select,
+.student-shell.student-theme-dark [data-detail-session-modal] textarea {
+    border-color: rgba(126, 230, 164, 0.18) !important;
+    background: rgba(7, 16, 13, 0.88) !important;
+    color: #ecfff2 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] input::placeholder,
+.student-shell.student-theme-dark [data-resource-upload-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-discussion-modal] input::placeholder,
+.student-shell.student-theme-dark [data-discussion-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-create-group-modal] input::placeholder,
+.student-shell.student-theme-dark [data-create-group-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-private-join-modal] input::placeholder,
+.student-shell.student-theme-dark [data-private-join-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-sessions-modal] input::placeholder,
+.student-shell.student-theme-dark [data-sessions-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-detail-upload-modal] input::placeholder,
+.student-shell.student-theme-dark [data-detail-upload-modal] textarea::placeholder,
+.student-shell.student-theme-dark [data-detail-session-modal] input::placeholder,
+.student-shell.student-theme-dark [data-detail-session-modal] textarea::placeholder {
+    color: #83968a;
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] form > .sticky,
+.student-shell.student-theme-dark [data-discussion-modal] form > .sticky,
+.student-shell.student-theme-dark [data-create-group-modal] form > .sticky,
+.student-shell.student-theme-dark [data-private-join-modal] form > .sticky,
+.student-shell.student-theme-dark [data-sessions-modal] form > .sticky,
+.student-shell.student-theme-dark [data-detail-upload-modal] form > .sticky,
+.student-shell.student-theme-dark [data-detail-session-modal] form > .sticky {
+    border-color: rgba(126, 230, 164, 0.14) !important;
+    background:
+        linear-gradient(180deg, rgba(11, 21, 17, 0.78) 0%, rgba(11, 21, 17, 0.96) 100%) !important;
+    box-shadow: 0 -18px 34px rgba(0, 0, 0, 0.22);
+}
+
+.student-shell.student-theme-dark [data-resource-upload-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-discussion-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-create-group-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-private-join-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-sessions-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-detail-upload-modal] form > .sticky button,
+.student-shell.student-theme-dark [data-detail-session-modal] form > .sticky button {
+    background: linear-gradient(135deg, #6ee99a 0%, #13bd76 100%) !important;
+    color: #06120c !important;
+    box-shadow: 0 18px 36px rgba(47, 191, 106, 0.28) !important;
+}
+
+.student-shell.student-theme-dark .upload-dropzone {
+    border-color: rgba(126, 230, 164, 0.32);
+    background:
+        radial-gradient(circle at center, rgba(85, 217, 135, 0.13), transparent 58%),
+        rgba(255, 255, 255, 0.055);
+}
+
+.student-shell.student-theme-dark .upload-dropzone:hover,
+.student-shell.student-theme-dark .upload-dropzone.is-dragging {
+    border-color: rgba(126, 230, 164, 0.52);
+    background:
+        radial-gradient(circle at center, rgba(85, 217, 135, 0.2), transparent 60%),
+        rgba(255, 255, 255, 0.075);
+}
+
+.student-shell.student-theme-dark .upload-dropzone-title {
+    color: #e8fff0;
+}
+
+.student-shell.student-theme-dark .upload-dropzone-subtitle,
+.student-shell.student-theme-dark .upload-dropzone-name {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .sessions-detail-card strong {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .sessions-detail-card span,
+.student-shell.student-theme-dark .detail-session-details-card span {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .detail-session-details-card strong {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .meeting-link-button {
+    background: linear-gradient(135deg, #6ee99a 0%, #13bd76 100%);
+    color: #06120c;
+    box-shadow: 0 18px 36px rgba(47, 191, 106, 0.28);
+}
+
+.student-shell.student-theme-dark .option-card-body,
+.student-shell.student-theme-dark .groups-style-card,
+.student-shell.student-theme-dark .profile-insight-list div {
+    border-color: rgba(126, 230, 164, 0.16);
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.student-shell.student-theme-dark .option-card-title {
+    color: #e8fff0;
+}
+
+.student-shell.student-theme-dark .option-card-copy {
+    color: #a8b9af;
+}
+
+.student-shell.student-theme-dark .option-card-body::after {
+    border-color: rgba(216, 239, 223, 0.72);
+    background: rgba(237, 255, 243, 0.9);
+}
+
+.student-shell.student-theme-dark .option-card input:checked + .option-card-body,
+.student-shell.student-theme-dark .groups-style-option input:checked + .groups-style-card {
+    border-color: rgba(126, 230, 164, 0.46);
+    background: rgba(85, 217, 135, 0.13);
+}
+
+.student-shell.student-theme-dark [data-create-group-modal] .inline-flex {
+    border: 1px solid rgba(126, 230, 164, 0.22);
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #e8fff0 !important;
+}
+
+.student-shell.student-theme-dark .groups-style-card {
+    min-height: 92px;
+    border-color: rgba(126, 230, 164, 0.18);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.035) 100%);
+}
+
+.student-shell.student-theme-dark .groups-style-option:hover .groups-style-card {
+    border-color: rgba(126, 230, 164, 0.36);
+    background: rgba(85, 217, 135, 0.1);
+}
+
+.student-shell.student-theme-dark .groups-style-option input:checked + .groups-style-card {
+    border-color: rgba(126, 230, 164, 0.55);
+    background:
+        radial-gradient(circle at top right, rgba(126, 230, 164, 0.14), transparent 44%),
+        rgba(85, 217, 135, 0.13);
+    box-shadow: inset 0 0 0 1px rgba(126, 230, 164, 0.08);
+}
+
+.student-shell.student-theme-dark .groups-style-copy strong {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .groups-style-copy span {
+    color: #9db0a5;
+}
+
+.student-shell.student-theme-dark .groups-style-icon.in-person {
+    background: linear-gradient(135deg, #80edaa 0%, #35c879 100%);
+    color: #06120c;
+}
+
+.student-shell.student-theme-dark .groups-style-icon.online {
+    background: linear-gradient(135deg, #61c4ef 0%, #268bc0 100%);
+    color: #06120c;
+}
+
+.student-shell.student-theme-dark .groups-style-icon.hybrid {
+    background: linear-gradient(135deg, #f2c56d 0%, #d89b38 100%);
+    color: #1f1604;
+}
+
+.student-shell.student-theme-dark .option-card input:checked + .option-card-body::after {
+    border-color: #6ee99a;
+    background:
+        radial-gradient(circle, #55d987 0 42%, transparent 44%),
+        rgba(237, 255, 243, 0.92);
+}
+
+.student-shell.student-theme-dark .preview-shell {
+    border-color: rgba(216, 239, 223, 0.62);
+    background:
+        radial-gradient(circle at top right, rgba(85, 217, 135, 0.08), transparent 46%),
+        #07100d;
+}
+
+.student-shell.student-theme-dark .preview-sidebar {
+    background:
+        radial-gradient(circle at top right, rgba(126, 230, 164, 0.14), transparent 42%),
+        linear-gradient(135deg, rgba(16, 78, 45, 0.86) 0%, rgba(11, 44, 30, 0.94) 100%);
+}
+
+.student-shell.student-theme-dark .preview-card {
+    border-color: rgba(126, 230, 164, 0.18);
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.student-shell.student-theme-dark .preview-card p {
+    color: #a8b9af;
+}
+
+.student-shell.student-theme-dark .preview-button {
+    color: #06120c;
+}
+
+.student-shell.student-theme-dark .panel-header,
+.student-shell.student-theme-dark .activity-header {
+    border-color: rgba(126, 230, 164, 0.14);
+    background:
+        radial-gradient(circle at top right, rgba(126, 230, 164, 0.1), transparent 44%),
+        linear-gradient(135deg, rgba(85, 217, 135, 0.12) 0%, rgba(255, 255, 255, 0.035) 100%);
+}
+
+.student-shell.student-theme-dark .panel-meta,
+.student-shell.student-theme-dark .stat-kicker {
+    border-color: rgba(126, 230, 164, 0.24);
+    background: rgba(255, 255, 255, 0.09);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .group-row,
+.student-shell.student-theme-dark .notification-row,
+.student-shell.student-theme-dark .activity-row {
+    border-color: rgba(126, 230, 164, 0.14);
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
+}
+
+.student-shell.student-theme-dark .activity-row {
+    border-bottom-color: rgba(126, 230, 164, 0.12);
+}
+
+.student-shell.student-theme-dark .notification-row p,
+.student-shell.student-theme-dark .activity-text {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .notification-row span,
+.student-shell.student-theme-dark .activity-time {
+    color: #93a69b;
+}
+
+.student-shell.student-theme-dark .activity-time {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.student-shell.student-theme-dark .activity-group,
+.student-shell.student-theme-dark .discussion-stat-hint,
+.student-shell.student-theme-dark .sessions-stat-card small {
+    color: #6ee99a;
+}
+
+.student-shell.student-theme-dark .dashboard-empty {
+    border-color: rgba(126, 230, 164, 0.28);
+    background: rgba(85, 217, 135, 0.09);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .session-note,
+.student-shell.student-theme-dark .calendar-stat {
+    border-color: rgba(126, 230, 164, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .calendar-stat-label {
+    color: #9db0a5;
+}
+
+.student-shell.student-theme-dark .calendar-stat-value {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .calendar-pill,
+.student-shell.student-theme-dark .tag {
+    border-color: rgba(126, 230, 164, 0.18);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .past-row {
+    border-bottom-color: rgba(126, 230, 164, 0.14);
+    background: transparent;
+}
+
+.student-shell.student-theme-dark .past-row:hover {
+    background:
+        linear-gradient(90deg, rgba(85, 217, 135, 0.12) 0%, rgba(255, 255, 255, 0.045) 100%);
+    transform: translateY(-1px);
+}
+
+.student-shell.student-theme-dark .past-row h3 {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .past-row p {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .thread-back {
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .thread-hero,
+.student-shell.student-theme-dark .thread-card {
+    border-color: rgba(126, 230, 164, 0.16);
+    background:
+        radial-gradient(circle at top right, rgba(85, 217, 135, 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(22, 32, 27, 0.98) 0%, rgba(14, 22, 19, 0.98) 100%);
+    box-shadow: 0 24px 52px rgba(0, 0, 0, 0.34);
+}
+
+.student-shell.student-theme-dark .thread-profile,
+.student-shell.student-theme-dark .thread-card-header {
+    border-color: rgba(126, 230, 164, 0.14);
+    background:
+        radial-gradient(circle at top right, rgba(126, 230, 164, 0.1), transparent 44%),
+        linear-gradient(135deg, rgba(85, 217, 135, 0.12) 0%, rgba(255, 255, 255, 0.035) 100%);
+    box-shadow: none;
+}
+
+.student-shell.student-theme-dark .thread-profile-name,
+.student-shell.student-theme-dark .thread-card-header h3,
+.student-shell.student-theme-dark .thread-reply-author,
+.student-shell.student-theme-dark .thread-child-author {
+    color: #f4fff8;
+}
+
+.student-shell.student-theme-dark .thread-profile-role,
+.student-shell.student-theme-dark .thread-body,
+.student-shell.student-theme-dark .thread-reply-body,
+.student-shell.student-theme-dark .thread-reply-time,
+.student-shell.student-theme-dark .thread-child-time {
+    color: #bfcec4;
+}
+
+.student-shell.student-theme-dark .thread-meta span,
+.student-shell.student-theme-dark .thread-card-header > span,
+.student-shell.student-theme-dark .thread-inline-reply,
+.student-shell.student-theme-dark .thread-replying-to {
+    border-color: rgba(126, 230, 164, 0.22);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .thread-reply,
+.student-shell.student-theme-dark .thread-child-reply {
+    border-color: rgba(126, 230, 164, 0.14);
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
+}
+
+.student-shell.student-theme-dark .thread-children {
+    border-left-color: rgba(126, 230, 164, 0.32);
+}
+
+.student-shell.student-theme-dark .thread-child-target {
+    color: #6ee99a;
+}
+
+.student-shell.student-theme-dark .thread-textarea {
+    border-color: rgba(126, 230, 164, 0.2);
+    background: rgba(7, 16, 13, 0.86);
+    color: #ecfff2;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.student-shell.student-theme-dark .thread-textarea::placeholder {
+    color: #83968a;
+}
+
+.student-shell.student-theme-dark .thread-textarea:focus {
+    border-color: rgba(126, 230, 164, 0.46);
+    box-shadow: 0 0 0 4px rgba(85, 217, 135, 0.14);
+}
+
+.student-shell.student-theme-dark .thread-replying-clear {
+    color: #ecfff2;
+}
+
+.student-shell.student-theme-dark .thread-delete-button,
+.student-shell.student-theme-dark .thread-errors {
+    border-color: rgba(248, 128, 96, 0.28);
+    background: rgba(248, 128, 96, 0.12);
+    color: #ffd4c9;
+}
+
+.student-shell.student-theme-dark .thread-notify-button {
+    border-color: rgba(126, 230, 164, 0.22);
+    background: rgba(85, 217, 135, 0.1);
+    color: #dfffe9;
+}
+
+.student-shell.student-theme-dark .thread-notify-button.is-active {
+    border-color: rgba(126, 230, 164, 0.42);
+    background: linear-gradient(135deg, #55d987, #22a85a);
+    color: #06140d;
+}
+
+.student-shell.student-theme-dark .layout-status,
+.student-shell.student-theme-dark .discussion-status,
+.student-shell.student-theme-dark .resources-status,
+.student-shell.student-theme-dark .detail-status,
+.student-shell.student-theme-dark .profile-status,
+.student-shell.student-theme-dark .theme-status {
+    border-color: rgba(126, 230, 164, 0.24);
+    background: rgba(85, 217, 135, 0.12);
+    color: #dfffe9;
+}
+
+/* Student page consistency pass */
+
+/* Student shell and sidebar isolation. */
+/* Student sidebar isolation */
+.student-shell.app-shell {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    min-height: 100vh;
+    background: var(--student-page-bg);
+}
+
+.student-shell .app-sidebar {
+    background: var(--student-sidebar-bg);
+    color: white;
+    padding: 24px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 24px 0 48px rgba(23, 54, 33, 0.14);
+}
+
+.student-shell .app-sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 20px 18px auto;
+    height: 160px;
+    border-radius: 28px;
+    background: radial-gradient(circle at top, rgba(255,255,255,0.16), transparent 68%);
+    pointer-events: none;
+}
+
+.student-shell .sidebar-brand {
+    position: relative;
+    display: grid;
+    align-content: start;
+    padding: 20px 22px 22px;
+    min-height: 136px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.07));
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    overflow: hidden;
+}
+
+.student-shell .sidebar-brand-lockup {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.student-shell .sidebar-brand-mark {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(238, 247, 241, 0.98) 0%, rgba(205, 231, 214, 0.94) 100%);
+    box-shadow: 0 14px 24px rgba(8, 28, 16, 0.16);
+}
+
+.student-shell .sidebar-brand-mark svg {
+    width: 46px;
+    height: 46px;
+    display: block;
+}
+
+.student-shell .sidebar-brand-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.student-shell .sidebar-brand::after {
+    content: '';
+    position: absolute;
+    right: -42px;
+    top: -34px;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: rgba(196, 255, 216, 0.12);
+    animation: sidebarGlow 7s ease-in-out infinite;
+}
+
+.student-shell .sidebar-brand h1 {
+    position: relative;
+    margin: 0;
+    font-size: 1.72rem;
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    font-weight: 800;
+    color: #e7f3ea;
+    text-shadow: 0 1px 0 rgba(12, 32, 20, 0.12);
+}
+
+.student-shell .sidebar-brand h1 span {
+    color: #67df8f;
+}
+
+.student-shell .sidebar-kicker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 6px 10px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: rgba(212, 255, 225, 0.14);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(242,255,246,0.88);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.student-shell .sidebar-section-label {
+    padding: 18px 14px 10px;
+    color: rgba(234, 248, 237, 0.62);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.student-shell .sidebar-nav {
+    display: grid;
+    gap: var(--student-density-gap);
+    padding: 0 4px;
+}
+
+.student-shell .sidebar-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 18px;
+    color: rgba(245,255,248,0.82);
+    font-size: 0.94rem;
+    font-weight: 600;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.student-shell .sidebar-link .icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    transition: inherit;
+}
+
+.student-shell .sidebar-link .nav-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.student-shell .sidebar-link .nav-title {
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+}
+
+.student-shell .sidebar-link .nav-meta {
+    color: rgba(237, 248, 240, 0.56);
+    font-size: 0.76rem;
+    font-weight: 500;
+    transition: inherit;
+}
+
+.student-shell .sidebar-link:hover {
+    transform: translateX(4px);
+    color: white;
+    background: rgba(255,255,255,0.08);
+}
+
+.student-shell .sidebar-link:hover .icon-box {
+    background: rgba(255,255,255,0.14);
+}
+
+.student-shell .sidebar-link.active {
+    color: var(--student-accent-text);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-pale) 68%, white 32%) 100%);
+    box-shadow: 0 18px 30px rgba(10, 35, 18, 0.18);
+}
+
+.student-shell .sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 5px;
+    border-radius: 999px;
+    background: var(--student-accent-soft);
+}
+
+.student-shell .sidebar-link.active .icon-box {
+    background: color-mix(in srgb, var(--student-accent-soft) 18%, white 82%);
+    border-color: color-mix(in srgb, var(--student-accent) 24%, white 76%);
+    color: var(--student-accent-text);
+}
+
+.student-shell .sidebar-link.active .nav-meta {
+    color: color-mix(in srgb, var(--student-accent-text) 68%, transparent 32%);
+}
+
+.student-shell .sidebar-profile {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+    border: 1px solid rgba(255,255,255,0.14);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.student-shell .sidebar-profile:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+    box-shadow: 0 16px 24px rgba(8, 28, 16, 0.12);
+}
+
+.student-shell .profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--student-accent-pale) 82%, white 18%) 0%, color-mix(in srgb, var(--student-accent-soft) 42%, white 58%) 100%);
+    color: var(--student-accent-text);
+    font-size: 1rem;
+    font-weight: 800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+.student-shell .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
+}
+
+.student-shell .profile-copy {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.student-shell .profile-name {
+    font-size: 1rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.student-shell .profile-role {
+    color: rgba(240,255,245,0.68);
+    font-size: 0.82rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.student-shell .sidebar-bottom {
+    margin-top: auto;
+    padding: 18px 4px 0;
+}
+
+.student-shell .sidebar-bottom .sidebar-link {
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.student-shell .sidebar-bottom .sidebar-link .icon-box {
+    background: rgba(255,255,255,0.1);
+}
+
+.student-shell .sidebar-logout-button {
+    appearance: none;
+}
+
+.student-shell .app-main {
+    padding: var(--student-main-padding);
+    min-height: 100vh;
+}
+
+@media (max-width: 800px) {
+    .student-shell.app-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .student-shell .app-sidebar {
+        position: static;
+        height: auto;
+    }
+
+    .student-shell .app-main {
+        padding: 20px;
+    }
+}
+

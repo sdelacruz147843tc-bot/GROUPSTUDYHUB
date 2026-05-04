@@ -101,6 +101,7 @@
                                 @if ($user['can_delete'])
                                     <form class="action-form" method="POST" action="{{ route('studyhub.admin.users.delete', $user['id']) }}">
                                         @csrf
+                                        @method('DELETE')
                                         <button
                                             class="action-chip delete"
                                             type="button"

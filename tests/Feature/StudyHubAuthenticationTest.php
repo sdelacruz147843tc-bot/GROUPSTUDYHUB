@@ -64,3 +64,20 @@ test('students are redirected away from admin routes', function () {
 
     $response->assertRedirect(route('studyhub.student.dashboard'));
 });
+
+test('admin routes reject student users', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    foreach ([
+        route('studyhub.admin.dashboard'),
+        route('studyhub.admin.users'),
+        route('studyhub.admin.groups'),
+        route('studyhub.admin.reports'),
+    ] as $adminRoute) {
+        $this->actingAs($student)
+            ->get($adminRoute)
+            ->assertRedirect(route('studyhub.student.dashboard'));
+    }
+});

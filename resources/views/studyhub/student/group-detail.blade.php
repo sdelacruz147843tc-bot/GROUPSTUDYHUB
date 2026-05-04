@@ -6,6 +6,57 @@
     @php
         $showUploadModal = $errors->has('group_id') || $errors->has('category') || $errors->has('resource_file');
         $showSessionModal = $errors->has('title') || $errors->has('date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('location') || $errors->has('type') || $errors->has('max_attendees');
+        $groupImages = [
+            'artificial intelligence' => 'Artificial intelegence.png',
+            'business' => 'business.png',
+            'calculus' => 'Mathematics.png',
+            'computer science' => 'Computer Science.png',
+            'database' => 'Information system.png',
+            'design' => 'design.png',
+            'english' => 'General.png',
+            'general' => 'General.png',
+            'information system' => 'Information system.png',
+            'information systems' => 'Information system.png',
+            'language' => 'language.png',
+            'math' => 'Mathematics.png',
+            'mathematics' => 'Mathematics.png',
+            'other' => 'General.png',
+            'programming' => 'Programming.png',
+            'research' => 'General.png',
+            'science' => 'science.png',
+            'web' => 'Programming.png',
+        ];
+        $groupThemes = [
+            'artificial intelligence' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+            'business' => ['rgb' => '37, 18, 82', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+            'calculus' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'computer science' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'database' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+            'design' => ['rgb' => '92, 43, 4', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+            'english' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+            'general' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+            'information system' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+            'information systems' => ['rgb' => '60, 39, 13', 'accent' => '245, 158, 11', 'accentHex' => '#fbbf24'],
+            'language' => ['rgb' => '8, 46, 95', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'math' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'mathematics' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'other' => ['rgb' => '16, 54, 37', 'accent' => '74, 222, 128', 'accentHex' => '#86efac'],
+            'programming' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+            'research' => ['rgb' => '12, 45, 75', 'accent' => '56, 189, 248', 'accentHex' => '#7dd3fc'],
+            'science' => ['rgb' => '6, 52, 27', 'accent' => '34, 197, 94', 'accentHex' => '#86efac'],
+            'web' => ['rgb' => '40, 28, 88', 'accent' => '139, 92, 246', 'accentHex' => '#a78bfa'],
+        ];
+        $groupImage = asset('images/General.png');
+        $groupTheme = $groupThemes['general'];
+        $groupImageHaystack = strtolower(($group['category'] ?? '').' '.($group['name'] ?? '').' '.($group['description'] ?? ''));
+
+        foreach ($groupImages as $keyword => $image) {
+            if (str_contains($groupImageHaystack, $keyword)) {
+                $groupImage = asset('images/'.$image);
+                $groupTheme = $groupThemes[$keyword] ?? $groupThemes['general'];
+                break;
+            }
+        }
     @endphp
 
     <a class="back-link" href="{{ route('studyhub.student.groups') }}">
@@ -13,27 +64,32 @@
         <span>Back to Groups</span>
     </a>
 
-    <section class="content-card detail-hero">
+    <section class="content-card detail-hero" style="--detail-group-image: url('{{ $groupImage }}'); --detail-group-rgb: {{ $groupTheme['rgb'] }}; --detail-group-accent-rgb: {{ $groupTheme['accent'] }}; --detail-group-accent: {{ $groupTheme['accentHex'] }};">
         <div class="detail-hero-banner">
-            <h2>{{ $group['name'] }}</h2>
-            <p>{{ $group['description'] }}</p>
-            <div class="detail-hero-meta">
+            <div class="detail-hero-copy">
+                <span class="detail-hero-kicker">{{ $group['category'] ?? 'Study Group' }}</span>
+                <h2>{{ $group['name'] }}</h2>
+                <p>{{ $group['description'] }}</p>
                 <div class="detail-hero-tags">
-                    <div class="detail-hero-members">
+                    <span class="detail-hero-members">
                         <span class="icon-box">{!! $icons['users'] !!}</span>
                         <span>{{ $group['members'] }} members</span>
-                    </div>
+                    </span>
+                    <span class="detail-hero-tag">{{ ucfirst(str_replace('-', ' ', $group['meeting_style'] ?? 'in-person')) }}</span>
                     @if (($group['visibility'] ?? 'public') === 'private')
-                        <span class="detail-hero-tag">
+                        <span class="detail-hero-tag private">
                             <span class="icon-box">{!! $icons['lock'] !!}</span>
                             <span>Private</span>
                         </span>
                     @endif
                 </div>
+            </div>
+            <div class="detail-hero-art" aria-hidden="true"></div>
+            <div class="detail-hero-meta">
                 @if ($isJoined)
                     <form method="POST" action="{{ route('studyhub.student.groups.leave', $group['id']) }}">
                         @csrf
-                        <button class="detail-hero-button joined leave" type="submit">Leave Group</button>
+                        <button class="detail-hero-button joined leave" type="submit" data-loading-label="Leaving...">Leave Group</button>
                     </form>
                 @else
                     <form class="detail-hero-join" method="POST" action="{{ route('studyhub.student.groups.join', $group['id']) }}">
@@ -41,7 +97,7 @@
                         @if (($group['visibility'] ?? 'public') === 'private')
                             <input class="detail-hero-code" type="text" name="join_code" placeholder="Enter join code" value="{{ old('join_code') }}">
                         @endif
-                        <button class="detail-hero-button" type="submit">Join Group</button>
+                        <button class="detail-hero-button" type="submit" data-loading-label="Joining...">Join Group</button>
                         @if (! empty($joinCodeError))
                             <div class="detail-hero-code-error">{{ $joinCodeError }}</div>
                         @endif
@@ -86,10 +142,17 @@
                                 </div>
                             </div>
                         </div>
-                        <a class="resource-download" href="{{ ! empty($resource['path']) ? asset('storage/'.$resource['path']) : '#' }}" @if (! empty($resource['path'])) download @endif>Download</a>
+                        <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}">Download</a>
                     </div>
                 @empty
-                    <div class="resource-empty">No resources yet. Upload the first file for this group.</div>
+                    <div class="resource-empty app-empty-state compact">
+                        <span class="app-empty-icon">{!! $icons['file'] !!}</span>
+                        <strong>No resources yet</strong>
+                        <span>Upload the first file for this group.</span>
+                        @if ($isJoined)
+                            <button class="app-empty-action" type="button" data-detail-upload-open>Upload file</button>
+                        @endif
+                    </div>
                 @endforelse
             </div>
         </article>
@@ -129,7 +192,7 @@
                                 <form method="POST" action="{{ route('studyhub.student.sessions.rsvp', $session['id']) }}">
                                     @csrf
                                     <input type="hidden" name="redirect_to" value="{{ route('studyhub.student.group.show', $group['id']) }}">
-                                    <button class="session-rsvp" type="submit" @if ($isSessionFull) disabled @endif>{{ $isSessionFull ? 'Full' : ($session['type'] === 'online' ? 'Join' : 'RSVP') }}</button>
+                                    <button class="session-rsvp" type="submit" data-loading-label="{{ $session['type'] === 'online' ? 'Joining...' : 'Saving RSVP...' }}" @if ($isSessionFull) disabled @endif>{{ $isSessionFull ? 'Full' : ($session['type'] === 'online' ? 'Join' : 'RSVP') }}</button>
                                 </form>
                             @endif
                             <button
@@ -141,6 +204,7 @@
                                 data-session-date="{{ $session['date'] }}"
                                 data-session-time="{{ $session['time'] }}"
                                 data-session-location="{{ $session['location'] }}"
+                                data-session-meeting-url="{{ $session['meeting_url'] ?? '' }}"
                                 data-session-type="{{ ucfirst($session['type']) }}"
                                 data-session-attendees="{{ $session['attendees'] }} / {{ $session['max_attendees'] }}"
                                 data-session-host="{{ $session['created_by'] ?? 'StudyHub Member' }}"
@@ -149,7 +213,14 @@
                         </div>
                     </div>
                 @empty
-                    <div class="session-empty">No sessions yet. Schedule the first group session.</div>
+                    <div class="session-empty app-empty-state compact">
+                        <span class="app-empty-icon">{!! $icons['calendar'] !!}</span>
+                        <strong>No sessions yet</strong>
+                        <span>Schedule the first group study session.</span>
+                        @if ($isJoined)
+                            <button class="app-empty-action" type="button" data-detail-session-open>Schedule session</button>
+                        @endif
+                    </div>
                 @endforelse
 
                 @if ($isJoined)
@@ -160,21 +231,17 @@
     </section>
 
     @if ($isJoined)
-        <div class="detail-session-modal @if ($showSessionModal) is-open @endif" data-detail-session-modal>
-            <button class="detail-session-backdrop" type="button" aria-label="Close session form" data-detail-session-close></button>
-            <div class="detail-session-panel">
-                <div class="detail-session-header">
-                    <div>
-                        <h3 class="detail-session-title">Schedule session</h3>
-                        <p class="detail-session-copy">{{ $group['name'] }}</p>
-                    </div>
-                    <button class="detail-session-close" type="button" aria-label="Close session form" data-detail-session-close>&times;</button>
-                </div>
-
-                <div class="detail-session-body">
+        <x-studyhub.modal
+            title="Schedule session"
+            :subtitle="$group['name']"
+            close-data="data-detail-session-close"
+            :open="$showSessionModal"
+            size="lg"
+            data-detail-session-modal
+        >
                     @if ($showSessionModal)
-                        <div class="detail-upload-errors">
-                            Please fix the following:
+                        <div class="detail-upload-errors" role="alert" aria-live="polite">
+                            <strong>Session was not scheduled</strong>
                             <ul>
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -183,78 +250,72 @@
                         </div>
                     @endif
 
-                    <form class="detail-session-form" method="POST" action="{{ route('studyhub.student.sessions.store') }}">
+                    <form class="grid grid-cols-1 gap-3 md:grid-cols-2" method="POST" action="{{ route('studyhub.student.sessions.store') }}">
                         @csrf
                         <input type="hidden" name="group_id" value="{{ $group['id'] }}">
                         <input type="hidden" name="redirect_to" value="{{ route('studyhub.student.group.show', $group['id']) }}">
 
-                        <label class="detail-session-field full">
-                            <span class="detail-session-label">Title</span>
-                            <input class="detail-session-input" type="text" name="title" maxlength="120" value="{{ old('title') }}" placeholder="Algorithms Review Session" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
+                            <span class="text-sm font-extrabold text-[#244231]">Title</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="title" maxlength="120" value="{{ old('title') }}" placeholder="Algorithms Review Session" required>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">Type</span>
-                            <select class="detail-session-select" name="type" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">Type</span>
+                            <select class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="type" required data-detail-session-type-input>
                                 <option value="">Choose type</option>
                                 <option value="in-person" @selected(old('type') === 'in-person')>In person</option>
                                 <option value="online" @selected(old('type') === 'online')>Online</option>
                             </select>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">Location</span>
-                            <input class="detail-session-input" type="text" name="location" maxlength="120" value="{{ old('location') }}" placeholder="Library Room 204 or Zoom" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]" data-detail-session-location-label>Location</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="location" maxlength="255" value="{{ old('location') }}" placeholder="Library Room 204" required data-detail-session-location-input>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">Date</span>
-                            <input class="detail-session-input" type="date" name="date" value="{{ old('date') }}" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">Date</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="date" name="date" value="{{ old('date') }}" required>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">Max attendees</span>
-                            <input class="detail-session-input" type="number" name="max_attendees" min="2" max="100" value="{{ old('max_attendees', 12) }}" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">Max attendees</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="number" name="max_attendees" min="2" max="100" value="{{ old('max_attendees', 12) }}" required>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">Start time</span>
-                            <input class="detail-session-input" type="time" name="start_time" value="{{ old('start_time') }}" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">Start time</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="time" name="start_time" value="{{ old('start_time') }}" required>
                         </label>
 
-                        <label class="detail-session-field">
-                            <span class="detail-session-label">End time</span>
-                            <input class="detail-session-input" type="time" name="end_time" value="{{ old('end_time') }}" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">End time</span>
+                            <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="time" name="end_time" value="{{ old('end_time') }}" required>
                         </label>
 
-                        <div class="detail-session-submit-row">
-                            <button class="detail-session-submit" type="submit">Create Session</button>
+                        <div class="sticky bottom-0 -mx-5 mt-1 flex justify-end border-t border-emerald-100 bg-white/90 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6 md:col-span-2">
+                            <button class="min-h-[54px] w-full rounded-2xl bg-emerald-500 px-6 font-extrabold text-white shadow-[0_14px_28px_rgba(73,182,112,0.22)] transition hover:bg-emerald-600 sm:w-auto sm:min-w-[180px]" type="submit" data-loading-label="Scheduling...">Create Session</button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
+        </x-studyhub.modal>
 
-        <div class="detail-session-modal" data-detail-session-details-modal>
-            <button class="detail-session-backdrop" type="button" aria-label="Close session details" data-detail-session-details-close></button>
-            <div class="detail-session-details-panel">
-                <div class="detail-session-header">
-                    <div>
-                        <h3 class="detail-session-title" data-detail-session-title>Session Details</h3>
-                        <p class="detail-session-copy" data-detail-session-group></p>
-                    </div>
-                    <button class="detail-session-close" type="button" aria-label="Close session details" data-detail-session-details-close>&times;</button>
-                </div>
-
-                <div class="detail-session-body">
+        <x-studyhub.modal
+            title="Session Details"
+            close-data="data-detail-session-details-close"
+            data-detail-session-details-modal
+        >
+                    <span class="sr-only" data-detail-session-title>Session Details</span>
+                    <p class="mb-4 text-sm font-semibold text-[#5f776b]" data-detail-session-group></p>
                     <div class="detail-session-details-grid">
                         <div class="detail-session-details-card">
                             <strong>Date & Time</strong>
                             <span><span data-detail-session-date></span> | <span data-detail-session-time></span></span>
                         </div>
                         <div class="detail-session-details-card">
-                            <strong>Location</strong>
+                            <strong data-detail-session-location-heading>Location</strong>
                             <span data-detail-session-location></span>
+                            <a class="meeting-link-button" href="#" target="_blank" rel="noopener noreferrer" data-detail-session-meeting-link hidden>Open meeting</a>
                         </div>
                         <div class="detail-session-details-card">
                             <strong>Type</strong>
@@ -273,25 +334,18 @@
                             <span data-detail-session-notes></span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+        </x-studyhub.modal>
 
-        <div class="detail-upload-modal @if ($showUploadModal) is-open @endif" data-detail-upload-modal>
-            <button class="detail-upload-backdrop" type="button" aria-label="Close upload form" data-detail-upload-close></button>
-            <div class="detail-upload-panel">
-                <div class="detail-upload-header">
-                    <div>
-                        <h3 class="detail-upload-title">Upload file</h3>
-                        <p class="detail-upload-copy">{{ $group['name'] }}</p>
-                    </div>
-                    <button class="detail-upload-close" type="button" aria-label="Close upload form" data-detail-upload-close>&times;</button>
-                </div>
-
-                <div class="detail-upload-body">
+        <x-studyhub.modal
+            title="Upload file"
+            :subtitle="$group['name']"
+            close-data="data-detail-upload-close"
+            :open="$showUploadModal"
+            data-detail-upload-modal
+        >
                     @if ($showUploadModal)
-                        <div class="detail-upload-errors">
-                            Please fix the following:
+                        <div class="detail-upload-errors" role="alert" aria-live="polite">
+                            <strong>Upload was not saved</strong>
                             <ul>
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -300,14 +354,14 @@
                         </div>
                     @endif
 
-                    <form class="detail-upload-form" method="POST" action="{{ route('studyhub.student.resources.store') }}" enctype="multipart/form-data">
+                    <form class="grid gap-3" method="POST" action="{{ route('studyhub.student.resources.store') }}" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="group_id" value="{{ $group['id'] }}">
                         <input type="hidden" name="redirect_to" value="{{ route('studyhub.student.group.show', $group['id']) }}">
 
-                        <label class="detail-upload-field">
-                            <span class="detail-upload-label">Category</span>
-                            <select class="detail-upload-select" name="category" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">Category</span>
+                            <select class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="category" required>
                                 <option value="">Choose category</option>
                                 @foreach ($resourceCategories as $category)
                                     <option value="{{ $category }}" @selected(old('category') === $category)>{{ $category }}</option>
@@ -315,18 +369,22 @@
                             </select>
                         </label>
 
-                        <label class="detail-upload-field">
-                            <span class="detail-upload-label">File</span>
-                            <input class="detail-upload-file" type="file" name="resource_file" required>
+                        <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
+                            <span class="text-sm font-extrabold text-[#244231]">File</span>
+                            <span class="upload-dropzone" data-upload-dropzone>
+                                <input class="upload-dropzone-input" type="file" name="resource_file" required data-upload-file-input>
+                                <span class="upload-dropzone-icon">{!! $icons['file'] !!}</span>
+                                <span class="upload-dropzone-title">Drag file here</span>
+                                <span class="upload-dropzone-subtitle">or click to choose</span>
+                                <span class="upload-dropzone-name" data-upload-file-name>No file selected</span>
+                            </span>
                         </label>
 
-                        <div class="detail-upload-actions">
-                            <button class="detail-upload-submit" type="submit">Upload</button>
+                        <div class="sticky bottom-0 -mx-5 mt-1 flex justify-end border-t border-emerald-100 bg-white/90 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6">
+                            <button class="min-h-[54px] w-full rounded-2xl bg-emerald-500 px-6 font-extrabold text-white shadow-[0_14px_28px_rgba(73,182,112,0.22)] transition hover:bg-emerald-600 sm:w-auto sm:min-w-[180px]" type="submit" data-loading-label="Uploading...">Upload</button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
+        </x-studyhub.modal>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -339,6 +397,10 @@
                 const detailsModal = document.querySelector('[data-detail-session-details-modal]');
                 const detailsOpenButtons = document.querySelectorAll('[data-detail-session-details]');
                 const detailsCloseButtons = document.querySelectorAll('[data-detail-session-details-close]');
+                const uploadDropzones = document.querySelectorAll('[data-upload-dropzone]');
+                const detailSessionTypeInput = document.querySelector('[data-detail-session-type-input]');
+                const detailSessionLocationLabel = document.querySelector('[data-detail-session-location-label]');
+                const detailSessionLocationInput = document.querySelector('[data-detail-session-location-input]');
 
                 const setBodyOverflow = function () {
                     const hasOpenModal = uploadModal?.classList.contains('is-open')
@@ -356,6 +418,19 @@
                     setBodyOverflow();
                 };
 
+                const syncDetailSessionLocationField = function () {
+                    const isOnline = detailSessionTypeInput?.value === 'online';
+
+                    if (detailSessionLocationLabel) {
+                        detailSessionLocationLabel.textContent = isOnline ? 'Meeting link' : 'Location';
+                    }
+
+                    if (detailSessionLocationInput) {
+                        detailSessionLocationInput.type = isOnline ? 'url' : 'text';
+                        detailSessionLocationInput.placeholder = isOnline ? 'https://meet.google.com/abc-defg-hij' : 'Library Room 204';
+                    }
+                };
+
                 uploadOpenButton?.addEventListener('click', function () {
                     setModalState(uploadModal, true);
                 });
@@ -366,8 +441,46 @@
                     });
                 });
 
+                uploadDropzones.forEach(function (dropzone) {
+                    const input = dropzone.querySelector('[data-upload-file-input]');
+                    const fileName = dropzone.querySelector('[data-upload-file-name]');
+
+                    if (! input || ! fileName) {
+                        return;
+                    }
+
+                    const setFileName = function () {
+                        fileName.textContent = input.files?.[0]?.name || 'No file selected';
+                        dropzone.classList.toggle('has-file', Boolean(input.files?.length));
+                    };
+
+                    input.addEventListener('change', setFileName);
+
+                    ['dragenter', 'dragover'].forEach(function (eventName) {
+                        dropzone.addEventListener(eventName, function (event) {
+                            event.preventDefault();
+                            dropzone.classList.add('is-dragging');
+                        });
+                    });
+
+                    ['dragleave', 'drop'].forEach(function (eventName) {
+                        dropzone.addEventListener(eventName, function (event) {
+                            event.preventDefault();
+                            dropzone.classList.remove('is-dragging');
+                        });
+                    });
+
+                    dropzone.addEventListener('drop', function (event) {
+                        if (event.dataTransfer?.files?.length) {
+                            input.files = event.dataTransfer.files;
+                            setFileName();
+                        }
+                    });
+                });
+
                 sessionOpenButtons.forEach(function (button) {
                     button.addEventListener('click', function () {
+                        syncDetailSessionLocationField();
                         setModalState(sessionModal, true);
                     });
                 });
@@ -384,7 +497,15 @@
                         detailsModal.querySelector('[data-detail-session-group]').textContent = button.dataset.sessionGroup || '';
                         detailsModal.querySelector('[data-detail-session-date]').textContent = button.dataset.sessionDate || '';
                         detailsModal.querySelector('[data-detail-session-time]').textContent = button.dataset.sessionTime || '';
+                        const meetingUrl = button.dataset.sessionMeetingUrl || '';
+                        const isOnline = (button.dataset.sessionType || '').toLowerCase() === 'online';
+                        const meetingLink = detailsModal.querySelector('[data-detail-session-meeting-link]');
+                        detailsModal.querySelector('[data-detail-session-location-heading]').textContent = isOnline ? 'Meeting link' : 'Location';
                         detailsModal.querySelector('[data-detail-session-location]').textContent = button.dataset.sessionLocation || '';
+                        if (meetingLink) {
+                            meetingLink.hidden = ! isOnline || ! meetingUrl;
+                            meetingLink.href = meetingUrl || '#';
+                        }
                         detailsModal.querySelector('[data-detail-session-type]').textContent = button.dataset.sessionType || '';
                         detailsModal.querySelector('[data-detail-session-attendees]').textContent = button.dataset.sessionAttendees || '';
                         detailsModal.querySelector('[data-detail-session-host]').textContent = button.dataset.sessionHost || '';
@@ -408,6 +529,8 @@
                 });
 
                 setBodyOverflow();
+                detailSessionTypeInput?.addEventListener('change', syncDetailSessionLocationField);
+                syncDetailSessionLocationField();
             });
         </script>
     @endif

@@ -19,6 +19,7 @@ class StudySession extends Model
         'start_time',
         'end_time',
         'location',
+        'meeting_url',
         'type',
         'max_attendees',
         'status',

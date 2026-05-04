@@ -70,6 +70,8 @@ class StudyHubAuthController extends Controller
             ]);
         }
 
+        $this->syncThemeFromRequest($request, $user);
+
         return $this->redirectForRole($user->role);
     }
 
@@ -92,6 +94,8 @@ class StudyHubAuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+
+        $this->syncThemeFromRequest($request, $user);
 
         return $this->redirectForRole($user->role);
     }
@@ -118,5 +122,20 @@ class StudyHubAuthController extends Controller
         return redirect()->route($role === 'admin'
             ? 'studyhub.admin.dashboard'
             : 'studyhub.student.dashboard');
+    }
+
+    private function syncThemeFromRequest(Request $request, User $user): void
+    {
+        $theme = $request->input('login_theme');
+
+        if (! in_array($theme, ['light', 'dark'], true)) {
+            return;
+        }
+
+        $user->forceFill([
+            'theme' => $theme === 'dark' ? 'dark' : 'forest',
+            'surface_style' => 'soft',
+            'interface_density' => 'comfortable',
+        ])->save();
     }
 }

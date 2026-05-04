@@ -11,8 +11,8 @@
     @endphp
 
     <div class="studyhub-shell login-shell">
-        <div class="login-frame">
-            <section class="login-panel">
+        <main class="login-frame" aria-label="StudyHub authentication">
+            <section class="login-feature-panel" aria-label="StudyHub features">
                 <div class="login-brand">
                     <div class="brand-lockup">
                         <span class="brand-logo-mark" aria-hidden="true">
@@ -29,22 +29,68 @@
                                 <path d="M80 49c-3 0-4 4-4 7h8c0-3-1-7-4-7Z" fill="#4CCB68"/>
                             </svg>
                         </span>
-                        <span class="brand-copy">
-                            <span class="brand-wordmark">Study<span>Hub</span></span>
-                        </span>
+                        <span class="brand-wordmark">Study<span>Hub</span></span>
                     </div>
                 </div>
 
+                <div class="feature-copy">
+                    <h1>Everything you need in one place.</h1>
+                    <p>Upload, share, download, and collaborate with ease.</p>
+                </div>
+
+                <div class="quick-access-list" aria-label="Quick access features">
+                    <article class="quick-access-card">
+                        <span class="quick-access-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 5v10"/><path d="m8 9 4-4 4 4"/><path d="M5 19h14"/></svg>
+                        </span>
+                        <span>
+                            <strong>Upload your notes</strong>
+                            <small>Share learning materials</small>
+                        </span>
+                    </article>
+                    <article class="quick-access-card">
+                        <span class="quick-access-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 4v10"/><path d="m8 10 4 4 4-4"/><path d="M5 20h14"/></svg>
+                        </span>
+                        <span>
+                            <strong>Download resources</strong>
+                            <small>Access quality reviewers</small>
+                        </span>
+                    </article>
+                    <article class="quick-access-card">
+                        <span class="quick-access-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 20a7 7 0 0 1 14 0"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+                        </span>
+                        <span>
+                            <strong>Join study groups</strong>
+                            <small>Collaborate with peers</small>
+                        </span>
+                    </article>
+                    <article class="quick-access-card">
+                        <span class="quick-access-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+                        </span>
+                        <span>
+                            <strong>Get notifications</strong>
+                            <small>Stay updated</small>
+                        </span>
+                    </article>
+                </div>
+            </section>
+
+            <section class="login-panel">
                 <div class="login-copy">
-                    <h1>{{ $activeAuthMode === 'register' ? 'Create account' : 'Welcome back' }}</h1>
+                    <h2>{{ $activeAuthMode === 'register' ? 'Create account' : 'Welcome back!' }}</h2>
                     <p>{{ $activeAuthMode === 'register' ? 'Start your student workspace.' : 'Sign in to continue.' }}</p>
                 </div>
 
                 <div class="auth-switch" role="tablist" aria-label="Authentication forms">
                     <button class="auth-switch-button {{ $activeAuthMode === 'login' ? 'is-active' : '' }}" type="button" data-auth-target="login">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 10 8-5 8 5-8 5-8-5Z"/><path d="M6 12v5c2 1 4 2 6 2s4-1 6-2v-5"/></svg>
                         Login
                     </button>
                     <button class="auth-switch-button {{ $activeAuthMode === 'register' ? 'is-active' : '' }}" type="button" data-auth-target="register">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3 8 8 9 5-1 8-4 8-9V6l-8-3Z"/><path d="M9 12h6"/></svg>
                         Sign Up
                     </button>
                 </div>
@@ -65,11 +111,17 @@
                     <form id="studyhub-login-form" class="login-form" action="{{ route('studyhub.authenticate') }}" method="post">
                         @csrf
                         <input name="auth_mode" type="hidden" value="login">
+                        <input name="login_theme" type="hidden" value="light" data-login-theme-input>
                         <input id="studyhub-login-role" name="role" type="hidden" value="{{ old('auth_mode') === 'register' ? 'student' : old('role', 'student') }}">
 
                         <div class="form-group">
-                            <label class="form-label" for="login-email">Email</label>
-                            <input class="form-input" id="login-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? '' : old('email') }}" placeholder="you@example.com">
+                            <label class="form-label" for="login-email">Email address</label>
+                            <span class="input-shell">
+                                <span class="input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                                </span>
+                                <input class="form-input" id="login-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? '' : old('email') }}" placeholder="you@example.com">
+                            </span>
                             @error('email')
                                 @if (old('auth_mode', 'login') === 'login' || ! old('auth_mode'))
                                     <div class="form-error">{{ $message }}</div>
@@ -79,7 +131,16 @@
 
                         <div class="form-group">
                             <label class="form-label" for="login-password">Password</label>
-                            <input class="form-input" id="login-password" name="password" type="password" placeholder="Password">
+                            <span class="input-shell">
+                                <span class="input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                                </span>
+                                <input class="form-input" id="login-password" name="password" type="password" placeholder="Enter your password">
+                                <label class="password-eye" for="show-login-password" title="Show password">
+                                    <input id="show-login-password" type="checkbox" data-password-target="login-password">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </label>
+                            </span>
                             @error('password')
                                 @if (old('auth_mode', 'login') === 'login' || ! old('auth_mode'))
                                     <div class="form-error">{{ $message }}</div>
@@ -87,7 +148,15 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="login-options-row">
+                            <label class="remember-check" for="remember-login">
+                                <input id="remember-login" name="remember" type="checkbox" value="1">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="{{ route('password.request') }}">Forgot password?</a>
+                        </div>
+
+                        <div class="form-group role-group">
                             <label class="form-label">Login as</label>
                             <div class="role-grid">
                                 <button class="role-pill {{ (old('auth_mode') === 'register' ? 'student' : old('role', 'student')) === 'student' ? 'is-active' : '' }}" type="button" data-role-target="studyhub-login-role" data-role="student">
@@ -104,14 +173,10 @@
                             @enderror
                         </div>
 
-                        <div class="password-row">
-                            <label class="show-password" for="show-login-password">
-                                <input id="show-login-password" type="checkbox" data-password-target="login-password">
-                                <span>Show password</span>
-                            </label>
-                        </div>
-
-                        <button class="login-submit" type="submit">Login</button>
+                        <button class="login-submit" type="submit">
+                            Login
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                        </button>
                     </form>
 
                     <div class="login-footer">
@@ -124,19 +189,30 @@
                     <form id="studyhub-register-form" class="login-form" action="{{ route('studyhub.register') }}" method="post">
                         @csrf
                         <input name="auth_mode" type="hidden" value="register">
+                        <input name="login_theme" type="hidden" value="light" data-login-theme-input>
                         <input id="studyhub-register-role" name="role" type="hidden" value="student">
 
                         <div class="form-group">
                             <label class="form-label" for="register-name">Full name</label>
-                            <input class="form-input" id="register-name" name="name" type="text" value="{{ old('name') }}" placeholder="Your name">
+                            <span class="input-shell">
+                                <span class="input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                                </span>
+                                <input class="form-input" id="register-name" name="name" type="text" value="{{ old('name') }}" placeholder="Your name">
+                            </span>
                             @error('name')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="register-email">Email</label>
-                            <input class="form-input" id="register-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? old('email') : '' }}" placeholder="you@example.com">
+                            <label class="form-label" for="register-email">Email address</label>
+                            <span class="input-shell">
+                                <span class="input-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                                </span>
+                                <input class="form-input" id="register-email" name="email" type="email" value="{{ old('auth_mode') === 'register' ? old('email') : '' }}" placeholder="you@example.com">
+                            </span>
                             @error('email')
                                 @if (old('auth_mode') === 'register')
                                     <div class="form-error">{{ $message }}</div>
@@ -147,12 +223,22 @@
                         <div class="form-grid-two">
                             <div class="form-group">
                                 <label class="form-label" for="register-password">Password</label>
-                                <input class="form-input" id="register-password" name="password" type="password" placeholder="Min. 8 characters">
+                                <span class="input-shell">
+                                    <span class="input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                                    </span>
+                                    <input class="form-input" id="register-password" name="password" type="password" placeholder="Min. 8 characters">
+                                </span>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label" for="register-password-confirmation">Confirm password</label>
-                                <input class="form-input" id="register-password-confirmation" name="password_confirmation" type="password" placeholder="Repeat password">
+                                <span class="input-shell">
+                                    <span class="input-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M20 7 9 18l-5-5"/></svg>
+                                    </span>
+                                    <input class="form-input" id="register-password-confirmation" name="password_confirmation" type="password" placeholder="Repeat password">
+                                </span>
                             </div>
                         </div>
                         @error('password')
@@ -175,7 +261,10 @@
                             </label>
                         </div>
 
-                        <button class="login-submit" type="submit">Sign Up</button>
+                        <button class="login-submit" type="submit">
+                            Sign Up
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                        </button>
                     </form>
 
                     <div class="login-footer">
@@ -184,7 +273,15 @@
                     </div>
                 </div>
             </section>
-        </div>
+
+            <aside class="login-illustration" aria-hidden="true">
+                <button class="theme-toggle-pill" type="button" data-login-theme-toggle aria-pressed="false">
+                    <span data-login-theme-label>Light</span>
+                    <i></i>
+                </button>
+                <img class="login-hero-image" src="{{ asset('images/login.png') }}" alt="">
+            </aside>
+        </main>
     </div>
 
     <script>
@@ -194,10 +291,42 @@
                 login: document.getElementById('login-panel'),
                 register: document.getElementById('register-panel'),
             };
-            const loginTitle = document.querySelector('.login-copy h1');
+            const loginTitle = document.querySelector('.login-copy h2');
             const loginSubtitle = document.querySelector('.login-copy p');
             const roleButtons = document.querySelectorAll('.role-pill[data-role]');
             const passwordToggles = document.querySelectorAll('[data-password-target]');
+            const loginShell = document.querySelector('.login-shell');
+            const themeToggle = document.querySelector('[data-login-theme-toggle]');
+            const themeLabel = document.querySelector('[data-login-theme-label]');
+            const themeInputs = document.querySelectorAll('[data-login-theme-input]');
+            const themeStorageKey = 'studyhub-login-theme';
+
+            function setLoginTheme(theme) {
+                const isDark = theme === 'dark';
+
+                if (loginShell) {
+                    loginShell.classList.toggle('login-theme-dark', isDark);
+                }
+
+                if (themeToggle) {
+                    themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+                }
+
+                if (themeLabel) {
+                    themeLabel.textContent = isDark ? 'Dark' : 'Light';
+                }
+
+                themeInputs.forEach(function (input) {
+                    input.value = isDark ? 'dark' : 'light';
+                });
+
+                try {
+                    localStorage.setItem(themeStorageKey, isDark ? 'dark' : 'light');
+                } catch (error) {
+                    // Some browsers block localStorage in private contexts.
+                }
+            }
 
             function setAuthMode(mode) {
                 Object.entries(authPanels).forEach(function (entry) {
@@ -216,11 +345,11 @@
                 });
 
                 if (loginTitle) {
-                    loginTitle.textContent = mode === 'register' ? 'Create Account' : 'StudyHub Login';
+                    loginTitle.textContent = mode === 'register' ? 'Create account' : 'Welcome back!';
                 }
 
                 if (loginSubtitle) {
-                    loginSubtitle.textContent = mode === 'register' ? 'Set up your workspace.' : 'Sign in to continue.';
+                    loginSubtitle.textContent = mode === 'register' ? 'Start your student workspace.' : 'Sign in to continue.';
                 }
             }
 
@@ -261,6 +390,21 @@
                 });
             });
 
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function () {
+                    const nextTheme = loginShell && loginShell.classList.contains('login-theme-dark') ? 'light' : 'dark';
+                    setLoginTheme(nextTheme);
+                });
+            }
+
+            let storedTheme = 'light';
+            try {
+                storedTheme = localStorage.getItem(themeStorageKey) || 'light';
+            } catch (error) {
+                storedTheme = 'light';
+            }
+
+            setLoginTheme(storedTheme === 'dark' ? 'dark' : 'light');
             setAuthMode('{{ $activeAuthMode }}');
         });
     </script>
