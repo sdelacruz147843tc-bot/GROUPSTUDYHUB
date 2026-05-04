@@ -125,7 +125,6 @@
         <span class="app-empty-icon">{!! $icons['file'] !!}</span>
         <strong>No resources found</strong>
         <span>Try another filter or upload a file for your group.</span>
-        <button class="app-empty-action" type="button" data-resource-upload-open>Create resource</button>
     </div>
 
     <x-studyhub.modal

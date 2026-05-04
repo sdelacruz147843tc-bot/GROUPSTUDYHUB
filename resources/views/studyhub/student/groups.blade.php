@@ -234,7 +234,6 @@
         <span class="app-empty-icon">{!! $icons['users'] !!}</span>
         <strong>No groups found</strong>
         <span>Try a different search or start a new study group.</span>
-        <button class="app-empty-action" type="button" data-create-group-open>Create Group</button>
     </div>
 
     <x-studyhub.modal
@@ -404,12 +403,12 @@
             const privateJoinCodeInput = document.querySelector('[data-private-join-code]');
             const privateJoinOpenButtons = document.querySelectorAll('[data-private-join-open]');
             const privateJoinCloseButtons = document.querySelectorAll('[data-private-join-close]');
-            const openButton = document.querySelector('[data-create-group-open]');
+            const openButtons = document.querySelectorAll('[data-create-group-open]');
             const closeButtons = document.querySelectorAll('[data-create-group-close]');
             const visibilityInputs = document.querySelectorAll('input[name="visibility"]');
             const joinCodeField = document.querySelector('[data-join-code-field]');
 
-            if (! modal || ! openButton || ! privateJoinModal) {
+            if (! modal || openButtons.length === 0 || ! privateJoinModal) {
                 return;
             }
 
@@ -422,8 +421,10 @@
                 syncBodyOverflow();
             };
 
-            openButton.addEventListener('click', function () {
-                setModalState(modal, true);
+            openButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setModalState(modal, true);
+                });
             });
 
             closeButtons.forEach(function (button) {
