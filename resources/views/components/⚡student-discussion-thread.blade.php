@@ -102,6 +102,8 @@ new class extends Component
             ->map(fn (DiscussionReply $reply) => [
                 'id' => $reply->id,
                 'author' => $this->authorName($reply),
+                'author_avatar_url' => $reply->author?->avatar_url ?: '',
+                'author_initials' => $this->initials($this->authorName($reply)),
                 'body' => $reply->body,
                 'time' => app(StudyHubFormatter::class)->humanizeTime($reply->created_at),
                 'children' => $reply->childReplies
@@ -110,6 +112,8 @@ new class extends Component
                     ->map(fn (DiscussionReply $childReply) => [
                         'id' => $childReply->id,
                         'author' => $this->authorName($childReply),
+                        'author_avatar_url' => $childReply->author?->avatar_url ?: '',
+                        'author_initials' => $this->initials($this->authorName($childReply)),
                         'body' => $childReply->body,
                         'time' => app(StudyHubFormatter::class)->humanizeTime($childReply->created_at),
                         'parent_author' => $this->authorName($reply),
@@ -163,10 +167,10 @@ new class extends Component
                 <article class="thread-reply {{ ($replyItem['author'] ?? '') === ($studentProfile['display_name'] ?? '') ? 'is-own' : '' }}" wire:key="reply-{{ $replyItem['id'] }}">
                     <div class="thread-reply-header">
                         <span class="thread-reply-avatar">
-                            @if (($replyItem['author'] ?? '') === ($studentProfile['display_name'] ?? '') && ! empty($studentProfile['avatar_url']))
-                                <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $replyItem['author'] }}">
+                            @if (! empty($replyItem['author_avatar_url']))
+                                <img src="{{ $replyItem['author_avatar_url'] }}" alt="{{ $replyItem['author'] }}">
                             @else
-                                {{ $this->initials($replyItem['author']) }}
+                                {{ $replyItem['author_initials'] ?? $this->initials($replyItem['author']) }}
                             @endif
                         </span>
                         <span class="thread-reply-profile">
@@ -197,10 +201,10 @@ new class extends Component
                                 <article class="thread-child-reply {{ ($childReply['author'] ?? '') === ($studentProfile['display_name'] ?? '') ? 'is-own' : '' }}" wire:key="reply-{{ $replyItem['id'] }}-child-{{ $childReply['id'] }}">
                                     <div class="thread-child-header">
                                         <span class="thread-child-avatar">
-                                            @if (($childReply['author'] ?? '') === ($studentProfile['display_name'] ?? '') && ! empty($studentProfile['avatar_url']))
-                                                <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $childReply['author'] }}">
+                                            @if (! empty($childReply['author_avatar_url']))
+                                                <img src="{{ $childReply['author_avatar_url'] }}" alt="{{ $childReply['author'] }}">
                                             @else
-                                                {{ $this->initials($childReply['author']) }}
+                                                {{ $childReply['author_initials'] ?? $this->initials($childReply['author']) }}
                                             @endif
                                         </span>
                                         <span class="thread-child-meta">

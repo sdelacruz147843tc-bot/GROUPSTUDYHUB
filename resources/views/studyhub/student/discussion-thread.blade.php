@@ -26,10 +26,10 @@
         <h2 class="thread-title">{{ $discussion['title'] }}</h2>
         <div class="thread-profile {{ ($discussion['author'] ?? '') === $studentProfile['display_name'] ? 'is-own' : '' }}">
             <span class="thread-profile-avatar">
-                @if (($discussion['author'] ?? '') === $studentProfile['display_name'] && ! empty($studentProfile['avatar_url']))
-                    <img src="{{ $studentProfile['avatar_url'] }}" alt="{{ $discussion['author'] }}">
+                @if (! empty($discussion['author_avatar_url']))
+                    <img src="{{ $discussion['author_avatar_url'] }}" alt="{{ $discussion['author'] }}">
                 @else
-                    {{ $threadInitials($discussion['author']) }}
+                    {{ $discussion['author_initials'] ?? $threadInitials($discussion['author'] ?? 'Unknown') }}
                 @endif
             </span>
             <span class="thread-profile-copy">
