@@ -2821,6 +2821,21 @@
                 box-shadow: 0 12px 24px rgba(18, 39, 64, 0.08);
             }
 
+            .app-shell:not(.student-shell) .secondary-button.is-active {
+                border-color: rgba(43, 127, 255, 0.34);
+                background: rgba(235, 244, 255, 0.96);
+                color: #1459d6;
+            }
+
+            .app-shell:not(.student-shell) .back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 14px;
+                color: #4b647d;
+                font-weight: 800;
+            }
+
             .app-shell:not(.student-shell) .stats-grid {
                 display: grid;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2853,7 +2868,8 @@
             .app-shell:not(.student-shell) .search-box input:focus,
             .app-shell:not(.student-shell) .users-filter-select:focus,
             .app-shell:not(.student-shell) .users-field input:focus,
-            .app-shell:not(.student-shell) .users-field select:focus {
+            .app-shell:not(.student-shell) .users-field select:focus,
+            .app-shell:not(.student-shell) .users-field textarea:focus {
                 outline: none;
                 border-color: rgba(43, 127, 255, 0.42);
                 box-shadow: 0 0 0 4px rgba(43, 127, 255, 0.12);
@@ -2897,6 +2913,14 @@
 
                 .app-shell:not(.student-shell) .stats-grid {
                     grid-template-columns: 1fr;
+                }
+
+                .app-shell:not(.student-shell) .admin-detail-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .app-shell:not(.student-shell) .admin-side-panel {
+                    position: static;
                 }
             }
     
@@ -3021,6 +3045,16 @@
                 color: #10795b;
             }
 
+            .app-shell:not(.student-shell) .status-badge.public {
+                background: rgba(77, 211, 168, 0.14);
+                color: #10795b;
+            }
+
+            .app-shell:not(.student-shell) .status-badge.private {
+                background: rgba(255, 193, 75, 0.18);
+                color: #a06908;
+            }
+
             .app-shell:not(.student-shell) .status-badge.flagged {
                 background: rgba(232, 113, 93, 0.14);
                 color: #b24635;
@@ -3054,10 +3088,17 @@
                 margin-bottom: 14px;
             }
 
+            .app-shell:not(.student-shell) .monitor-description {
+                margin: -4px 0 14px;
+                color: #526b83;
+                line-height: 1.55;
+            }
+
             .app-shell:not(.student-shell) .monitor-actions {
                 display: flex;
                 gap: 10px;
                 flex-wrap: wrap;
+                align-items: center;
             }
     
     /* Source: resources/views/studyhub/admin/reports.blade.php */
@@ -3249,15 +3290,26 @@
             }
 
             .app-shell:not(.student-shell) .users-field input,
-            .app-shell:not(.student-shell) .users-field select {
+            .app-shell:not(.student-shell) .users-field select,
+            .app-shell:not(.student-shell) .users-field textarea {
                 width: 100%;
-                height: 50px;
                 border-radius: 16px;
                 border: 1px solid rgba(163, 184, 201, 0.28);
                 background: rgba(251, 253, 255, 0.94);
-                padding: 0 14px;
                 font: inherit;
                 color: #1f3750;
+            }
+
+            .app-shell:not(.student-shell) .users-field input,
+            .app-shell:not(.student-shell) .users-field select {
+                height: 50px;
+                padding: 0 14px;
+            }
+
+            .app-shell:not(.student-shell) .users-field textarea {
+                min-height: 112px;
+                padding: 13px 14px;
+                resize: vertical;
             }
 
             .app-shell:not(.student-shell) .users-form-actions {
@@ -3386,6 +3438,7 @@
                 font-size: 0.82rem;
                 font-weight: 800;
                 gap: 8px;
+                font-family: inherit;
             }
 
             .app-shell:not(.student-shell) .action-chip.role {
@@ -3420,6 +3473,83 @@
                 color: #60788d;
                 text-align: center;
                 font-weight: 600;
+            }
+
+            .app-shell:not(.student-shell) .users-empty-state.is-visible {
+                display: block;
+            }
+
+            .app-shell:not(.student-shell) .empty-panel {
+                padding: 18px;
+                border-radius: 16px;
+                border: 1px dashed rgba(127, 151, 171, 0.38);
+                background: rgba(247, 250, 253, 0.72);
+                color: #61788f;
+                font-weight: 700;
+            }
+
+            .app-shell:not(.student-shell) .admin-detail-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.8fr);
+                gap: 20px;
+                align-items: start;
+            }
+
+            .app-shell:not(.student-shell) .admin-side-panel {
+                position: sticky;
+                top: 24px;
+            }
+
+            .app-shell:not(.student-shell) .detail-metric-list,
+            .app-shell:not(.student-shell) .detail-list {
+                display: grid;
+                gap: 12px;
+            }
+
+            .app-shell:not(.student-shell) .detail-metric-row,
+            .app-shell:not(.student-shell) .detail-list-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 14px;
+                padding: 14px 15px;
+                border-radius: 16px;
+                border: 1px solid rgba(163, 184, 201, 0.22);
+                background: rgba(247, 250, 253, 0.82);
+            }
+
+            .app-shell:not(.student-shell) .detail-list-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .app-shell:not(.student-shell) .detail-list-row.inline {
+                align-items: center;
+                flex-direction: row;
+            }
+
+            .app-shell:not(.student-shell) .detail-metric-row span,
+            .app-shell:not(.student-shell) .detail-list-row span {
+                color: #6c8194;
+                line-height: 1.45;
+            }
+
+            .app-shell:not(.student-shell) .danger-zone {
+                margin-top: 20px;
+                padding-top: 18px;
+                border-top: 1px solid rgba(163, 184, 201, 0.24);
+            }
+
+            .app-shell:not(.student-shell) .danger-zone h4 {
+                margin: 0 0 8px;
+                color: #9a3b33;
+                font-size: 1rem;
+            }
+
+            .app-shell:not(.student-shell) .danger-zone p {
+                margin: 0 0 14px;
+                color: #607488;
+                line-height: 1.55;
             }
 
             .app-shell:not(.student-shell) .users-delete-modal {
@@ -3565,6 +3695,21 @@
                 font: inherit;
                 font-weight: 800;
                 cursor: pointer;
+            }
+
+            @media (max-width: 900px) {
+                .app-shell:not(.student-shell) .admin-detail-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .app-shell:not(.student-shell) .admin-side-panel {
+                    position: static;
+                }
+
+                .app-shell:not(.student-shell) .detail-list-row.inline {
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
             }
     
             @media (max-width: 640px) {

@@ -10,19 +10,6 @@
             '#06D6A0' => 'bg-[#06D6A0]/20 text-[#06D6A0]',
             '#FF6B35' => 'bg-[#FF6B35]/20 text-[#FF6B35]',
         ];
-
-        $widthClass = function (int $value, int $max): string {
-            $percent = $max > 0 ? (int) round(($value / $max) * 100 / 5) * 5 : 0;
-            $percent = max(0, min(100, $percent));
-
-            return [
-                0 => 'w-[0%]', 5 => 'w-[5%]', 10 => 'w-[10%]', 15 => 'w-[15%]', 20 => 'w-[20%]',
-                25 => 'w-[25%]', 30 => 'w-[30%]', 35 => 'w-[35%]', 40 => 'w-[40%]', 45 => 'w-[45%]',
-                50 => 'w-[50%]', 55 => 'w-[55%]', 60 => 'w-[60%]', 65 => 'w-[65%]', 70 => 'w-[70%]',
-                75 => 'w-[75%]', 80 => 'w-[80%]', 85 => 'w-[85%]', 90 => 'w-[90%]', 95 => 'w-[95%]',
-                100 => 'w-full',
-            ][$percent];
-        };
     @endphp
 
     <h2 class="page-title">Admin Dashboard</h2>
@@ -47,17 +34,19 @@
         <article class="content-card panel">
             <h3>User Activity Trend</h3>
             <div class="chart-list">
-                @foreach ($userActivityData as $entry)
+                @forelse ($userActivityData as $entry)
                     <div class="chart-row">
                         <div class="flex justify-between gap-3.5">
                             <strong>{{ $entry['month'] }}</strong>
                             <span class="muted">{{ $entry['users'] }} users</span>
                         </div>
                         <div class="chart-bar-track">
-                            <div class="chart-bar-fill {{ $widthClass((int) $entry['users'], 1248) }}"></div>
+                            <div class="chart-bar-fill" style="width: {{ (int) $entry['percent'] }}%"></div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-panel">No user activity has been recorded yet.</div>
+                @endforelse
             </div>
         </article>
 
@@ -83,12 +72,14 @@
     <section class="content-card panel">
         <h3>Resource Distribution</h3>
         <div class="resource-list">
-            @foreach ($resourceData as $resource)
+            @forelse ($resourceData as $resource)
                 <div class="resource-row">
                     <strong>{{ $resource['category'] }}</strong>
                     <span class="muted">{{ $resource['count'] }}</span>
                 </div>
-            @endforeach
+            @empty
+                <div class="empty-panel">No resources have been uploaded yet.</div>
+            @endforelse
         </div>
     </section>
 @endsection

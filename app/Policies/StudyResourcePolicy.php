@@ -19,4 +19,11 @@ class StudyResourcePolicy
         return $studyResource->group !== null
             && Gate::forUser($user)->allows('createContent', $studyResource->group);
     }
+
+    public function delete(User $user, StudyResource $studyResource): bool
+    {
+        return $user->isAdmin()
+            || (int) $studyResource->uploaded_by === (int) $user->id
+            || (int) $studyResource->group?->owner_id === (int) $user->id;
+    }
 }

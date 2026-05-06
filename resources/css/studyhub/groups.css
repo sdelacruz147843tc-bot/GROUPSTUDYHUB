@@ -276,6 +276,35 @@
                 font-weight: 700;
                 flex: 0 0 auto;
             }
+
+            .detail-panel .resource-actions {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                flex: 0 0 auto;
+            }
+
+            .detail-panel .resource-delete-form {
+                margin: 0;
+            }
+
+            .detail-panel .resource-delete-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 70px;
+                height: 32px;
+                padding: 0 12px;
+                border-radius: 7px;
+                border: 1px solid rgba(221, 94, 76, 0.24);
+                background: rgba(255, 241, 239, 0.96);
+                color: #a13b31;
+                font: inherit;
+                font-size: 0.78rem;
+                font-weight: 800;
+                cursor: pointer;
+            }
     
             .session-card {
                 padding: 14px 14px 12px;
@@ -713,8 +742,15 @@
                     align-items: stretch;
                 }
     
-                .resource-download {
+                .resource-download,
+                .detail-panel .resource-actions,
+                .detail-panel .resource-delete-button {
                     width: 100%;
+                }
+
+                .detail-panel .resource-actions {
+                    display: grid;
+                    grid-template-columns: 1fr;
                 }
     
                 .detail-upload-modal {

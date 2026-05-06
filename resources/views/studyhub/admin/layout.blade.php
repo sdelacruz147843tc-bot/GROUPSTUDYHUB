@@ -17,6 +17,11 @@
         'mail' => '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
         'shield' => '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/></svg>',
         'ban' => '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+        'edit' => '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+        'trash' => '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>',
+        'download' => '<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>',
+        'eye' => '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+        'arrow-left' => '<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
     ];
 
     $adminNav = [
@@ -27,10 +32,11 @@
     ];
 
     $currentRoute = request()->route()?->getName();
+    $isAdminNavActive = fn (string $route): bool => $currentRoute === $route || str_starts_with($currentRoute ?? '', $route.'.');
 @endphp
 
 @section('content')
-    <div class="studyhub-shell app-shell">
+    <div class="studyhub-shell app-shell admin-shell">
         <aside class="app-sidebar">
             <div class="sidebar-brand">
                 <div class="sidebar-brand-lockup">
@@ -56,7 +62,7 @@
 
             <nav class="sidebar-nav">
                 @foreach ($adminNav as $item)
-                    <a class="sidebar-link {{ $currentRoute === $item['route'] ? 'active' : '' }}" href="{{ route($item['route']) }}">
+                    <a class="sidebar-link {{ $isAdminNavActive($item['route']) ? 'active' : '' }}" href="{{ route($item['route']) }}">
                         <span class="icon-box">{!! $icons[$item['icon']] !!}</span>
                         <span>{{ $item['label'] }}</span>
                     </a>

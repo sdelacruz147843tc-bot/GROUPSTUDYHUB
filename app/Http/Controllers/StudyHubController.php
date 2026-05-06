@@ -36,7 +36,9 @@ abstract class StudyHubController extends Controller
 
     protected function formatResource(StudyResource $resource): array
     {
-        return app(StudyHubFormatter::class)->resource($resource);
+        return array_merge(app(StudyHubFormatter::class)->resource($resource), [
+            'can_delete' => Gate::allows('delete', $resource),
+        ]);
     }
 
     protected function formatSession(StudySession $session): array

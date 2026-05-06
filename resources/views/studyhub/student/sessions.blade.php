@@ -308,23 +308,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const scheduleModal = document.querySelector('[data-sessions-modal]');
-            const scheduleOpenButtons = document.querySelectorAll('[data-session-open]');
-            const scheduleCloseButtons = document.querySelectorAll('[data-sessions-close]');
             const detailsModal = document.querySelector('[data-session-details-modal]');
-            const detailsOpenButtons = document.querySelectorAll('[data-session-details]');
-            const detailsCloseButtons = document.querySelectorAll('[data-session-details-close]');
             const sessionTypeInput = document.querySelector('[data-session-type-input]');
             const sessionLocationLabel = document.querySelector('[data-session-location-label]');
             const sessionLocationInput = document.querySelector('[data-session-location-input]');
-
-            const setModalState = function (modal, isOpen) {
-                if (! modal) {
-                    return;
-                }
-
-                modal.classList.toggle('is-open', isOpen);
-                document.body.classList.toggle('overflow-hidden', scheduleModal?.classList.contains('is-open') || detailsModal?.classList.contains('is-open'));
-            };
 
             const syncSessionLocationField = function () {
                 const isOnline = sessionTypeInput?.value === 'online';
@@ -339,61 +326,45 @@
                 }
             };
 
-            scheduleOpenButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    syncSessionLocationField();
-                    setModalState(scheduleModal, true);
+            if (scheduleModal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: scheduleModal,
+                    open: '[data-session-open]',
+                    close: '[data-sessions-close]',
+                    beforeOpen: syncSessionLocationField,
                 });
-            });
+            }
 
-            scheduleCloseButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(scheduleModal, false);
+            if (detailsModal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: detailsModal,
+                    open: '[data-session-details]',
+                    close: '[data-session-details-close]',
+                    beforeOpen: function (button) {
+                        detailsModal.querySelector('[data-details-title]').textContent = button.dataset.sessionTitle || 'Session Details';
+                        detailsModal.querySelector('[data-details-group]').textContent = button.dataset.sessionGroup || '';
+                        detailsModal.querySelector('[data-details-date]').textContent = button.dataset.sessionDate || '';
+                        detailsModal.querySelector('[data-details-time]').textContent = button.dataset.sessionTime || '';
+                        const meetingUrl = button.dataset.sessionMeetingUrl || '';
+                        const isOnline = (button.dataset.sessionType || '').toLowerCase() === 'online';
+                        const meetingLink = detailsModal.querySelector('[data-details-meeting-link]');
+                        detailsModal.querySelector('[data-details-location-label]').textContent = isOnline ? 'Meeting link' : 'Location';
+                        detailsModal.querySelector('[data-details-location]').textContent = button.dataset.sessionLocation || '';
+                        if (meetingLink) {
+                            meetingLink.hidden = ! isOnline || ! meetingUrl;
+                            meetingLink.href = meetingUrl || '#';
+                        }
+                        detailsModal.querySelector('[data-details-type]').textContent = button.dataset.sessionType || '';
+                        detailsModal.querySelector('[data-details-attendees]').textContent = button.dataset.sessionAttendees || '';
+                        detailsModal.querySelector('[data-details-host]').textContent = button.dataset.sessionHost || '';
+                        detailsModal.querySelector('[data-details-notes]').textContent = button.dataset.sessionNotes || '';
+                    },
                 });
-            });
-
-            detailsOpenButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    detailsModal.querySelector('[data-details-title]').textContent = button.dataset.sessionTitle || 'Session Details';
-                    detailsModal.querySelector('[data-details-group]').textContent = button.dataset.sessionGroup || '';
-                    detailsModal.querySelector('[data-details-date]').textContent = button.dataset.sessionDate || '';
-                    detailsModal.querySelector('[data-details-time]').textContent = button.dataset.sessionTime || '';
-                    const meetingUrl = button.dataset.sessionMeetingUrl || '';
-                    const isOnline = (button.dataset.sessionType || '').toLowerCase() === 'online';
-                    const meetingLink = detailsModal.querySelector('[data-details-meeting-link]');
-                    detailsModal.querySelector('[data-details-location-label]').textContent = isOnline ? 'Meeting link' : 'Location';
-                    detailsModal.querySelector('[data-details-location]').textContent = button.dataset.sessionLocation || '';
-                    if (meetingLink) {
-                        meetingLink.hidden = ! isOnline || ! meetingUrl;
-                        meetingLink.href = meetingUrl || '#';
-                    }
-                    detailsModal.querySelector('[data-details-type]').textContent = button.dataset.sessionType || '';
-                    detailsModal.querySelector('[data-details-attendees]').textContent = button.dataset.sessionAttendees || '';
-                    detailsModal.querySelector('[data-details-host]').textContent = button.dataset.sessionHost || '';
-                    detailsModal.querySelector('[data-details-notes]').textContent = button.dataset.sessionNotes || '';
-                    setModalState(detailsModal, true);
-                });
-            });
-
-            detailsCloseButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(detailsModal, false);
-                });
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    setModalState(scheduleModal, false);
-                    setModalState(detailsModal, false);
-                }
-            });
-
-            if (scheduleModal && scheduleModal.classList.contains('is-open')) {
-                document.body.classList.add('overflow-hidden');
             }
 
             sessionTypeInput?.addEventListener('change', syncSessionLocationField);
             syncSessionLocationField();
+            window.StudyHubUI.syncBodyOverflow();
         });
     </script>
 @endsection

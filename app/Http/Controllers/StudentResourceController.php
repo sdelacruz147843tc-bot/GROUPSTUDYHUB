@@ -97,4 +97,59 @@ class StudentResourceController extends StudyHubController
             ->route('studyhub.student.resources')
             ->with('status', 'That resource file could not be found.');
     }
+
+    public function destroy(Request $request, StudyResource $resource): RedirectResponse
+    {
+        $resource->loadMissing(['group', 'uploader']);
+
+        if (Gate::denies('delete', $resource)) {
+            return $this->resourceDeletionRedirect($request)
+                ->with('status', 'You can only delete resources you uploaded or resources in groups you own.');
+        }
+
+        $group = $resource->group;
+        $resourceName = $resource->name;
+        $storedPath = $resource->path;
+        $actorName = $request->user()->display_name ?: $request->user()->name;
+        $groupName = $group?->name ?: 'a StudyHub group';
+
+        $this->logActivity(
+            'resource_deleted',
+            'Resource deleted',
+            $actorName.' deleted '.$resourceName.' from '.$groupName.'.',
+            $group,
+            $resource,
+        );
+
+        $resource->delete();
+        $this->deleteStoredResourceFile($storedPath);
+
+        return $this->resourceDeletionRedirect($request)
+            ->with('status', 'Resource deleted successfully.');
+    }
+
+    private function resourceDeletionRedirect(Request $request): RedirectResponse
+    {
+        $redirectTo = $request->string('redirect_to')->toString();
+
+        if ($redirectTo !== '' && str_starts_with($redirectTo, url('/studyhub/'))) {
+            return redirect($redirectTo);
+        }
+
+        if ($request->user()?->isAdmin()) {
+            return redirect()->route('studyhub.admin.groups');
+        }
+
+        return redirect()->route('studyhub.student.resources');
+    }
+
+    private function deleteStoredResourceFile(?string $path): void
+    {
+        if (! $path) {
+            return;
+        }
+
+        collect(['local', 'public'])
+            ->each(fn (string $disk) => Storage::disk($disk)->delete($path));
+    }
 }

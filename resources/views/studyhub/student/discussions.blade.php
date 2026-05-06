@@ -135,8 +135,8 @@
 
     <div class="discussion-empty-state app-empty-state hidden" data-discussion-empty>
         <span class="app-empty-icon">{!! $icons['discussion'] !!}</span>
-        <strong>No discussions found</strong>
-        <span>Try another search or start a new topic.</span>
+        <strong data-empty-title>No discussions found</strong>
+        <span data-empty-copy>Try another search or start a new topic.</span>
         <button class="app-empty-action" type="button" data-discussion-open>Create discussion</button>
     </div>
 
@@ -195,8 +195,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const modal = document.querySelector('[data-discussion-modal]');
-            const openButton = document.querySelector('[data-discussion-open]');
-            const closeButtons = document.querySelectorAll('[data-discussion-close]');
             const searchInput = document.querySelector('[data-discussion-search]');
             const groupFilter = document.querySelector('[data-discussion-group]');
             const sortSelect = document.querySelector('[data-discussion-sort]');
@@ -204,30 +202,13 @@
             const discussionRows = Array.from(document.querySelectorAll('[data-discussion-row]'));
             const emptyState = document.querySelector('[data-discussion-empty]');
 
-            if (! modal || ! openButton) {
-                return;
-            }
-
-            const setModalState = function (isOpen) {
-                modal.classList.toggle('is-open', isOpen);
-                document.body.classList.toggle('overflow-hidden', isOpen);
-            };
-
-            openButton.addEventListener('click', function () {
-                setModalState(true);
-            });
-
-            closeButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(false);
+            if (modal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: modal,
+                    open: '[data-discussion-open]',
+                    close: '[data-discussion-close]',
                 });
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-                    setModalState(false);
-                }
-            });
+            }
 
             const applyDiscussionControls = function () {
                 const searchTerm = (searchInput?.value || '').trim().toLowerCase();
@@ -267,7 +248,14 @@
                     discussionList?.appendChild(row);
                 });
 
-                emptyState?.classList.toggle('hidden', visibleCount !== 0);
+                window.StudyHubUI.setEmptyState(emptyState, {
+                    visibleCount: visibleCount,
+                    totalCount: discussionRows.length,
+                    emptyTitle: 'No discussions yet',
+                    emptyCopy: 'Threads from your joined groups will appear here.',
+                    filteredTitle: 'No discussions match your filters',
+                    filteredCopy: 'Try another search, group, or sort option.',
+                });
             };
 
             searchInput?.addEventListener('input', applyDiscussionControls);
@@ -275,9 +263,7 @@
             sortSelect?.addEventListener('change', applyDiscussionControls);
             applyDiscussionControls();
 
-            if (modal.classList.contains('is-open')) {
-                document.body.classList.add('overflow-hidden');
-            }
+            window.StudyHubUI.syncBodyOverflow();
         });
     </script>
 @endsection

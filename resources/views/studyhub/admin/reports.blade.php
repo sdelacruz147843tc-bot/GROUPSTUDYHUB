@@ -19,19 +19,7 @@
             '#FF6B35' => 'bg-[#FF6B35]',
             '#79532d' => 'bg-[#79532d]',
         ];
-
-        $widthClass = function (int $value, int $max): string {
-            $percent = $max > 0 ? (int) round(($value / $max) * 100 / 5) * 5 : 0;
-            $percent = max(0, min(100, $percent));
-
-            return [
-                0 => 'w-[0%]', 5 => 'w-[5%]', 10 => 'w-[10%]', 15 => 'w-[15%]', 20 => 'w-[20%]',
-                25 => 'w-[25%]', 30 => 'w-[30%]', 35 => 'w-[35%]', 40 => 'w-[40%]', 45 => 'w-[45%]',
-                50 => 'w-[50%]', 55 => 'w-[55%]', 60 => 'w-[60%]', 65 => 'w-[65%]', 70 => 'w-[70%]',
-                75 => 'w-[75%]', 80 => 'w-[80%]', 85 => 'w-[85%]', 90 => 'w-[90%]', 95 => 'w-[95%]',
-                100 => 'w-full',
-            ][$percent];
-        };
+        $isSixMonthRange = ($range ?? '6_months') !== 'all';
     @endphp
 
     <div class="toolbar">
@@ -40,8 +28,12 @@
             <p class="page-subtitle">Platform insights and statistics.</p>
         </div>
         <div class="toolbar-actions">
-            <button class="secondary-button" type="button">Last 6 Months</button>
-            <button class="action-button" type="button">Export Report</button>
+            <a class="secondary-button {{ $isSixMonthRange ? 'is-active' : '' }}" href="{{ route('studyhub.admin.reports', ['range' => '6_months']) }}">Last 6 Months</a>
+            <a class="secondary-button {{ ! $isSixMonthRange ? 'is-active' : '' }}" href="{{ route('studyhub.admin.reports', ['range' => 'all']) }}">All Time</a>
+            <a class="action-button" href="{{ route('studyhub.admin.reports.export') }}">
+                <span class="icon-box">{!! $icons['download'] !!}</span>
+                <span>Export Report</span>
+            </a>
         </div>
     </div>
 
@@ -59,24 +51,26 @@
         <article class="content-card report-panel">
             <h3>User Growth Trend</h3>
             <div class="bar-list">
-                @foreach ($monthlyUserData as $entry)
+                @forelse ($monthlyUserData as $entry)
                     <div class="bar-row">
                         <div class="flex justify-between gap-3.5">
                             <strong>{{ $entry['month'] }}</strong>
                             <span class="text-[var(--text-muted)]">{{ $entry['students'] }} students | {{ $entry['admins'] }} admins</span>
                         </div>
                         <div class="bar-track">
-                            <div class="bar-fill {{ $widthClass((int) $entry['students'], 1230) }}"></div>
+                            <div class="bar-fill" style="width: {{ (int) $entry['percent'] }}%"></div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-panel">No user growth data is available for this range.</div>
+                @endforelse
             </div>
         </article>
 
         <article class="content-card report-panel">
             <h3>Resource Distribution</h3>
             <div class="pie-list">
-                @foreach ($resourceTypeData as $entry)
+                @forelse ($resourceTypeData as $entry)
                     <div class="pie-row">
                         <div>
                             <span class="color-dot {{ $dotColorClasses[$entry['color']] ?? 'bg-[#0F4C75]' }}"></span>
@@ -84,18 +78,20 @@
                         </div>
                         <span class="text-[var(--text-muted)]">{{ $entry['value'] }}</span>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-panel">No resource categories have been recorded yet.</div>
+                @endforelse
             </div>
         </article>
     </section>
 
     <section class="content-card report-panel mt-6">
         <h3>Platform Activity</h3>
-        <div class="activity-list">
+        <div class="platform-activity-list">
             @foreach ($activityData as $item)
-                <div class="activity-row">
-                    <strong>{{ $item['category'] }}</strong>
-                    <span class="text-[1.4rem] font-extrabold text-[#2f5540]">{{ $item['count'] }}</span>
+                <div class="platform-activity-card">
+                    <span class="platform-activity-label">{{ $item['category'] }}</span>
+                    <strong class="platform-activity-value">{{ $item['count'] }}</strong>
                 </div>
             @endforeach
         </div>

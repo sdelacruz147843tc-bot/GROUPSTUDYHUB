@@ -107,10 +107,23 @@
                     <span class="resource-size">{{ $resource['size'] }}</span>
                 </div>
 
-                <a class="action-button download-button {{ empty($resource['path']) ? 'is-disabled' : '' }}" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}" @if (empty($resource['path'])) aria-disabled="true" @endif>
-                    <span class="icon-box">{!! $icons['download'] !!}</span>
-                    <span>{{ ! empty($resource['path']) ? 'Download' : 'Unavailable' }}</span>
-                </a>
+                <div class="resource-actions">
+                    <a class="action-button download-button {{ empty($resource['path']) ? 'is-disabled' : '' }}" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}" @if (empty($resource['path'])) aria-disabled="true" @endif>
+                        <span class="icon-box">{!! $icons['download'] !!}</span>
+                        <span>{{ ! empty($resource['path']) ? 'Download' : 'Unavailable' }}</span>
+                    </a>
+                    @if (! empty($resource['can_delete']))
+                        <form class="resource-delete-form" method="POST" action="{{ route('studyhub.student.resources.delete', $resource['id']) }}">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="redirect_to" value="{{ route('studyhub.student.resources') }}">
+                            <button class="resource-delete-button" type="button" data-resource-delete-open data-resource-delete-filename="{{ $resource['name'] }}">
+                                <span class="icon-box">{!! $icons['trash'] !!}</span>
+                                <span>Delete</span>
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </article>
         @endforeach
     </section>
@@ -123,8 +136,8 @@
 
     <div class="resources-empty-state app-empty-state hidden" data-resources-empty>
         <span class="app-empty-icon">{!! $icons['file'] !!}</span>
-        <strong>No resources found</strong>
-        <span>Try another filter or upload a file for your group.</span>
+        <strong data-empty-title>No resources found</strong>
+        <span data-empty-copy>Try another filter or upload a file for your group.</span>
     </div>
 
     <x-studyhub.modal
@@ -184,11 +197,38 @@
                 </form>
     </x-studyhub.modal>
 
+    <x-studyhub.modal
+        title="Delete resource?"
+        subtitle="This removes the file from the shared resource library."
+        close-data="data-resource-delete-close"
+        size="sm"
+        data-resource-delete-modal
+    >
+                <div class="resource-delete-dialog">
+                    <div class="resource-delete-dialog-icon">
+                        <span class="icon-box">{!! $icons['trash'] !!}</span>
+                    </div>
+                    <div class="resource-delete-dialog-copy">
+                        <strong data-resource-delete-target>this resource</strong>
+                        <span>Deleting this resource also removes its stored file. This action cannot be undone.</span>
+                    </div>
+                </div>
+
+                <div class="resource-delete-dialog-actions">
+                    <button class="resource-delete-cancel" type="button" data-resource-delete-close>Cancel</button>
+                    <button class="resource-delete-confirm" type="button" data-resource-delete-confirm>
+                        <span class="icon-box">{!! $icons['trash'] !!}</span>
+                        <span>Delete Resource</span>
+                    </button>
+                </div>
+    </x-studyhub.modal>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const modal = document.querySelector('[data-resource-upload-modal]');
-            const openButton = document.querySelector('[data-resource-upload-open]');
-            const closeButtons = document.querySelectorAll('[data-resource-upload-close]');
+            const deleteModal = document.querySelector('[data-resource-delete-modal]');
+            const deleteName = document.querySelector('[data-resource-delete-target]');
+            const deleteConfirm = document.querySelector('[data-resource-delete-confirm]');
             const searchInput = document.querySelector('[data-resource-search]');
             const categorySelect = document.querySelector('[data-resource-category]');
             const groupSelect = document.querySelector('[data-resource-group]');
@@ -196,31 +236,44 @@
             const resourceCards = Array.from(document.querySelectorAll('[data-resource-card]'));
             const emptyState = document.querySelector('[data-resources-empty]');
             const uploadDropzones = document.querySelectorAll('[data-upload-dropzone]');
+            let pendingDeleteForm = null;
 
-            if (! modal || ! openButton) {
-                return;
+            if (modal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: modal,
+                    open: '[data-resource-upload-open]',
+                    close: '[data-resource-upload-close]',
+                });
             }
 
-            const setModalState = function (isOpen) {
-                modal.classList.toggle('is-open', isOpen);
-                document.body.classList.toggle('overflow-hidden', isOpen);
-            };
+            if (deleteModal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: deleteModal,
+                    open: '[data-resource-delete-open]',
+                    close: '[data-resource-delete-close]',
+                    beforeOpen: function (button) {
+                        pendingDeleteForm = button.closest('form');
 
-            openButton.addEventListener('click', function () {
-                setModalState(true);
-            });
-
-            closeButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(false);
+                        if (deleteName) {
+                            deleteName.textContent = button.dataset.resourceDeleteFilename || 'this resource';
+                        }
+                    },
+                    afterClose: function () {
+                        pendingDeleteForm = null;
+                    },
                 });
-            });
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-                    setModalState(false);
-                }
-            });
+                deleteConfirm?.addEventListener('click', function () {
+                    if (! pendingDeleteForm) {
+                        window.StudyHubUI.setModalState(deleteModal, false);
+                        return;
+                    }
+
+                    deleteConfirm.disabled = true;
+                    deleteConfirm.innerHTML = '<span class="student-button-spinner" aria-hidden="true"></span><span>Deleting...</span>';
+                    pendingDeleteForm.submit();
+                });
+            }
 
             const applyResourceFilters = function () {
                 const searchTerm = (searchInput?.value || '').trim().toLowerCase();
@@ -249,9 +302,14 @@
                     }
                 });
 
-                if (emptyState) {
-                    emptyState.classList.toggle('hidden', visibleCount !== 0);
-                }
+                window.StudyHubUI.setEmptyState(emptyState, {
+                    visibleCount: visibleCount,
+                    totalCount: resourceCards.length,
+                    emptyTitle: 'No resources yet',
+                    emptyCopy: 'Files uploaded to your joined groups will appear here.',
+                    filteredTitle: 'No resources match your filters',
+                    filteredCopy: 'Try another search, group, category, or file availability filter.',
+                });
             };
 
             searchInput?.addEventListener('input', applyResourceFilters);
@@ -298,9 +356,7 @@
 
             applyResourceFilters();
 
-            if (modal.classList.contains('is-open')) {
-                document.body.classList.add('overflow-hidden');
-            }
+            window.StudyHubUI.syncBodyOverflow();
         });
     </script>
 @endsection

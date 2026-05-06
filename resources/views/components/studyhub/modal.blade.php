@@ -18,6 +18,7 @@
 <div
     {{ $attributes->merge([
         'class' => 'fixed inset-0 z-40 hidden items-center justify-center p-4 sm:p-7 [&.is-open]:flex' . ($open ? ' is-open' : ''),
+        'data-studyhub-modal' => '',
     ]) }}
 >
     <button

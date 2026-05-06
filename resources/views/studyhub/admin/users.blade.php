@@ -32,22 +32,18 @@
                 <span class="icon-box">{!! $icons['search'] !!}</span>
                 <input type="text" placeholder="Search users..." data-user-search>
             </div>
-            <button class="secondary-button" type="button" data-user-filter-toggle>Filter</button>
+            <select class="users-filter-select" data-user-role aria-label="Filter by role">
+                <option value="">All Roles</option>
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <select class="users-filter-select" data-user-status aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                <option value="verified">Verified</option>
+                <option value="pending">Pending</option>
+            </select>
         </div>
-    </div>
-
-    <div class="users-filter-panel" data-user-filter-panel>
-        <select class="users-filter-select" data-user-role>
-            <option value="">All Roles</option>
-            <option value="student">Student</option>
-            <option value="admin">Admin</option>
-        </select>
-
-        <select class="users-filter-select" data-user-status>
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-        </select>
     </div>
 
     <section class="stats-grid">
@@ -94,10 +90,10 @@
                                     <span class="icon-box">{!! $icons['mail'] !!}</span>
                                     <span>Email</span>
                                 </a>
-                                <span class="action-chip role" title="Current role">
-                                    <span class="icon-box">{!! $icons['shield'] !!}</span>
-                                    <span>{{ $user['role'] }}</span>
-                                </span>
+                                <a class="action-link action-chip role" href="{{ route('studyhub.admin.users.edit', $user['id']) }}" title="Edit {{ $user['name'] }}">
+                                    <span class="icon-box">{!! $icons['edit'] !!}</span>
+                                    <span>Edit</span>
+                                </a>
                                 @if ($user['can_delete'])
                                     <form class="action-form" method="POST" action="{{ route('studyhub.admin.users.delete', $user['id']) }}">
                                         @csrf
@@ -113,7 +109,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <span class="action-chip delete disabled" title="You cannot delete your own account here">
+                                    <span class="action-chip delete disabled" title="{{ $user['delete_reason'] ?? 'This account cannot be deleted here' }}">
                                         <span class="icon-box">{!! $icons['ban'] !!}</span>
                                         <span>Delete</span>
                                     </span>
@@ -252,8 +248,6 @@
             const deleteName = document.querySelector('[data-delete-user-name]');
             const deleteConfirm = document.querySelector('[data-confirm-delete]');
             const searchInput = document.querySelector('[data-user-search]');
-            const filterToggle = document.querySelector('[data-user-filter-toggle]');
-            const filterPanel = document.querySelector('[data-user-filter-panel]');
             const roleSelect = document.querySelector('[data-user-role]');
             const statusSelect = document.querySelector('[data-user-status]');
             const rows = Array.from(document.querySelectorAll('[data-user-row]'));
@@ -306,10 +300,6 @@
                 pendingDeleteForm.submit();
             });
 
-            filterToggle?.addEventListener('click', function () {
-                filterPanel?.classList.toggle('is-open');
-            });
-
             const applyUserFilters = function () {
                 const searchTerm = (searchInput?.value || '').trim().toLowerCase();
                 const role = (roleSelect?.value || '').trim().toLowerCase();
@@ -333,7 +323,7 @@
                 });
 
                 if (emptyState) {
-                    emptyState.classList.toggle('hidden', visibleCount !== 0);
+                    emptyState.classList.toggle('is-visible', visibleCount === 0);
                 }
             };
 

@@ -232,8 +232,8 @@
 
     <div class="groups-empty-state app-empty-state hidden" data-groups-empty>
         <span class="app-empty-icon">{!! $icons['users'] !!}</span>
-        <strong>No groups found</strong>
-        <span>Try a different search or start a new study group.</span>
+        <strong data-empty-title>No groups found</strong>
+        <span data-empty-copy>Try a different search or start a new study group.</span>
     </div>
 
     <x-studyhub.modal
@@ -401,61 +401,33 @@
             const privateJoinForm = document.querySelector('[data-private-join-form]');
             const privateJoinGroupIdInput = document.querySelector('[data-private-join-group-id]');
             const privateJoinCodeInput = document.querySelector('[data-private-join-code]');
-            const privateJoinOpenButtons = document.querySelectorAll('[data-private-join-open]');
-            const privateJoinCloseButtons = document.querySelectorAll('[data-private-join-close]');
-            const openButtons = document.querySelectorAll('[data-create-group-open]');
-            const closeButtons = document.querySelectorAll('[data-create-group-close]');
             const visibilityInputs = document.querySelectorAll('input[name="visibility"]');
             const joinCodeField = document.querySelector('[data-join-code-field]');
 
-            if (! modal || openButtons.length === 0 || ! privateJoinModal) {
-                return;
+            if (modal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: modal,
+                    open: '[data-create-group-open]',
+                    close: '[data-create-group-close]',
+                });
             }
 
-            const syncBodyOverflow = function () {
-                document.body.classList.toggle('overflow-hidden', modal.classList.contains('is-open') || privateJoinModal.classList.contains('is-open'));
-            };
-
-            const setModalState = function (targetModal, isOpen) {
-                targetModal.classList.toggle('is-open', isOpen);
-                syncBodyOverflow();
-            };
-
-            openButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(modal, true);
+            if (privateJoinModal) {
+                window.StudyHubUI.bindModalTriggers({
+                    modal: privateJoinModal,
+                    open: '[data-private-join-open]',
+                    close: '[data-private-join-close]',
+                    beforeOpen: function (button) {
+                        privateJoinForm.action = button.dataset.joinAction;
+                        privateJoinGroupIdInput.value = button.dataset.joinGroupId;
+                        privateJoinModal.querySelector('p')?.replaceChildren(document.createTextNode(button.dataset.joinGroupName || 'Enter the group code'));
+                        privateJoinCodeInput.value = '';
+                    },
+                    afterOpen: function () {
+                        privateJoinCodeInput?.focus();
+                    },
                 });
-            });
-
-            closeButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(modal, false);
-                });
-            });
-
-            privateJoinOpenButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    privateJoinForm.action = button.dataset.joinAction;
-                    privateJoinGroupIdInput.value = button.dataset.joinGroupId;
-                    privateJoinModal.querySelector('p')?.replaceChildren(document.createTextNode(button.dataset.joinGroupName || 'Enter the group code'));
-                    privateJoinCodeInput.value = '';
-                    setModalState(privateJoinModal, true);
-                    privateJoinCodeInput.focus();
-                });
-            });
-
-            privateJoinCloseButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    setModalState(privateJoinModal, false);
-                });
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    setModalState(modal, false);
-                    setModalState(privateJoinModal, false);
-                }
-            });
+            }
 
             const syncJoinCodeField = function () {
                 const selectedVisibility = document.querySelector('input[name="visibility"]:checked')?.value || 'public';
@@ -512,9 +484,14 @@
                     }
                 });
 
-                if (emptyState) {
-                    emptyState.classList.toggle('hidden', visibleCount !== 0);
-                }
+                window.StudyHubUI.setEmptyState(emptyState, {
+                    visibleCount: visibleCount,
+                    totalCount: cards.length,
+                    emptyTitle: 'No groups yet',
+                    emptyCopy: 'Groups you create or join will appear here.',
+                    filteredTitle: 'No groups match your filters',
+                    filteredCopy: 'Try clearing the search, category, or access filter.',
+                });
             };
 
             searchInput?.addEventListener('input', applyGroupFilters);
@@ -541,10 +518,10 @@
             syncCategoryChips();
             applyGroupFilters();
 
-            if (privateJoinModal.classList.contains('is-open')) {
+            if (privateJoinModal?.classList.contains('is-open')) {
                 privateJoinCodeInput?.focus();
             }
-            syncBodyOverflow();
+            window.StudyHubUI.syncBodyOverflow();
         });
     </script>
 @endsection

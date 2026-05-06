@@ -47,6 +47,7 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
             Route::get('/resources', [StudentResourceController::class, 'index'])->name('resources');
             Route::post('/resources', [StudentResourceController::class, 'store'])->name('resources.store');
             Route::get('/resources/{resource}/download', [StudentResourceController::class, 'download'])->name('resources.download');
+            Route::delete('/resources/{resource}', [StudentResourceController::class, 'destroy'])->name('resources.delete');
             Route::get('/discussions', [StudentDiscussionController::class, 'index'])->name('discussions');
             Route::post('/discussions', [StudentDiscussionController::class, 'store'])->name('discussions.store');
             Route::get('/discussions/{discussion}', [StudentDiscussionController::class, 'show'])->name('discussions.show');
@@ -64,9 +65,17 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
             Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
             Route::post('/users', [AdminDashboardController::class, 'storeUser'])->name('users.store');
+            Route::get('/users/{user}/edit', [AdminDashboardController::class, 'editUser'])->name('users.edit');
+            Route::put('/users/{user}', [AdminDashboardController::class, 'updateUser'])->name('users.update');
             Route::delete('/users/{user}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
             Route::get('/groups', [AdminDashboardController::class, 'groups'])->name('groups');
+            Route::get('/groups/{group}', [AdminDashboardController::class, 'showGroup'])->name('groups.show');
+            Route::put('/groups/{group}', [AdminDashboardController::class, 'updateGroup'])->name('groups.update');
+            Route::delete('/groups/{group}', [AdminDashboardController::class, 'deleteGroup'])->name('groups.delete');
+            Route::delete('/resources/{resource}', [StudentResourceController::class, 'destroy'])->name('resources.delete');
+            Route::delete('/sessions/{session}', [AdminDashboardController::class, 'deleteSession'])->name('sessions.delete');
             Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
+            Route::get('/reports/export', [AdminDashboardController::class, 'exportReports'])->name('reports.export');
         });
     });
 });

@@ -174,3 +174,379 @@ html.dark {
 @import './studyhub/resources.css';
 @import './studyhub/sessions.css';
 @import './studyhub/discussions.css';
+
+/* StudyHub shared mobile polish */
+@media (max-width: 900px) {
+    .student-dashboard-shell .resource-grid,
+    .student-dashboard-shell .session-grid,
+    .student-dashboard-shell .groups-grid,
+    .student-dashboard-shell .discussion-stats-grid,
+    .student-dashboard-shell .sessions-stat-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .student-dashboard-shell .resources-toolbar,
+    .student-dashboard-shell .groups-controls,
+    .student-dashboard-shell .discussion-toolbar {
+        grid-template-columns: 1fr !important;
+    }
+
+    .student-dashboard-shell .resources-toolbar > *,
+    .student-dashboard-shell .groups-controls > *,
+    .student-dashboard-shell .discussion-toolbar > *,
+    .student-dashboard-shell .toolbar-actions,
+    .student-dashboard-shell .toolbar-actions > *,
+    .student-dashboard-shell .action-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .student-dashboard-shell .discussion-header,
+    .student-dashboard-shell .toolbar,
+    .student-dashboard-shell .groups-toolbar {
+        align-items: stretch;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 720px) {
+    .student-shell [data-studyhub-modal] {
+        align-items: flex-end !important;
+        padding: 10px !important;
+    }
+
+    .student-shell [data-studyhub-modal] > div {
+        max-height: calc(100vh - 20px);
+        border-radius: 22px 22px 0 0 !important;
+    }
+
+    .student-shell [data-studyhub-modal] > div > div:first-child {
+        padding: 16px !important;
+    }
+
+    .student-shell [data-studyhub-modal] > div > div:last-child {
+        padding: 16px !important;
+    }
+
+    .student-shell [data-studyhub-modal] h3 {
+        font-size: clamp(1.45rem, 8vw, 1.9rem) !important;
+        line-height: 1.02 !important;
+    }
+
+    .student-shell [data-studyhub-modal] form,
+    .student-shell [data-studyhub-modal] .detail-session-details-grid,
+    .student-shell [data-studyhub-modal] .sessions-detail-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .student-shell [data-studyhub-modal] form > .sticky {
+        position: static !important;
+        margin-inline: 0 !important;
+        padding: 14px 0 0 !important;
+    }
+
+    .student-shell [data-studyhub-modal] form > .sticky button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .student-dashboard-shell .app-main {
+        padding: 16px !important;
+    }
+
+    .student-dashboard-shell .student-global-topbar {
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .student-dashboard-shell .student-top-profile {
+        width: 100%;
+    }
+
+    .student-dashboard-shell .page-title {
+        font-size: clamp(2rem, 11vw, 2.7rem) !important;
+        line-height: 1 !important;
+    }
+
+    .student-dashboard-shell .groups-category-strip {
+        display: flex;
+        gap: 10px;
+        margin-inline: -16px;
+        overflow-x: auto;
+        padding-inline: 16px;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        scroll-snap-type: x proximity;
+    }
+
+    .student-dashboard-shell .groups-category-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .student-dashboard-shell .group-category-chip {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        white-space: nowrap;
+    }
+
+    .student-dashboard-shell .group-card-content {
+        min-height: 0 !important;
+        padding: 16px 16px 14px 72px !important;
+    }
+
+    .student-dashboard-shell .group-card-access {
+        position: static !important;
+        width: fit-content;
+        margin-bottom: 10px;
+    }
+
+    .student-dashboard-shell .group-card-meta {
+        position: static !important;
+        flex-wrap: wrap;
+        gap: 10px !important;
+        margin-top: 12px;
+    }
+
+    .student-dashboard-shell .group-card-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 0 14px 14px !important;
+    }
+
+    .student-dashboard-shell .group-open-link,
+    .student-dashboard-shell .group-join-button,
+    .student-dashboard-shell .session-actions > *,
+    .student-dashboard-shell .session-actions form,
+    .student-dashboard-shell .session-actions button,
+    .student-dashboard-shell .session-actions a {
+        width: 100%;
+    }
+
+    .student-dashboard-shell .session-header,
+    .student-dashboard-shell .session-actions,
+    .student-dashboard-shell .resource-detail-row,
+    .student-dashboard-shell .resource-meta,
+    .student-dashboard-shell .discussion-row-footer,
+    .student-dashboard-shell .thread-hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+/* Admin visibility pass */
+.admin-shell.app-shell {
+    grid-template-columns: 300px minmax(0, 1fr);
+    background: linear-gradient(180deg, #f3f7fb 0%, #eef4f8 100%) !important;
+}
+
+.admin-shell.app-shell .app-sidebar {
+    color: #f8fbff !important;
+    background:
+        linear-gradient(180deg, rgba(8, 25, 45, 0.96) 0%, rgba(14, 48, 78, 0.98) 52%, rgba(18, 76, 102, 1) 100%) !important;
+    border-right: 1px solid rgba(6, 25, 45, 0.42) !important;
+    box-shadow: 18px 0 46px rgba(16, 34, 54, 0.28) !important;
+}
+
+.admin-shell.app-shell .sidebar-brand {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+.admin-shell.app-shell .sidebar-brand h1 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.24);
+}
+
+.admin-shell.app-shell .sidebar-brand h1 span {
+    color: #6cf0a0 !important;
+}
+
+.admin-shell.app-shell .sidebar-link {
+    color: rgba(248, 252, 255, 0.9) !important;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent !important;
+    font-weight: 800;
+}
+
+.admin-shell.app-shell .sidebar-link .icon-box {
+    color: inherit !important;
+}
+
+.admin-shell.app-shell .sidebar-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.admin-shell.app-shell .sidebar-link.active {
+    color: #082035 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #e8fff0 100%) !important;
+    border-color: rgba(255, 255, 255, 0.86) !important;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18) !important;
+}
+
+.admin-shell.app-shell .sidebar-bottom {
+    border-top-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.admin-shell.app-shell .app-main {
+    padding: 36px 40px 44px !important;
+}
+
+.admin-shell.app-shell .page-title {
+    color: #071827 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.admin-shell.app-shell .page-subtitle {
+    color: #4d5d6c !important;
+    font-weight: 600;
+}
+
+.admin-shell.app-shell .content-card,
+.admin-shell.app-shell .stat-card {
+    background: #ffffff !important;
+    border: 1px solid #bdd6cc !important;
+    box-shadow: 0 18px 42px rgba(28, 52, 73, 0.12) !important;
+}
+
+.admin-shell.app-shell .stat-card {
+    min-height: 160px;
+}
+
+.admin-shell.app-shell .search-box input,
+.admin-shell.app-shell .users-filter-select {
+    background: #ffffff !important;
+    border-color: #accfc2 !important;
+    color: #132332 !important;
+}
+
+.admin-shell.app-shell .toolbar-filters {
+    display: grid !important;
+    grid-template-columns: minmax(340px, 1fr) 210px 220px;
+    align-items: center;
+    gap: 14px !important;
+}
+
+.admin-shell.app-shell .toolbar-filters .search-box {
+    max-width: none !important;
+}
+
+.admin-shell.app-shell .users-filter-select {
+    width: 100%;
+    min-width: 0 !important;
+    height: 58px !important;
+    border-radius: 18px !important;
+    font-weight: 700;
+}
+
+.admin-shell.app-shell .table-wrap {
+    background: #ffffff !important;
+    border: 1px solid #c7d9e4 !important;
+}
+
+.admin-shell.app-shell .table-wrap th {
+    background: #eaf3fb !important;
+    color: #243b53 !important;
+}
+
+.admin-shell.app-shell .table-wrap td {
+    background: #ffffff !important;
+    color: #182433 !important;
+}
+
+.admin-shell.app-shell .table-wrap tbody tr:hover td {
+    background: #f4f9ff !important;
+}
+
+.admin-shell.app-shell .action-chip {
+    border-color: #cfe0ed !important;
+    background: #f3f8fd !important;
+    color: #264159 !important;
+}
+
+.admin-shell.app-shell .action-chip.role {
+    background: #e6f0ff !important;
+    color: #0f5cc4 !important;
+}
+
+.admin-shell.app-shell .action-chip.delete {
+    border-color: #f0c5bd !important;
+    background: #fff2ef !important;
+    color: #a1392f !important;
+}
+
+.admin-shell.app-shell .action-button {
+    background: linear-gradient(135deg, #1769e8 0%, #0d4fc2 100%) !important;
+    box-shadow: 0 16px 34px rgba(13, 79, 194, 0.28) !important;
+}
+
+.admin-shell.app-shell .secondary-button {
+    background: #ffffff !important;
+    color: #24384d !important;
+    border-color: #c6d8e4 !important;
+}
+
+.admin-shell.app-shell .platform-activity-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-shell.app-shell .platform-activity-card {
+    display: grid;
+    min-height: 132px;
+    align-content: space-between;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #d7e5ee;
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(232, 242, 255, 0.72) 0%, rgba(247, 252, 249, 0.96) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.admin-shell.app-shell .platform-activity-label {
+    color: #1e2d3b;
+    font-size: 0.94rem;
+    font-weight: 850;
+    line-height: 1.25;
+}
+
+.admin-shell.app-shell .platform-activity-value {
+    color: #16603d;
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 950;
+    line-height: 0.95;
+    letter-spacing: 0;
+}
+
+@media (max-width: 1180px) {
+    .admin-shell.app-shell .platform-activity-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 820px) {
+    .admin-shell.app-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-shell.app-shell .app-sidebar {
+        max-height: none !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+    }
+
+    .admin-shell.app-shell .app-main {
+        padding: 22px 16px 32px !important;
+    }
+
+    .admin-shell.app-shell .toolbar-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-shell.app-shell .platform-activity-list {
+        grid-template-columns: 1fr;
+    }
+}

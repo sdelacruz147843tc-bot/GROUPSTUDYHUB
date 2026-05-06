@@ -14,6 +14,7 @@
         'search' => '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
         'plus' => '<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
         'download' => '<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>',
+        'trash' => '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>',
         'eye' => '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
         'clock' => '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
         'user' => '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>',
@@ -141,50 +142,184 @@
     </div>
 
     <script>
+        (function () {
+            if (window.StudyHubUI) {
+                return;
+            }
+
+            const getModal = function (modal) {
+                return typeof modal === 'string' ? document.querySelector(modal) : modal;
+            };
+
+            const getAllModals = function () {
+                return Array.from(document.querySelectorAll('[data-studyhub-modal]'));
+            };
+
+            const syncBodyOverflow = function () {
+                document.body.classList.toggle('overflow-hidden', getAllModals().some(function (modal) {
+                    return modal.classList.contains('is-open');
+                }));
+            };
+
+            const setModalState = function (modal, isOpen) {
+                const target = getModal(modal);
+
+                if (! target) {
+                    return;
+                }
+
+                target.classList.toggle('is-open', isOpen);
+                target.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+                syncBodyOverflow();
+            };
+
+            const bindModalTriggers = function (options) {
+                const modal = getModal(options.modal);
+
+                if (! modal) {
+                    return null;
+                }
+
+                if (options.open) {
+                    document.querySelectorAll(options.open).forEach(function (button) {
+                        button.addEventListener('click', function () {
+                            if (typeof options.beforeOpen === 'function') {
+                                options.beforeOpen(button, modal);
+                            }
+
+                            setModalState(modal, true);
+
+                            if (typeof options.afterOpen === 'function') {
+                                options.afterOpen(button, modal);
+                            }
+                        });
+                    });
+                }
+
+                if (options.close) {
+                    document.querySelectorAll(options.close).forEach(function (button) {
+                        button.addEventListener('click', function () {
+                            setModalState(modal, false);
+
+                            if (typeof options.afterClose === 'function') {
+                                options.afterClose(button, modal);
+                            }
+                        });
+                    });
+                }
+
+                return modal;
+            };
+
+            const setEmptyState = function (emptyState, options) {
+                if (! emptyState) {
+                    return;
+                }
+
+                const visible = Number(options.visibleCount) === 0;
+                const hasItems = Number(options.totalCount) > 0;
+                const title = emptyState.querySelector('[data-empty-title]');
+                const copy = emptyState.querySelector('[data-empty-copy]');
+
+                emptyState.classList.toggle('hidden', ! visible);
+
+                if (! visible) {
+                    return;
+                }
+
+                if (title) {
+                    title.textContent = hasItems ? options.filteredTitle : options.emptyTitle;
+                }
+
+                if (copy) {
+                    copy.textContent = hasItems ? options.filteredCopy : options.emptyCopy;
+                }
+            };
+
+            const initLoadingButtons = function () {
+                document.querySelectorAll('form').forEach(function (form) {
+                    if (form.dataset.studyhubLoadingBound === 'true') {
+                        return;
+                    }
+
+                    form.dataset.studyhubLoadingBound = 'true';
+
+                    form.addEventListener('click', function (event) {
+                        const submitter = event.target.closest('button[type="submit"]');
+
+                        if (submitter) {
+                            form._studyHubSubmitter = submitter;
+                        }
+                    });
+
+                    form.addEventListener('submit', function (event) {
+                        const submitter = event.submitter || form._studyHubSubmitter || form.querySelector('button[type="submit"][data-loading-label]');
+
+                        if (! submitter || submitter.disabled || ! submitter.dataset.loadingLabel) {
+                            return;
+                        }
+
+                        submitter.dataset.originalLabel = submitter.innerHTML;
+                        submitter.innerHTML = '<span class="student-button-spinner" aria-hidden="true"></span><span>' + submitter.dataset.loadingLabel + '</span>';
+                        submitter.classList.add('is-loading');
+
+                        form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+                            button.disabled = true;
+                            button.setAttribute('aria-disabled', 'true');
+                        });
+                    });
+                });
+            };
+
+            window.StudyHubUI = {
+                bindModalTriggers: bindModalTriggers,
+                closeAllModals: function () {
+                    getAllModals().forEach(function (modal) {
+                        setModalState(modal, false);
+                    });
+                },
+                initLoadingButtons: initLoadingButtons,
+                setEmptyState: setEmptyState,
+                setModalState: setModalState,
+                syncBodyOverflow: syncBodyOverflow,
+            };
+        })();
+
         document.addEventListener('DOMContentLoaded', function () {
             const menu = document.querySelector('[data-profile-menu]');
             const button = document.querySelector('[data-profile-menu-button]');
 
-            if (!menu || !button) {
-                return;
-            }
-
             function setOpen(isOpen) {
+                if (! menu || ! button) {
+                    return;
+                }
+
                 menu.classList.toggle('is-open', isOpen);
                 button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             }
 
-            button.addEventListener('click', function (event) {
-                event.stopPropagation();
-                setOpen(!menu.classList.contains('is-open'));
-            });
+            if (menu && button) {
+                button.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    setOpen(! menu.classList.contains('is-open'));
+                });
 
-            document.addEventListener('click', function (event) {
-                if (!menu.contains(event.target)) {
-                    setOpen(false);
-                }
-            });
+                document.addEventListener('click', function (event) {
+                    if (! menu.contains(event.target)) {
+                        setOpen(false);
+                    }
+                });
+            }
 
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'Escape') {
                     setOpen(false);
+                    window.StudyHubUI.closeAllModals();
                 }
             });
 
-            document.querySelectorAll('form').forEach(function (form) {
-                form.addEventListener('submit', function () {
-                    const submitButton = form.querySelector('button[type="submit"][data-loading-label]');
-
-                    if (!submitButton || submitButton.disabled) {
-                        return;
-                    }
-
-                    submitButton.dataset.originalLabel = submitButton.innerHTML;
-                    submitButton.innerHTML = '<span class="student-button-spinner" aria-hidden="true"></span><span>' + submitButton.dataset.loadingLabel + '</span>';
-                    submitButton.disabled = true;
-                    submitButton.classList.add('is-loading');
-                });
-            });
+            window.StudyHubUI.initLoadingButtons();
+            window.StudyHubUI.syncBodyOverflow();
         });
     </script>
 @endsection

@@ -142,7 +142,17 @@
                                 </div>
                             </div>
                         </div>
-                        <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}">Download</a>
+                        <div class="resource-actions">
+                            <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}">Download</a>
+                            @if (! empty($resource['can_delete']))
+                                <form class="resource-delete-form" method="POST" action="{{ route('studyhub.student.resources.delete', $resource['id']) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="redirect_to" value="{{ route('studyhub.student.group.show', $group['id']) }}">
+                                    <button class="resource-delete-button compact" type="button" data-resource-delete-open data-resource-delete-filename="{{ $resource['name'] }}">Delete</button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 @empty
                     <div class="resource-empty app-empty-state compact">
@@ -229,6 +239,72 @@
             </div>
         </article>
     </section>
+
+    <x-studyhub.modal
+        title="Delete resource?"
+        subtitle="This removes the file from this group."
+        close-data="data-resource-delete-close"
+        size="sm"
+        data-resource-delete-modal
+    >
+                <div class="resource-delete-dialog">
+                    <div class="resource-delete-dialog-icon">
+                        <span class="icon-box">{!! $icons['trash'] !!}</span>
+                    </div>
+                    <div class="resource-delete-dialog-copy">
+                        <strong data-resource-delete-target>this resource</strong>
+                        <span>Deleting this resource also removes its stored file. This action cannot be undone.</span>
+                    </div>
+                </div>
+
+                <div class="resource-delete-dialog-actions">
+                    <button class="resource-delete-cancel" type="button" data-resource-delete-close>Cancel</button>
+                    <button class="resource-delete-confirm" type="button" data-resource-delete-confirm>
+                        <span class="icon-box">{!! $icons['trash'] !!}</span>
+                        <span>Delete Resource</span>
+                    </button>
+                </div>
+    </x-studyhub.modal>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.querySelector('[data-resource-delete-modal]');
+            const deleteName = document.querySelector('[data-resource-delete-target]');
+            const deleteConfirm = document.querySelector('[data-resource-delete-confirm]');
+            let pendingDeleteForm = null;
+
+            if (! deleteModal || ! window.StudyHubUI) {
+                return;
+            }
+
+            window.StudyHubUI.bindModalTriggers({
+                modal: deleteModal,
+                open: '[data-resource-delete-open]',
+                close: '[data-resource-delete-close]',
+                beforeOpen: function (button) {
+                    pendingDeleteForm = button.closest('form');
+
+                    if (deleteName) {
+                        deleteName.textContent = button.dataset.resourceDeleteFilename || 'this resource';
+                    }
+                },
+                afterClose: function () {
+                    pendingDeleteForm = null;
+                },
+            });
+
+            deleteConfirm?.addEventListener('click', function () {
+                if (! pendingDeleteForm) {
+                    window.StudyHubUI.setModalState(deleteModal, false);
+                    return;
+                }
+
+                deleteConfirm.disabled = true;
+                deleteConfirm.innerHTML = '<span class="student-button-spinner" aria-hidden="true"></span><span>Deleting...</span>';
+                pendingDeleteForm.submit();
+            });
+        });
+    </script>
 
     @if ($isJoined)
         <x-studyhub.modal
@@ -389,34 +465,12 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const uploadModal = document.querySelector('[data-detail-upload-modal]');
-                const uploadOpenButton = document.querySelector('[data-detail-upload-open]');
-                const uploadCloseButtons = document.querySelectorAll('[data-detail-upload-close]');
                 const sessionModal = document.querySelector('[data-detail-session-modal]');
-                const sessionOpenButtons = document.querySelectorAll('[data-detail-session-open]');
-                const sessionCloseButtons = document.querySelectorAll('[data-detail-session-close]');
                 const detailsModal = document.querySelector('[data-detail-session-details-modal]');
-                const detailsOpenButtons = document.querySelectorAll('[data-detail-session-details]');
-                const detailsCloseButtons = document.querySelectorAll('[data-detail-session-details-close]');
                 const uploadDropzones = document.querySelectorAll('[data-upload-dropzone]');
                 const detailSessionTypeInput = document.querySelector('[data-detail-session-type-input]');
                 const detailSessionLocationLabel = document.querySelector('[data-detail-session-location-label]');
                 const detailSessionLocationInput = document.querySelector('[data-detail-session-location-input]');
-
-                const setBodyOverflow = function () {
-                    const hasOpenModal = uploadModal?.classList.contains('is-open')
-                        || sessionModal?.classList.contains('is-open')
-                        || detailsModal?.classList.contains('is-open');
-                    document.body.classList.toggle('overflow-hidden', hasOpenModal);
-                };
-
-                const setModalState = function (modal, isOpen) {
-                    if (! modal) {
-                        return;
-                    }
-
-                    modal.classList.toggle('is-open', isOpen);
-                    setBodyOverflow();
-                };
 
                 const syncDetailSessionLocationField = function () {
                     const isOnline = detailSessionTypeInput?.value === 'online';
@@ -431,15 +485,13 @@
                     }
                 };
 
-                uploadOpenButton?.addEventListener('click', function () {
-                    setModalState(uploadModal, true);
-                });
-
-                uploadCloseButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        setModalState(uploadModal, false);
+                if (uploadModal) {
+                    window.StudyHubUI.bindModalTriggers({
+                        modal: uploadModal,
+                        open: '[data-detail-upload-open]',
+                        close: '[data-detail-upload-close]',
                     });
-                });
+                }
 
                 uploadDropzones.forEach(function (dropzone) {
                     const input = dropzone.querySelector('[data-upload-file-input]');
@@ -478,59 +530,45 @@
                     });
                 });
 
-                sessionOpenButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        syncDetailSessionLocationField();
-                        setModalState(sessionModal, true);
+                if (sessionModal) {
+                    window.StudyHubUI.bindModalTriggers({
+                        modal: sessionModal,
+                        open: '[data-detail-session-open]',
+                        close: '[data-detail-session-close]',
+                        beforeOpen: syncDetailSessionLocationField,
                     });
-                });
+                }
 
-                sessionCloseButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        setModalState(sessionModal, false);
+                if (detailsModal) {
+                    window.StudyHubUI.bindModalTriggers({
+                        modal: detailsModal,
+                        open: '[data-detail-session-details]',
+                        close: '[data-detail-session-details-close]',
+                        beforeOpen: function (button) {
+                            detailsModal.querySelector('[data-detail-session-title]').textContent = button.dataset.sessionTitle || 'Session Details';
+                            detailsModal.querySelector('[data-detail-session-group]').textContent = button.dataset.sessionGroup || '';
+                            detailsModal.querySelector('[data-detail-session-date]').textContent = button.dataset.sessionDate || '';
+                            detailsModal.querySelector('[data-detail-session-time]').textContent = button.dataset.sessionTime || '';
+                            const meetingUrl = button.dataset.sessionMeetingUrl || '';
+                            const isOnline = (button.dataset.sessionType || '').toLowerCase() === 'online';
+                            const meetingLink = detailsModal.querySelector('[data-detail-session-meeting-link]');
+                            detailsModal.querySelector('[data-detail-session-location-heading]').textContent = isOnline ? 'Meeting link' : 'Location';
+                            detailsModal.querySelector('[data-detail-session-location]').textContent = button.dataset.sessionLocation || '';
+                            if (meetingLink) {
+                                meetingLink.hidden = ! isOnline || ! meetingUrl;
+                                meetingLink.href = meetingUrl || '#';
+                            }
+                            detailsModal.querySelector('[data-detail-session-type]').textContent = button.dataset.sessionType || '';
+                            detailsModal.querySelector('[data-detail-session-attendees]').textContent = button.dataset.sessionAttendees || '';
+                            detailsModal.querySelector('[data-detail-session-host]').textContent = button.dataset.sessionHost || '';
+                            detailsModal.querySelector('[data-detail-session-notes]').textContent = button.dataset.sessionNotes || '';
+                        },
                     });
-                });
+                }
 
-                detailsOpenButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        detailsModal.querySelector('[data-detail-session-title]').textContent = button.dataset.sessionTitle || 'Session Details';
-                        detailsModal.querySelector('[data-detail-session-group]').textContent = button.dataset.sessionGroup || '';
-                        detailsModal.querySelector('[data-detail-session-date]').textContent = button.dataset.sessionDate || '';
-                        detailsModal.querySelector('[data-detail-session-time]').textContent = button.dataset.sessionTime || '';
-                        const meetingUrl = button.dataset.sessionMeetingUrl || '';
-                        const isOnline = (button.dataset.sessionType || '').toLowerCase() === 'online';
-                        const meetingLink = detailsModal.querySelector('[data-detail-session-meeting-link]');
-                        detailsModal.querySelector('[data-detail-session-location-heading]').textContent = isOnline ? 'Meeting link' : 'Location';
-                        detailsModal.querySelector('[data-detail-session-location]').textContent = button.dataset.sessionLocation || '';
-                        if (meetingLink) {
-                            meetingLink.hidden = ! isOnline || ! meetingUrl;
-                            meetingLink.href = meetingUrl || '#';
-                        }
-                        detailsModal.querySelector('[data-detail-session-type]').textContent = button.dataset.sessionType || '';
-                        detailsModal.querySelector('[data-detail-session-attendees]').textContent = button.dataset.sessionAttendees || '';
-                        detailsModal.querySelector('[data-detail-session-host]').textContent = button.dataset.sessionHost || '';
-                        detailsModal.querySelector('[data-detail-session-notes]').textContent = button.dataset.sessionNotes || '';
-                        setModalState(detailsModal, true);
-                    });
-                });
-
-                detailsCloseButtons.forEach(function (button) {
-                    button.addEventListener('click', function () {
-                        setModalState(detailsModal, false);
-                    });
-                });
-
-                document.addEventListener('keydown', function (event) {
-                    if (event.key === 'Escape') {
-                        setModalState(uploadModal, false);
-                        setModalState(sessionModal, false);
-                        setModalState(detailsModal, false);
-                    }
-                });
-
-                setBodyOverflow();
                 detailSessionTypeInput?.addEventListener('change', syncDetailSessionLocationField);
                 syncDetailSessionLocationField();
+                window.StudyHubUI.syncBodyOverflow();
             });
         </script>
     @endif

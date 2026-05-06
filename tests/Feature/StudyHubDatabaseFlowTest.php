@@ -479,6 +479,174 @@ test('non members cannot download private group resource files', function () {
     $response->assertRedirect(route('studyhub.student.resources'));
 });
 
+test('resource uploaders can delete their own resources', function () {
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Resource Owner',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Uploader Delete Group',
+        'description' => 'Uploaders can remove their own files.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    Storage::disk('local')->put('studyhub-resources/uploader-delete.pdf', 'delete me');
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'uploader-delete.pdf',
+        'category' => 'Study Guide',
+        'path' => 'studyhub-resources/uploader-delete.pdf',
+        'size_bytes' => 9,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($student)->delete(route('studyhub.student.resources.delete', $resource));
+
+    $response->assertRedirect(route('studyhub.student.resources'));
+    $response->assertSessionHas('status', 'Resource deleted successfully.');
+
+    expect(StudyResource::find($resource->id))->toBeNull();
+    expect(ActivityLog::query()->where('type', 'resource_deleted')->where('subject_id', $resource->id)->exists())->toBeTrue();
+    Storage::disk('local')->assertMissing('studyhub-resources/uploader-delete.pdf');
+});
+
+test('group owners can delete resources uploaded by other members', function () {
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $uploader = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Owner Delete Group',
+        'description' => 'Owners moderate group resources.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'hybrid',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach([$owner->id, $uploader->id]);
+
+    Storage::disk('local')->put('studyhub-resources/owner-delete.pdf', 'delete me');
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $uploader->id,
+        'name' => 'owner-delete.pdf',
+        'category' => 'Study Guide',
+        'path' => 'studyhub-resources/owner-delete.pdf',
+        'size_bytes' => 9,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($owner)->delete(route('studyhub.student.resources.delete', $resource));
+
+    $response->assertRedirect(route('studyhub.student.resources'));
+    expect(StudyResource::find($resource->id))->toBeNull();
+    Storage::disk('local')->assertMissing('studyhub-resources/owner-delete.pdf');
+});
+
+test('regular members cannot delete resources uploaded by other members', function () {
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $uploader = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $member = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Member Delete Block Group',
+        'description' => 'Members cannot moderate other uploads.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach([$owner->id, $uploader->id, $member->id]);
+
+    Storage::disk('local')->put('studyhub-resources/member-blocked.pdf', 'keep me');
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $uploader->id,
+        'name' => 'member-blocked.pdf',
+        'category' => 'Study Guide',
+        'path' => 'studyhub-resources/member-blocked.pdf',
+        'size_bytes' => 7,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($member)->delete(route('studyhub.student.resources.delete', $resource));
+
+    $response->assertRedirect(route('studyhub.student.resources'));
+    $response->assertSessionHas('status', 'You can only delete resources you uploaded or resources in groups you own.');
+
+    expect(StudyResource::find($resource->id))->not->toBeNull();
+    Storage::disk('local')->assertExists('studyhub-resources/member-blocked.pdf');
+});
+
+test('admins can delete any resource from admin routes', function () {
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $admin = User::factory()->admin()->create();
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Admin Resource Delete Group',
+        'description' => 'Admins can moderate any resource.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'private',
+        'join_code' => 'ADMIN',
+        'color' => '#3282B8',
+    ]);
+
+    Storage::disk('local')->put('studyhub-resources/admin-resource-delete.pdf', 'delete me');
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $owner->id,
+        'name' => 'admin-resource-delete.pdf',
+        'category' => 'Study Guide',
+        'path' => 'studyhub-resources/admin-resource-delete.pdf',
+        'size_bytes' => 9,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($admin)->delete(route('studyhub.admin.resources.delete', $resource));
+
+    $response->assertRedirect(route('studyhub.admin.groups'));
+    expect(StudyResource::find($resource->id))->toBeNull();
+    Storage::disk('local')->assertMissing('studyhub-resources/admin-resource-delete.pdf');
+});
+
 test('student collaboration actions create activity logs with subjects', function () {
     Storage::fake('local');
 

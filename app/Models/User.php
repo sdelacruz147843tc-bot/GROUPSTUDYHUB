@@ -18,6 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
     'email',
     'password',
     'role',
+    'email_verified_at',
     'display_name',
     'avatar_url',
     'bio',
