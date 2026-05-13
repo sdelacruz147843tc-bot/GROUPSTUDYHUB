@@ -2,9 +2,15 @@
 
 use App\Models\ActivityLog;
 use App\Models\Discussion;
+use App\Models\DiscussionHelpfulVote;
 use App\Models\DiscussionReply;
+use App\Models\GroupChatMessage;
+use App\Models\ResourceFolder;
+use App\Models\ResourceView;
+use App\Models\SavedResource;
 use App\Models\StudyGroup;
 use App\Models\StudyResource;
+use App\Models\StudyResourceReview;
 use App\Models\StudySession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,6 +40,67 @@ test('students can create a study group in the database', function () {
     expect($group->members()->where('users.id', $student->id)->exists())->toBeTrue();
 });
 
+test('group members can post and view group chat messages', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Chat Student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Chat Enabled Group',
+        'description' => 'Members coordinate in chat.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $response = $this->actingAs($student)->post(route('studyhub.student.groups.messages.store', $group), [
+        'body' => 'Can we review the project checklist tonight?',
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.group.show', $group));
+
+    expect(GroupChatMessage::where('study_group_id', $group->id)->where('body', 'Can we review the project checklist tonight?')->exists())->toBeTrue();
+
+    $detailResponse = $this->actingAs($student)->get(route('studyhub.student.group.show', $group));
+    $detailResponse->assertOk();
+    $detailResponse->assertSee('Can we review the project checklist tonight?');
+});
+
+test('non members cannot post to group chat', function () {
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $viewer = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Members Only Chat Group',
+        'description' => 'Chat should stay members only.',
+        'category' => 'Science',
+        'meeting_style' => 'hybrid',
+        'visibility' => 'public',
+        'color' => '#4A955F',
+    ]);
+    $group->members()->attach($owner->id);
+
+    $response = $this->actingAs($viewer)->post(route('studyhub.student.groups.messages.store', $group), [
+        'body' => 'I should not be able to send this.',
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.group.show', $group));
+    expect(GroupChatMessage::where('study_group_id', $group->id)->exists())->toBeFalse();
+
+    $detailResponse = $this->actingAs($viewer)->get(route('studyhub.student.group.show', $group));
+    $detailResponse->assertOk();
+    $detailResponse->assertSee('No chats yet');
+});
+
 test('students can create discussions in joined groups', function () {
     $student = User::factory()->create([
         'role' => 'student',
@@ -60,6 +127,98 @@ test('students can create discussions in joined groups', function () {
     $response->assertRedirect(route('studyhub.student.discussions'));
 
     expect(Discussion::where('title', 'Best way to review reactions?')->exists())->toBeTrue();
+});
+
+test('students can create discussions with images', function () {
+    Storage::fake('local');
+
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Image Question Group',
+        'description' => 'Questions can include screenshots.',
+        'category' => 'Physics',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#4A955F',
+    ]);
+
+    $group->members()->attach($student->id);
+
+    $response = $this->actingAs($student)->post(route('studyhub.student.discussions.store'), [
+        'title' => 'Can someone explain this graph?',
+        'group_id' => $group->id,
+        'body' => 'I attached the graph from my notes.',
+        'discussion_image' => UploadedFile::fake()->createWithContent(
+            'graph.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
+        ),
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.discussions'));
+
+    $discussion = Discussion::where('title', 'Can someone explain this graph?')->first();
+
+    expect($discussion)->not->toBeNull();
+    expect($discussion->image_path)->not->toBeNull();
+    expect($discussion->image_original_name)->toBe('graph.png');
+    Storage::disk('local')->assertExists($discussion->image_path);
+
+    $imageResponse = $this->actingAs($student)->get(route('studyhub.student.discussions.image', $discussion));
+    $imageResponse->assertOk();
+});
+
+test('students can mark discussions as helpful', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Helpful Discussion Group',
+        'description' => 'Votes surface useful posts.',
+        'category' => 'Mathematics',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#4A955F',
+    ]);
+
+    $group->members()->attach($student->id);
+
+    $discussion = Discussion::create([
+        'group_id' => $group->id,
+        'author_id' => $student->id,
+        'title' => 'Helpful proof explanation',
+        'body' => 'This explanation should be easy to upvote.',
+        'views' => 1,
+        'trending' => false,
+        'last_active_at' => now(),
+    ]);
+
+    $this->actingAs($student)
+        ->post(route('studyhub.student.discussions.helpful', $discussion))
+        ->assertRedirect();
+
+    expect(DiscussionHelpfulVote::where('discussion_id', $discussion->id)->where('user_id', $student->id)->exists())->toBeTrue();
+
+    $response = $this->actingAs($student)->get(route('studyhub.student.discussions'));
+    $formatted = collect($response->viewData('discussions')->items())->firstWhere('title', 'Helpful proof explanation');
+
+    expect($formatted['helpful_votes'])->toBe(1);
+    expect($formatted['viewer_voted_helpful'])->toBeTrue();
+
+    $this->actingAs($student)
+        ->postJson(route('studyhub.student.discussions.helpful', $discussion))
+        ->assertOk()
+        ->assertJson([
+            'helpful_votes' => 0,
+            'viewer_voted_helpful' => false,
+        ]);
+
+    expect(DiscussionHelpfulVote::where('discussion_id', $discussion->id)->where('user_id', $student->id)->exists())->toBeFalse();
 });
 
 test('students can post direct replies to discussion replies', function () {
@@ -180,6 +339,516 @@ test('private group resources discussions and sessions are hidden from non membe
     expect(collect($resourcesResponse->viewData('resources'))->pluck('name'))->not->toContain('Private rubric.pdf');
     expect(collect($discussionsResponse->viewData('discussions'))->pluck('title'))->not->toContain('Private defense checklist');
     expect(collect($sessionsResponse->viewData('upcomingSessions'))->pluck('title'))->not->toContain('Private mock defense');
+});
+
+test('students can filter sessions and create sessions', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Session Planner',
+    ]);
+
+    $algorithms = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Algorithms Circle',
+        'description' => 'Algorithm practice.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'hybrid',
+        'visibility' => 'public',
+        'color' => '#22c55e',
+    ]);
+    $databases = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Database Systems',
+        'description' => 'Database review.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3b82f6',
+    ]);
+    $algorithms->members()->attach($student->id);
+    $databases->members()->attach($student->id);
+
+    StudySession::create([
+        'group_id' => $algorithms->id,
+        'created_by' => $student->id,
+        'title' => 'Algorithms Drill',
+        'session_date' => now()->addDay()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '11:00',
+        'location' => 'Library',
+        'type' => 'in-person',
+        'status' => 'confirmed',
+        'max_attendees' => 12,
+    ]);
+    StudySession::create([
+        'group_id' => $databases->id,
+        'created_by' => $student->id,
+        'title' => 'Database Cleanup',
+        'session_date' => now()->addDays(2)->toDateString(),
+        'start_time' => '13:00',
+        'end_time' => '14:00',
+        'location' => 'Online meeting',
+        'meeting_url' => 'https://meet.example.com/database',
+        'type' => 'online',
+        'status' => 'confirmed',
+        'max_attendees' => 12,
+    ]);
+
+    $filteredResponse = $this->actingAs($student)->get(route('studyhub.student.sessions', [
+        'tab' => 'upcoming',
+        'view' => 'list',
+        'group_id' => $algorithms->id,
+        'week_start' => now()->addWeek()->startOfWeek()->toDateString(),
+    ]));
+
+    $filteredResponse->assertOk();
+    expect(collect($filteredResponse->viewData('upcomingSessions'))->pluck('title')->all())
+        ->toContain('Algorithms Drill')
+        ->not->toContain('Database Cleanup');
+    expect($filteredResponse->viewData('sessionFilters'))->toMatchArray([
+        'tab' => 'upcoming',
+        'view' => 'list',
+        'group_id' => (string) $algorithms->id,
+        'week_start' => now()->addWeek()->startOfWeek()->toDateString(),
+    ]);
+    expect($filteredResponse->viewData('calendarPrevWeek'))->toBe(now()->startOfWeek()->toDateString());
+
+    $createResponse = $this->actingAs($student)->post(route('studyhub.student.sessions.store'), [
+        'title' => 'Quiz Prep Sprint',
+        'group_id' => $algorithms->id,
+        'date' => now()->addDays(3)->toDateString(),
+        'start_time' => '15:00',
+        'end_time' => '16:00',
+        'location' => 'Room 204',
+        'type' => 'in-person',
+        'max_attendees' => 10,
+        'notes' => 'Bring practice questions.',
+    ]);
+
+    $createResponse->assertRedirect(route('studyhub.student.sessions'));
+    expect(StudySession::query()
+        ->where('title', 'Quiz Prep Sprint')
+        ->where('notes', 'Bring practice questions.')
+        ->exists())->toBeTrue();
+});
+
+test('students can filter resources by library fields', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Resource Search Group',
+        'description' => 'Searchable shared files.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Exam Trees Reviewer.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'download_count' => 24,
+        'rating_average' => 4.8,
+        'rating_count' => 12,
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Lecture Outline.docx',
+        'category' => 'Lecture Notes',
+        'file_type' => 'docx',
+        'size_bytes' => 1024,
+        'uploaded_at' => now()->subDay(),
+    ]);
+
+    $response = $this->actingAs($student)->get(route('studyhub.student.resources', [
+        'q' => 'trees',
+        'category' => 'Study Guide',
+        'group_id' => $group->id,
+        'availability' => 'unavailable',
+    ]));
+
+    $response->assertOk();
+
+    $resourceNames = collect($response->viewData('resources')->items())->pluck('name');
+
+    expect($resourceNames)->toContain('Exam Trees Reviewer.pdf');
+    expect($resourceNames)->not->toContain('Lecture Outline.docx');
+    expect($response->viewData('activeFilterCount'))->toBeGreaterThan(0);
+});
+
+test('students can sort resources by downloads and rating', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Resource Sorting Group',
+        'description' => 'Sortable resource metadata.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Most Rated.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'download_count' => 10,
+        'rating_average' => 4.9,
+        'rating_count' => 20,
+        'size_bytes' => 1024,
+        'uploaded_at' => now()->subDay(),
+    ]);
+
+    StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Most Downloaded.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'download_count' => 99,
+        'rating_average' => 4.1,
+        'rating_count' => 8,
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $downloadResponse = $this->actingAs($student)->get(route('studyhub.student.resources', [
+        'sort' => 'most_downloaded',
+    ]));
+
+    $ratingResponse = $this->actingAs($student)->get(route('studyhub.student.resources', [
+        'sort' => 'highest_rated',
+    ]));
+
+    expect(collect($downloadResponse->viewData('resources')->items())->pluck('name')->first())->toBe('Most Downloaded.pdf');
+    expect(collect($ratingResponse->viewData('resources')->items())->pluck('name')->first())->toBe('Most Rated.pdf');
+});
+
+test('students can rate and review visible resources', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Helpful Reviewer',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Reviewable Resource Group',
+        'description' => 'Resources can collect feedback.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Review Me.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($student)->post(route('studyhub.student.resources.reviews.store', $resource), [
+        'accuracy_rating' => 5,
+        'clarity_rating' => 4,
+        'usefulness_rating' => 3,
+        'review_text' => 'Clear examples and useful exam notes.',
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.resources'));
+
+    $resource->refresh();
+
+    expect(StudyResourceReview::where('study_resource_id', $resource->id)->count())->toBe(1);
+    expect($resource->rating_average)->toBe('4.00');
+    expect($resource->rating_count)->toBe(1);
+
+    $this->actingAs($student)->post(route('studyhub.student.resources.reviews.store', $resource), [
+        'accuracy_rating' => 5,
+        'clarity_rating' => 5,
+        'usefulness_rating' => 5,
+        'review_text' => 'Updated after using it for finals.',
+    ]);
+
+    $resource->refresh();
+    $review = StudyResourceReview::where('study_resource_id', $resource->id)->first();
+
+    expect(StudyResourceReview::where('study_resource_id', $resource->id)->count())->toBe(1);
+    expect($resource->rating_average)->toBe('5.00');
+    expect($resource->rating_count)->toBe(1);
+    expect($review->review_text)->toBe('Updated after using it for finals.');
+
+    $resourcesResponse = $this->actingAs($student)->get(route('studyhub.student.resources'));
+    $formattedResource = collect($resourcesResponse->viewData('resources')->items())->firstWhere('name', 'Review Me.pdf');
+
+    expect($formattedResource['viewer_review']['accuracy_rating'])->toBe(5);
+    expect($formattedResource['latest_review']['review_text'])->toBe('Updated after using it for finals.');
+});
+
+test('students cannot review private resources they cannot view', function () {
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $viewer = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Private Review Block Group',
+        'description' => 'Private reviews stay protected.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'private',
+        'join_code' => 'REVIEWS',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($owner->id);
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $owner->id,
+        'name' => 'Private Review.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($viewer)->post(route('studyhub.student.resources.reviews.store', $resource), [
+        'accuracy_rating' => 5,
+        'clarity_rating' => 5,
+        'usefulness_rating' => 5,
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.resources'));
+    expect(StudyResourceReview::where('study_resource_id', $resource->id)->exists())->toBeFalse();
+});
+
+test('students can save resources and organize them into folders', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Library Save Group',
+        'description' => 'Resources worth saving.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Folder Ready Notes.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $saveResponse = $this->actingAs($student)->post(route('studyhub.student.resources.save', $resource));
+
+    $saveResponse->assertRedirect();
+    expect(SavedResource::where('user_id', $student->id)->where('study_resource_id', $resource->id)->exists())->toBeTrue();
+
+    $folderResponse = $this->actingAs($student)->post(route('studyhub.student.library.folders.store'), [
+        'name' => 'Finals Review',
+        'color' => '#22c55e',
+    ]);
+
+    $folderResponse->assertRedirect();
+    $folder = ResourceFolder::where('user_id', $student->id)->where('name', 'Finals Review')->first();
+    $saved = SavedResource::where('user_id', $student->id)->where('study_resource_id', $resource->id)->first();
+
+    $moveResponse = $this->actingAs($student)->patch(route('studyhub.student.library.saved.update', $saved), [
+        'resource_folder_id' => $folder->id,
+    ]);
+
+    $moveResponse->assertRedirect();
+    expect($saved->refresh()->resource_folder_id)->toBe($folder->id);
+
+    $libraryResponse = $this->actingAs($student)->get(route('studyhub.student.library', [
+        'folder' => $folder->id,
+    ]));
+
+    $libraryResponse->assertOk();
+    expect(collect($libraryResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Folder Ready Notes.pdf');
+});
+
+test('students can use my library header filters', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Library Filter Group',
+        'description' => 'Saved files with useful filters.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $pdf = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Downloadable Formula.pdf',
+        'category' => 'Study Guide',
+        'path' => 'studyhub-resources/formula.pdf',
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $docx = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Offline Outline.docx',
+        'category' => 'Lecture Notes',
+        'file_type' => 'docx',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    SavedResource::create([
+        'user_id' => $student->id,
+        'study_resource_id' => $pdf->id,
+        'saved_at' => now(),
+    ]);
+
+    SavedResource::create([
+        'user_id' => $student->id,
+        'study_resource_id' => $docx->id,
+        'saved_at' => now()->subDay(),
+    ]);
+
+    ResourceView::create([
+        'user_id' => $student->id,
+        'study_resource_id' => $pdf->id,
+        'viewed_at' => now(),
+    ]);
+
+    $fileTypeResponse = $this->actingAs($student)->get(route('studyhub.student.library', [
+        'file_type' => 'pdf',
+    ]));
+
+    $downloadableResponse = $this->actingAs($student)->get(route('studyhub.student.library', [
+        'availability' => 'downloadable',
+    ]));
+
+    $recentResponse = $this->actingAs($student)->get(route('studyhub.student.library', [
+        'item' => 'recent',
+    ]));
+
+    expect(collect($fileTypeResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
+    expect(collect($downloadableResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
+    expect(collect($recentResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
+});
+
+test('students cannot save private resources they cannot view', function () {
+    $owner = User::factory()->create([
+        'role' => 'student',
+    ]);
+    $viewer = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $owner->id,
+        'name' => 'Hidden Library Group',
+        'description' => 'Private resources stay private.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'private',
+        'join_code' => 'HIDDEN',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($owner->id);
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $owner->id,
+        'name' => 'Hidden Notes.pdf',
+        'category' => 'Study Guide',
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($viewer)->post(route('studyhub.student.resources.save', $resource));
+
+    $response->assertRedirect();
+    expect(SavedResource::where('user_id', $viewer->id)->where('study_resource_id', $resource->id)->exists())->toBeFalse();
+});
+
+test('resource views are tracked when students open resource files', function () {
+    Storage::fake('local');
+
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Recently Viewed Group',
+        'description' => 'Recent resources are tracked.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $path = 'studyhub-resources/recent.pdf';
+    Storage::disk('local')->put($path, 'recent resource');
+
+    $resource = StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $student->id,
+        'name' => 'Recently Viewed.pdf',
+        'category' => 'Study Guide',
+        'path' => $path,
+        'file_type' => 'pdf',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+    ]);
+
+    $response = $this->actingAs($student)->get(route('studyhub.student.resources.view', $resource));
+
+    $response->assertOk();
+    expect(ResourceView::where('user_id', $student->id)->where('study_resource_id', $resource->id)->exists())->toBeTrue();
+
+    $libraryResponse = $this->actingAs($student)->get(route('studyhub.student.library'));
+
+    $libraryResponse->assertOk();
+    expect(collect($libraryResponse->viewData('recentResources'))->pluck('name'))->toContain('Recently Viewed.pdf');
 });
 
 test('students cannot view private groups they have not joined', function () {
@@ -371,8 +1040,45 @@ test('resource uploads allow approved file types and store files privately', fun
     $resource = StudyResource::where('name', 'review.pdf')->first();
 
     expect($resource)->not->toBeNull();
+    expect($resource->file_type)->toBe('pdf');
+    expect(SavedResource::where('user_id', $student->id)->where('study_resource_id', $resource->id)->exists())->toBeTrue();
     Storage::disk('local')->assertExists($resource->path);
     Storage::disk('public')->assertMissing($resource->path);
+});
+
+test('students can upload resources from my library and return to library', function () {
+    Storage::fake('local');
+
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Library Upload Group',
+        'description' => 'Uploads can start from My Library.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    $response = $this->actingAs($student)->post(route('studyhub.student.resources.store'), [
+        'group_id' => $group->id,
+        'category' => 'Study Guide',
+        'resource_file' => UploadedFile::fake()->create('library-upload.pdf', 128, 'application/pdf'),
+        'redirect_to' => route('studyhub.student.library'),
+        'library_upload_intent' => '1',
+    ]);
+
+    $response->assertRedirect(route('studyhub.student.library'));
+
+    $resource = StudyResource::where('name', 'library-upload.pdf')->first();
+
+    expect($resource)->not->toBeNull();
+    expect(SavedResource::where('user_id', $student->id)->where('study_resource_id', $resource->id)->exists())->toBeTrue();
+    Storage::disk('local')->assertExists($resource->path);
 });
 
 test('resource uploads reject unsupported file types', function () {
@@ -438,6 +1144,7 @@ test('members can download private resource files through the authorized route',
 
     $response->assertOk();
     $response->assertHeader('content-disposition');
+    expect($resource->refresh()->download_count)->toBe(1);
 });
 
 test('non members cannot download private group resource files', function () {

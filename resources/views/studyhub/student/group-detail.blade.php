@@ -135,6 +135,9 @@
                                 <strong>{{ $resource['name'] }}</strong>
                                 <div class="resource-meta">
                                     <span>Uploaded by {{ $resource['uploaded_by'] ?? 'StudyHub Member' }}</span>
+                                    @if ((int) ($resource['rating_count'] ?? 0) > 0)
+                                        <span>{{ number_format((float) $resource['rating_average'], 1) }} rating</span>
+                                    @endif
                                     @if (! empty($resource['size']))
                                         <span>{{ $resource['size'] }}</span>
                                     @endif
@@ -143,7 +146,15 @@
                             </div>
                         </div>
                         <div class="resource-actions">
-                            <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}">Download</a>
+                            <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.view', $resource['id']) : '#' }}" target="_blank" rel="noopener" @if (empty($resource['path'])) aria-disabled="true" @endif>View</a>
+                            <a class="resource-download" href="{{ ! empty($resource['path']) ? route('studyhub.student.resources.download', $resource['id']) : '#' }}" @if (empty($resource['path'])) aria-disabled="true" @endif>Download</a>
+                            <form class="resource-save-form compact" method="POST" action="{{ ! empty($resource['is_saved']) ? route('studyhub.student.resources.unsave', $resource['id']) : route('studyhub.student.resources.save', $resource['id']) }}">
+                                @csrf
+                                @if (! empty($resource['is_saved']))
+                                    @method('DELETE')
+                                @endif
+                                <button class="resource-library-toggle {{ ! empty($resource['is_saved']) ? 'is-saved' : '' }}" type="submit">{{ ! empty($resource['is_saved']) ? 'Saved' : 'Save' }}</button>
+                            </form>
                             @if (! empty($resource['can_delete']))
                                 <form class="resource-delete-form" method="POST" action="{{ route('studyhub.student.resources.delete', $resource['id']) }}">
                                     @csrf

@@ -22,6 +22,7 @@
         <div class="thread-hero-kicker">
             <span>{{ $discussion['group'] }}</span>
             <span>{{ ($discussion['author'] ?? '') === $studentProfile['display_name'] ? 'Started by you' : 'Discussion thread' }}</span>
+            <span>Secure live hub</span>
         </div>
         <h2 class="thread-title">{{ $discussion['title'] }}</h2>
         <div class="thread-profile {{ ($discussion['author'] ?? '') === $studentProfile['display_name'] ? 'is-own' : '' }}">
@@ -49,6 +50,15 @@
             <span>{{ $discussion['last_active'] }}</span>
         </div>
         <p class="thread-body">{{ $discussion['body'] }}</p>
+        @if (! empty($discussion['has_image']))
+            <figure class="thread-image-attachment">
+                <img src="{{ $discussion['image_url'] }}" alt="{{ $discussion['image_name'] ?: $discussion['title'] }}">
+                @if (! empty($discussion['image_name']))
+                    <figcaption>{{ $discussion['image_name'] }}</figcaption>
+                @endif
+            </figure>
+        @endif
+       
         <div class="thread-hero-actions">
             <form class="thread-notify-form" method="POST" action="{{ route('studyhub.student.discussions.notifications', $discussion['id']) }}">
                 @csrf

@@ -5,6 +5,7 @@ namespace App\Services\StudyHub;
 use App\Models\Discussion;
 use App\Models\StudyGroup;
 use App\Models\StudyResource;
+use App\Models\StudyResourceReview;
 use App\Models\StudySession;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -21,14 +22,25 @@ class StudyHubFormatter
             'author' => $authorName,
             'author_avatar_url' => $discussion->author?->avatar_url ?: '',
             'author_initials' => $this->initials($authorName),
+            'group_id' => $discussion->group_id,
             'group' => $discussion->group?->name ?? 'Unknown Group',
             'replies' => isset($discussion->replies_count)
                 ? (int) $discussion->replies_count
                 : ($discussion->relationLoaded('replies') ? $discussion->replies->count() : $discussion->replies()->count()),
+            'helpful_votes' => isset($discussion->helpful_votes_count)
+                ? (int) $discussion->helpful_votes_count
+                : ($discussion->relationLoaded('helpfulVotes') ? $discussion->helpfulVotes->count() : $discussion->helpfulVotes()->count()),
+            'viewer_voted_helpful' => auth()->check()
+                && ($discussion->relationLoaded('helpfulVotes')
+                    ? $discussion->helpfulVotes->isNotEmpty()
+                    : $discussion->helpfulVotes()->where('user_id', auth()->id())->exists()),
             'views' => (int) $discussion->views,
             'last_active' => $this->humanizeTime($discussion->last_active_at ?: $discussion->updated_at ?: $discussion->created_at),
             'trending' => (bool) $discussion->trending,
             'body' => $discussion->body,
+            'image_url' => $discussion->image_path ? route('studyhub.student.discussions.image', $discussion) : '',
+            'image_name' => $discussion->image_original_name ?: '',
+            'has_image' => (bool) $discussion->image_path,
         ];
     }
 
@@ -51,18 +63,49 @@ class StudyHubFormatter
     public function resource(StudyResource $resource): array
     {
         $uploaderName = $resource->uploader?->display_name ?: $resource->uploader?->name ?: 'Unknown';
+        $fileType = $resource->file_type ?: strtolower(pathinfo($resource->name, PATHINFO_EXTENSION) ?: 'file');
+        $viewerReview = $resource->relationLoaded('reviews') ? $resource->reviews->first() : null;
+        $latestReview = $resource->relationLoaded('latestReview') ? $resource->latestReview : null;
+        $viewerSave = $resource->relationLoaded('savedResources') ? $resource->savedResources->first() : null;
 
         return [
             'id' => $resource->id,
             'name' => $resource->name,
             'category' => $resource->category,
             'group' => $resource->group?->name ?? 'Unknown Group',
+            'file_type' => $fileType,
+            'download_count' => (int) $resource->download_count,
+            'rating_average' => (float) $resource->rating_average,
+            'rating_count' => (int) $resource->rating_count,
+            'is_saved' => (bool) $viewerSave,
+            'saved_id' => $viewerSave?->id,
+            'saved_folder_id' => $viewerSave?->resource_folder_id,
+            'saved_folder' => $viewerSave?->folder?->name ?: '',
+            'viewer_review' => $viewerReview ? $this->review($viewerReview) : null,
+            'latest_review' => $latestReview ? $this->review($latestReview) : null,
             'size' => $this->fileSize((int) $resource->size_bytes),
             'date' => optional($resource->uploaded_at ?: $resource->created_at)->format('M j, Y'),
             'uploaded_by' => $uploaderName,
             'uploader_avatar_url' => $resource->uploader?->avatar_url ?: '',
             'uploader_initials' => $this->initials($uploaderName),
             'path' => $resource->path,
+        ];
+    }
+
+    public function review(StudyResourceReview $review): array
+    {
+        $reviewerName = $review->reviewer?->display_name ?: $review->reviewer?->name ?: 'StudyHub Member';
+
+        return [
+            'id' => $review->id,
+            'accuracy_rating' => (int) $review->accuracy_rating,
+            'clarity_rating' => (int) $review->clarity_rating,
+            'usefulness_rating' => (int) $review->usefulness_rating,
+            'overall_rating' => $review->overallRating(),
+            'review_text' => $review->review_text ?: '',
+            'reviewer' => $reviewerName,
+            'reviewer_initials' => $this->initials($reviewerName),
+            'date' => optional($review->updated_at ?: $review->created_at)->format('M j, Y'),
         ];
     }
 
@@ -79,6 +122,7 @@ class StudyHubFormatter
         return [
             'id' => $session->id,
             'title' => $session->title,
+            'group_id' => $session->group_id,
             'group' => $session->group?->name ?? 'Unknown Group',
             'date' => $session->session_date->format('M j, Y'),
             'time' => $start->format('g:i A').' - '.$end->format('g:i A'),

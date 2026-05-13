@@ -289,6 +289,33 @@
                 margin: 0;
             }
 
+            .detail-panel .resource-save-form {
+                margin: 0;
+            }
+
+            .detail-panel .resource-library-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 70px;
+                height: 32px;
+                padding: 0 12px;
+                border: 1px solid rgba(34, 197, 94, 0.22);
+                border-radius: 7px;
+                background: rgba(236, 253, 245, 0.86);
+                color: #14783b;
+                font: inherit;
+                font-size: 0.78rem;
+                font-weight: 800;
+                cursor: pointer;
+            }
+
+            .detail-panel .resource-library-toggle.is-saved {
+                border-color: rgba(34, 197, 94, 0.38);
+                background: rgba(220, 252, 231, 0.96);
+                color: #166534;
+            }
+
             .detail-panel .resource-delete-button {
                 display: inline-flex;
                 align-items: center;
@@ -744,6 +771,7 @@
     
                 .resource-download,
                 .detail-panel .resource-actions,
+                .detail-panel .resource-library-toggle,
                 .detail-panel .resource-delete-button {
                     width: 100%;
                 }
@@ -2717,5 +2745,2063 @@
     .student-dashboard-shell .session-actions {
         align-items: stretch;
         flex-direction: column;
+    }
+}
+
+/* Mobile Study Groups refresh. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .app-main {
+        background:
+            radial-gradient(circle at 10% 0%, rgba(34, 197, 94, 0.1), transparent 26%),
+            linear-gradient(180deg, #fbfffd 0%, #f3fbf6 100%);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar {
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        margin: 0 0 8px;
+        color: #061426;
+        font-size: clamp(2rem, 9.5vw, 2.65rem);
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-subtitle {
+        margin: 0;
+        color: #5c6f75;
+        font-size: 0.92rem;
+        font-weight: 850;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box {
+        grid-column: 1 / -1;
+        min-height: 60px;
+        border-color: rgba(118, 151, 134, 0.26);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 14px 30px rgba(28, 75, 46, 0.08);
+        padding: 0 18px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box .icon-box {
+        width: 22px;
+        height: 22px;
+        color: #167a48;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box input {
+        color: #1f2937;
+        font-size: 0.95rem;
+        font-weight: 800;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box input::placeholder {
+        color: #718196;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select,
+    .student-dashboard-shell.student-groups-home .groups-action {
+        width: 100%;
+        min-height: 56px;
+        border-radius: 14px;
+        font-size: 0.92rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select {
+        border-color: rgba(118, 151, 134, 0.24);
+        background: rgba(255, 255, 255, 0.88);
+        color: #101927;
+        box-shadow: 0 10px 24px rgba(28, 75, 46, 0.06);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-action {
+        grid-column: 1 / -1;
+        border: 0;
+        background: linear-gradient(135deg, #39d977 0%, #12b958 100%);
+        color: #ffffff;
+        box-shadow: 0 18px 30px rgba(18, 185, 88, 0.24);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-category-strip {
+        gap: 8px;
+        margin: 8px -14px 16px;
+        padding: 2px 14px 8px;
+        scroll-padding-inline: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-category-chip {
+        min-height: 38px;
+        border-color: rgba(118, 151, 134, 0.24);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #182339;
+        padding: 0 16px;
+        font-size: 0.76rem;
+        box-shadow: 0 8px 18px rgba(28, 75, 46, 0.05);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-category-chip.is-active {
+        border-color: rgba(22, 163, 74, 0.4);
+        background: linear-gradient(135deg, #34d976, #11a84d);
+        color: #ffffff;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+        gap: 14px;
+        min-height: 0;
+        margin-bottom: 16px;
+        border-color: rgba(34, 197, 94, 0.24);
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 90% 10%, rgba(34, 197, 94, 0.13), transparent 30%),
+            linear-gradient(135deg, rgba(239, 253, 244, 0.96), rgba(220, 252, 231, 0.74));
+        box-shadow: 0 14px 30px rgba(28, 75, 46, 0.08);
+        padding: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-dismiss {
+        top: 12px;
+        right: 14px;
+        color: #52665b;
+        font-size: 1.35rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 104px;
+        align-self: stretch;
+        border-radius: 16px;
+        background:
+            linear-gradient(90deg, rgba(236, 253, 245, 0.02), rgba(236, 253, 245, 0.36)),
+            var(--groups-feature-image) center / cover no-repeat;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy {
+        align-self: center;
+        padding-right: 20px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        color: #081923;
+        font-size: 1.25rem;
+        line-height: 1.15;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        color: #53675d;
+        font-size: 0.92rem;
+        line-height: 1.45;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-template-columns: 42px minmax(0, 1fr);
+        grid-column: span 2;
+        min-width: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item .icon-box {
+        background: rgba(34, 197, 94, 0.14);
+        color: #12a34b;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item strong {
+        color: #0c1d17;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item span:last-child {
+        color: #5a6e64;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card {
+        min-height: 178px;
+        border-color: rgba(56, 189, 248, 0.26);
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 92% 78%, rgba(125, 211, 252, 0.26), transparent 36%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 249, 255, 0.9));
+        box-shadow: 0 14px 28px rgba(14, 70, 111, 0.08);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::before {
+        opacity: 0.08;
+        background: var(--group-bg-image) right bottom / 58% auto no-repeat;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::after {
+        right: -46px;
+        bottom: -56px;
+        width: 180px;
+        height: 180px;
+        background: rgba(125, 211, 252, 0.22);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        min-height: 126px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 14px;
+        left: 14px;
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, rgba(186, 230, 253, 0.95), rgba(125, 211, 252, 0.76));
+        box-shadow: 0 12px 20px rgba(14, 116, 144, 0.12);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-icon {
+        color: #09214a;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        min-height: 126px;
+        padding: 14px 86px 12px 76px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        top: 14px;
+        right: 14px;
+        min-height: 30px;
+        background: rgba(186, 230, 253, 0.86);
+        color: #0f2a58;
+        padding: 0 12px;
+        font-size: 0.7rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        color: #08131f;
+        font-size: 1.02rem;
+        line-height: 1.15;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        min-height: 34px;
+        color: #465b64;
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        margin-bottom: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag {
+        min-height: 24px;
+        border-color: transparent;
+        background: rgba(186, 230, 253, 0.76);
+        color: #0f2a58;
+        font-size: 0.66rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag.private {
+        background: rgba(253, 230, 138, 0.72);
+        color: #8a4f00;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        position: relative;
+        inset: auto;
+        display: flex;
+        gap: 14px;
+        margin: 8px 0 0;
+        color: #40515b;
+        font-size: 0.72rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item .icon-box {
+        color: #40515b;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+        padding: 0 14px 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions form {
+        margin: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        width: 100%;
+        min-height: 38px;
+        border-radius: 10px;
+        font-size: 0.78rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link {
+        border-color: rgba(56, 189, 248, 0.34);
+        background: rgba(255, 255, 255, 0.88);
+        color: #10234d;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-join-button:not(.joined) {
+        border: 0;
+        background: linear-gradient(135deg, #67d8ff, #26ace7);
+        color: #061727;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-join-button.joined {
+        border: 0;
+        background: rgba(186, 230, 253, 0.9);
+        color: #0f2a58;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-empty-state:not(.hidden) {
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy,
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-column: auto;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding: 72px 14px 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        top: 16px;
+    }
+}
+
+/* Mobile group detail refresh. */
+@media (max-width: 720px) {
+    .student-dashboard-shell .back-link {
+        gap: 10px;
+        margin: 4px 0 26px;
+        color: #16a34a;
+        font-size: 1rem;
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell .back-link .icon-box {
+        width: 22px;
+        height: 22px;
+    }
+
+    .student-dashboard-shell .detail-hero.content-card,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card {
+        margin-bottom: 18px;
+        border-color: rgba(56, 189, 248, 0.38);
+        border-radius: 20px;
+        background:
+            radial-gradient(circle at 92% 80%, rgba(125, 211, 252, 0.34), transparent 34%),
+            radial-gradient(circle at 78% 6%, rgba(186, 230, 253, 0.55), transparent 32%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(235, 249, 255, 0.9) 50%, rgba(186, 230, 253, 0.92));
+        box-shadow: 0 16px 34px rgba(14, 70, 111, 0.08);
+    }
+
+    .student-dashboard-shell .detail-hero.content-card::before,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card::before {
+        opacity: 0.06;
+        background: var(--detail-group-image) right bottom / 78% auto no-repeat;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .student-dashboard-shell .detail-hero.content-card::after,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card::after {
+        right: -72px;
+        bottom: -82px;
+        width: 220px;
+        height: 220px;
+        background: rgba(125, 211, 252, 0.28);
+    }
+
+    .student-dashboard-shell .detail-hero-banner,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-banner {
+        display: block;
+        min-height: 0;
+        overflow: visible;
+        padding: 22px 18px 18px;
+    }
+
+    .student-dashboard-shell .detail-hero-copy {
+        display: block;
+        max-width: none;
+        padding: 0;
+    }
+
+    .student-dashboard-shell .detail-hero-kicker,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-kicker {
+        min-height: 34px;
+        margin-bottom: 20px;
+        border-color: rgba(56, 189, 248, 0.3);
+        background: rgba(186, 230, 253, 0.82);
+        color: #0f2a58;
+        padding: 0 14px;
+        font-size: 0.78rem;
+    }
+
+    .student-dashboard-shell .detail-hero-banner h2,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-banner h2 {
+        max-width: 100%;
+        margin-bottom: 16px;
+        color: #08131f;
+        font-size: clamp(2rem, 10.5vw, 3rem);
+        line-height: 0.98;
+        overflow-wrap: anywhere;
+    }
+
+    .student-dashboard-shell .detail-hero-banner p,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-banner p {
+        max-width: 100%;
+        color: #52645c;
+        font-size: 0.94rem;
+        font-weight: 850;
+        line-height: 1.42;
+    }
+
+    .student-dashboard-shell .detail-hero-tags {
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .student-dashboard-shell .detail-hero-members,
+    .student-dashboard-shell .detail-hero-tag,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-members,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-tag {
+        min-height: 38px;
+        border-color: rgba(56, 189, 248, 0.28);
+        background: rgba(186, 230, 253, 0.74);
+        color: #0f2a58;
+        padding: 0 14px;
+        font-size: 0.82rem;
+    }
+
+    .student-dashboard-shell .detail-hero-members .icon-box,
+    .student-dashboard-shell .detail-hero-tag .icon-box,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-members .icon-box,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-tag .icon-box {
+        color: #0f2a58;
+    }
+
+    .student-dashboard-shell .detail-hero-meta {
+        position: static;
+        display: block;
+        margin-top: 24px;
+    }
+
+    .student-dashboard-shell .detail-hero-meta form,
+    .student-dashboard-shell .detail-hero-join,
+    .student-dashboard-shell .detail-hero-button,
+    .student-dashboard-shell .detail-hero-code {
+        width: 100%;
+    }
+
+    .student-dashboard-shell .detail-hero-button,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-button:not(.joined),
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-button.joined.leave {
+        min-height: 56px;
+        border: 0;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #27b9ff, #0d99ed);
+        color: #ffffff;
+        font-size: 1rem;
+        box-shadow: 0 14px 24px rgba(14, 165, 233, 0.22);
+    }
+
+    .student-dashboard-shell .detail-hero-button.joined.leave,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-button.joined.leave {
+        background: rgba(255, 255, 255, 0.92);
+        color: #0f2a58;
+    }
+
+    .student-dashboard-shell .detail-hero-code {
+        margin-bottom: 10px;
+        border-color: rgba(56, 189, 248, 0.3);
+        background: #ffffff;
+        color: #102033;
+    }
+
+    .student-dashboard-shell .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .student-dashboard-shell .detail-panel.content-card,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel.content-card {
+        min-height: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 18px;
+        background: #ffffff !important;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .student-dashboard-shell .detail-panel-header,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-header {
+        min-height: 64px;
+        border: 0;
+        background: #ffffff;
+        padding: 18px 18px 10px;
+    }
+
+    .student-dashboard-shell .detail-panel-title,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-title {
+        color: #102033;
+        font-size: 1.22rem;
+        line-height: 1.15;
+    }
+
+    .student-dashboard-shell .detail-panel-title .icon-box,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-title .icon-box {
+        width: 24px;
+        height: 24px;
+        color: #16a34a;
+    }
+
+    .student-dashboard-shell .detail-panel-action,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-action {
+        min-height: 40px;
+        border-color: rgba(34, 197, 94, 0.28);
+        border-radius: 12px;
+        background: #f0fdf4;
+        color: #4f9b68;
+        padding: 0 14px;
+        font-size: 0.84rem;
+    }
+
+    .student-dashboard-shell .detail-panel-body,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-body {
+        gap: 14px;
+        background: #ffffff;
+        padding: 10px 18px 18px;
+    }
+
+    .student-dashboard-shell .resource-row,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-row {
+        display: grid;
+        gap: 14px;
+        border-color: rgba(148, 163, 184, 0.34);
+        border-radius: 16px;
+        background: #ffffff;
+        padding: 14px;
+    }
+
+    .student-dashboard-shell .resource-main {
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+    }
+
+    .student-dashboard-shell .resource-icon,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: #f1f5f9;
+        color: #374151;
+    }
+
+    .student-dashboard-shell .resource-copy strong,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-copy strong {
+        color: #102033;
+        font-size: 1rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .student-dashboard-shell .resource-meta,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        color: #64748b;
+        font-size: 0.78rem;
+        line-height: 1.3;
+    }
+
+    .student-dashboard-shell .resource-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .student-dashboard-shell .resource-save-form,
+    .student-dashboard-shell .resource-save-form button {
+        width: 100%;
+    }
+
+    .student-dashboard-shell .resource-download,
+    .student-dashboard-shell .resource-library-toggle,
+    .student-dashboard-shell .resource-delete-button,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-download {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid rgba(34, 197, 94, 0.34);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #15803d;
+        padding: 0 8px;
+        font-size: 0.82rem;
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell .resource-library-toggle.is-saved {
+        background: #dcfce7;
+    }
+
+    .student-dashboard-shell .session-empty.app-empty-state,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel .session-empty.app-empty-state {
+        min-height: 180px;
+        border: 1px dashed rgba(148, 163, 184, 0.54);
+        border-radius: 16px;
+        background: #ffffff;
+        color: #64748b;
+        padding: 32px 18px;
+    }
+
+    .student-dashboard-shell .session-empty .app-empty-icon,
+    .student-dashboard-shell:not(.student-theme-dark) .session-empty .app-empty-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #f8fafc;
+        color: #334155;
+        box-shadow: 0 14px 30px rgba(34, 197, 94, 0.1);
+    }
+
+    .student-dashboard-shell .session-empty.app-empty-state strong,
+    .student-dashboard-shell:not(.student-theme-dark) .session-empty.app-empty-state strong {
+        color: #102033;
+        font-size: 1.15rem;
+    }
+
+    .student-dashboard-shell .session-empty .app-empty-action,
+    .student-dashboard-shell .detail-panel .schedule-button {
+        display: none;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell .detail-hero-banner h2,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero-banner h2 {
+        font-size: clamp(1.78rem, 10vw, 2.55rem);
+    }
+
+    .student-dashboard-shell .detail-panel-title,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-title {
+        font-size: 1.08rem;
+    }
+
+    .student-dashboard-shell .detail-panel-action,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-panel-action {
+        font-size: 0.76rem;
+        padding: 0 10px;
+    }
+
+    .student-dashboard-shell .resource-main {
+        grid-template-columns: 48px minmax(0, 1fr);
+    }
+
+    .student-dashboard-shell .resource-icon,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .student-dashboard-shell .resource-copy strong,
+    .student-dashboard-shell:not(.student-theme-dark) .resource-copy strong {
+        font-size: 0.9rem;
+    }
+
+    .student-dashboard-shell .resource-download,
+    .student-dashboard-shell .resource-library-toggle,
+    .student-dashboard-shell .resource-delete-button {
+        font-size: 0.72rem;
+    }
+}
+
+/* Mobile Study Groups exact-fit pass. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .app-main {
+        background: linear-gradient(180deg, #fcfffd 0%, #f5fbf7 100%);
+        padding-bottom: 112px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar {
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        margin: 0 0 7px;
+        color: #061426;
+        font-size: clamp(2.28rem, 11.4vw, 3.25rem);
+        line-height: 0.96;
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-subtitle {
+        color: #667085;
+        font-size: clamp(0.86rem, 3.45vw, 1.02rem);
+        line-height: 1.28;
+        font-weight: 850;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 11px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box {
+        min-height: 56px;
+        border-color: rgba(148, 163, 184, 0.28);
+        border-radius: 16px;
+        padding: 0 16px;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box .icon-box {
+        width: 21px;
+        height: 21px;
+        color: #157a48;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box input {
+        min-width: 0;
+        font-size: clamp(0.84rem, 3.45vw, 0.96rem);
+        font-weight: 800;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select,
+    .student-dashboard-shell.student-groups-home .groups-action {
+        min-height: 52px;
+        border-radius: 14px;
+        font-size: clamp(0.82rem, 3.3vw, 0.94rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select {
+        padding: 0 32px 0 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-action {
+        grid-column: auto;
+        gap: 9px;
+        padding: 0 12px;
+        white-space: nowrap;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-action .icon-box {
+        width: 20px;
+        height: 20px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-category-strip {
+        gap: 10px;
+        margin: 12px -14px 18px;
+        padding: 0 14px 8px;
+        overflow-x: auto;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-category-chip {
+        flex: 0 0 auto;
+        min-height: 44px;
+        border-color: rgba(148, 163, 184, 0.28);
+        padding: 0 20px;
+        font-size: clamp(0.78rem, 3.1vw, 0.88rem);
+        font-weight: 900;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-category-chip.is-active {
+        background: linear-gradient(135deg, #30d875, #12b958);
+        box-shadow: 0 12px 24px rgba(18, 185, 88, 0.22);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: 40% minmax(0, 1fr);
+        gap: 12px 14px;
+        margin-bottom: 18px;
+        border-radius: 20px;
+        padding: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-dismiss {
+        top: 10px;
+        right: 14px;
+        font-size: 1.45rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 104px;
+        border-radius: 18px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy {
+        padding-right: 28px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: clamp(1.08rem, 4.7vw, 1.38rem);
+        line-height: 1.12;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        margin-top: 8px;
+        font-size: clamp(0.82rem, 3.45vw, 0.96rem);
+        line-height: 1.5;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 8px;
+        align-items: center;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item .icon-box {
+        width: 42px;
+        height: 42px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item strong {
+        font-size: 0.78rem;
+        line-height: 1.1;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item span:last-child {
+        font-size: 0.72rem;
+        line-height: 1.28;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-grid {
+        gap: 16px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card {
+        min-height: 0;
+        border-color: rgba(56, 189, 248, 0.36);
+        border-radius: 20px;
+        background:
+            radial-gradient(circle at 96% 78%, rgba(186, 230, 253, 0.58), transparent 35%),
+            radial-gradient(circle at 100% 100%, rgba(125, 211, 252, 0.34), transparent 33%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(241, 250, 255, 0.94));
+        box-shadow: 0 14px 26px rgba(14, 70, 111, 0.08);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::before {
+        opacity: 0.025;
+        background: var(--group-bg-image) right bottom / 68% auto no-repeat;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::after {
+        right: -52px;
+        bottom: -66px;
+        width: 230px;
+        height: 230px;
+        background: rgba(186, 230, 253, 0.36);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        min-height: 0;
+        padding: 18px 18px 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-body {
+        min-width: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(186, 230, 253, 1), rgba(125, 211, 252, 0.82));
+        box-shadow: 0 14px 22px rgba(14, 116, 144, 0.12);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-icon {
+        width: 34px;
+        height: 34px;
+        color: #0b2552;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        min-height: 0;
+        padding: 0 0 0 88px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        position: static;
+        display: inline-flex;
+        width: fit-content;
+        min-height: 34px;
+        margin: 0 0 18px;
+        border-radius: 999px;
+        background: rgba(186, 230, 253, 0.9);
+        color: #0f2a58;
+        padding: 0 16px;
+        font-size: clamp(0.74rem, 3vw, 0.86rem);
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        color: #071426;
+        font-size: clamp(1.28rem, 5.8vw, 1.72rem);
+        line-height: 1.08;
+        overflow-wrap: anywhere;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 15rem;
+        min-height: 0;
+        margin-top: 10px;
+        color: #475766;
+        font-size: clamp(0.88rem, 3.7vw, 1rem);
+        line-height: 1.35;
+        font-weight: 850;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        gap: 7px;
+        margin-top: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag {
+        min-height: 28px;
+        border-radius: 999px;
+        background: rgba(186, 230, 253, 0.86);
+        color: #0f2a58;
+        padding: 0 12px;
+        font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        gap: 14px;
+        margin-top: 16px;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+        padding-top: 14px;
+        color: #475766;
+        font-size: clamp(0.82rem, 3.4vw, 0.94rem);
+        font-weight: 850;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item {
+        gap: 8px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item .icon-box {
+        width: 18px;
+        height: 18px;
+        color: #475766;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 52px;
+        border-radius: 13px;
+        font-size: clamp(0.9rem, 3.7vw, 1.05rem);
+        font-weight: 950;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link {
+        border-color: rgba(56, 189, 248, 0.34);
+        background: rgba(255, 255, 255, 0.95);
+        color: #0f1f45;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-join-button:not(.joined),
+    .student-dashboard-shell.student-groups-home .group-join-button.private {
+        background: linear-gradient(135deg, #43c7ff, #22aeea);
+        color: #ffffff;
+        box-shadow: 0 12px 22px rgba(14, 165, 233, 0.22);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-join-button.joined {
+        background: rgba(186, 230, 253, 0.92);
+        color: #0f2a58;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        font-size: clamp(2rem, 10.5vw, 2.7rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls {
+        gap: 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select,
+    .student-dashboard-shell.student-groups-home .groups-action {
+        min-height: 48px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: 39% minmax(0, 1fr);
+        padding: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 92px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: 1.02rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        font-size: 0.76rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item .icon-box {
+        width: 34px;
+        height: 34px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding: 16px 16px 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 16px;
+        left: 16px;
+        width: 58px;
+        height: 58px;
+        border-radius: 15px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-icon {
+        width: 29px;
+        height: 29px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding-left: 74px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        min-height: 30px;
+        margin-bottom: 16px;
+        padding: 0 13px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        font-size: clamp(1.1rem, 5.6vw, 1.42rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 13rem;
+        font-size: 0.82rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        padding: 16px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 46px;
+        font-size: 0.86rem;
+    }
+}
+
+/* Compact mobile group cards. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .groups-grid {
+        gap: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card {
+        border-radius: 16px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::after {
+        right: -48px;
+        bottom: -62px;
+        width: 180px;
+        height: 180px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding: 14px 14px 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 14px;
+        left: 14px;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-icon {
+        width: 27px;
+        height: 27px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding-left: 68px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        min-height: 28px;
+        margin-bottom: 10px;
+        padding: 0 12px;
+        font-size: 0.7rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        font-size: clamp(1.02rem, 4.9vw, 1.34rem);
+        line-height: 1.08;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 13.5rem;
+        margin-top: 7px;
+        font-size: clamp(0.74rem, 3.15vw, 0.86rem);
+        line-height: 1.32;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag {
+        min-height: 24px;
+        padding: 0 10px;
+        font-size: 0.62rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        gap: 12px;
+        margin-top: 10px;
+        padding-top: 10px;
+        font-size: 0.74rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item {
+        gap: 6px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item .icon-box {
+        width: 16px;
+        height: 16px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        gap: 10px;
+        padding: 12px 14px 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 42px;
+        border-radius: 11px;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding: 12px 12px 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 12px;
+        left: 12px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding-left: 60px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        font-size: clamp(0.98rem, 5vw, 1.24rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 12rem;
+        font-size: 0.72rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        padding: 10px 12px 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 38px;
+        font-size: 0.72rem;
+    }
+}
+
+/* Extra compact Study Groups mobile scale. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .app-main {
+        padding-inline: 14px;
+        padding-bottom: 106px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar {
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        margin-bottom: 5px;
+        font-size: clamp(1.95rem, 9.4vw, 2.72rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-subtitle {
+        font-size: clamp(0.76rem, 3vw, 0.9rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls {
+        gap: 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box {
+        min-height: 50px;
+        border-radius: 14px;
+        padding: 0 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box .icon-box {
+        width: 18px;
+        height: 18px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-controls .search-box input {
+        font-size: clamp(0.76rem, 3vw, 0.86rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select,
+    .student-dashboard-shell.student-groups-home .groups-action {
+        min-height: 46px;
+        border-radius: 12px;
+        font-size: clamp(0.72rem, 2.85vw, 0.82rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-filter-select {
+        padding-left: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-action {
+        gap: 7px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-action .icon-box {
+        width: 17px;
+        height: 17px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-category-strip {
+        gap: 8px;
+        margin: 10px -14px 14px;
+        padding-bottom: 6px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-category-chip {
+        min-height: 38px;
+        padding: 0 16px;
+        font-size: clamp(0.68rem, 2.65vw, 0.78rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: 39% minmax(0, 1fr);
+        gap: 10px 12px;
+        margin-bottom: 14px;
+        border-radius: 17px;
+        padding: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-dismiss {
+        top: 8px;
+        right: 12px;
+        font-size: 1.24rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 88px;
+        border-radius: 15px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy {
+        padding-right: 24px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: clamp(0.94rem, 4vw, 1.18rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        margin-top: 6px;
+        font-size: clamp(0.7rem, 2.9vw, 0.82rem);
+        line-height: 1.42;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: 7px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item .icon-box {
+        width: 34px;
+        height: 34px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item strong {
+        font-size: 0.68rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item span:last-child {
+        font-size: 0.62rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-grid {
+        gap: 11px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card {
+        border-radius: 15px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card.content-card::after {
+        width: 150px;
+        height: 150px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding: 12px 12px 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 12px;
+        left: 12px;
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-icon {
+        width: 23px;
+        height: 23px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding-left: 58px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        min-height: 25px;
+        margin-bottom: 8px;
+        padding: 0 10px;
+        font-size: 0.62rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        font-size: clamp(0.92rem, 4.35vw, 1.18rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 12.5rem;
+        margin-top: 5px;
+        font-size: clamp(0.66rem, 2.75vw, 0.76rem);
+        line-height: 1.28;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        gap: 5px;
+        margin-top: 8px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag {
+        min-height: 21px;
+        padding: 0 8px;
+        font-size: 0.56rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        gap: 10px;
+        margin-top: 8px;
+        padding-top: 8px;
+        font-size: 0.66rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta-item .icon-box {
+        width: 14px;
+        height: 14px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        gap: 8px;
+        padding: 10px 12px 12px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 36px;
+        border-radius: 10px;
+        font-size: 0.68rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        font-size: clamp(1.78rem, 9vw, 2.36rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 76px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: 0.9rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        font-size: 0.66rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        width: 42px;
+        height: 42px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-content {
+        padding-left: 52px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        font-size: clamp(0.86rem, 4.35vw, 1.08rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        max-width: 11rem;
+        font-size: 0.62rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 34px;
+        font-size: 0.64rem;
+    }
+}
+
+/* Remove extra vertical space from mobile group cards. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding-top: 10px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 10px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        min-height: 22px;
+        margin-bottom: 5px;
+        padding: 0 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-title {
+        margin: 0;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        margin-top: 4px;
+        line-height: 1.18;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        margin-top: 6px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tag {
+        min-height: 19px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        margin-top: 6px;
+        padding-top: 6px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        padding-top: 8px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 34px;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .group-card-link {
+        padding-top: 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-cover {
+        top: 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-access {
+        min-height: 20px;
+        margin-bottom: 4px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-copy {
+        margin-top: 3px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-tags {
+        margin-top: 5px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-meta {
+        margin-top: 5px;
+        padding-top: 5px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-card-actions {
+        padding-top: 7px;
+    }
+
+    .student-dashboard-shell.student-groups-home .group-open-link,
+    .student-dashboard-shell.student-groups-home .group-join-button {
+        min-height: 32px;
+    }
+}
+
+/* Final mobile fit fixes for Study Groups header and banner. */
+@media (max-width: 720px) {
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        font-size: clamp(1.65rem, 8vw, 2.18rem);
+        line-height: 1;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-subtitle {
+        font-size: 0.72rem;
+        line-height: 1.25;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        display: grid;
+        grid-template-columns: minmax(104px, 38%) minmax(0, 1fr);
+        align-items: start;
+        min-height: 0;
+        padding: 10px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        display: block;
+        min-height: 82px;
+        height: 82px;
+        grid-row: span 2;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy {
+        min-width: 0;
+        padding-right: 20px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: 0.88rem;
+        line-height: 1.04;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        margin-top: 6px;
+        font-size: 0.62rem;
+        line-height: 1.35;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item {
+        grid-column: auto;
+        grid-template-columns: 28px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item .icon-box {
+        width: 28px;
+        height: 28px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item strong {
+        font-size: 0.58rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-item span:last-child {
+        font-size: 0.54rem;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 430px) {
+    .student-dashboard-shell.student-groups-home .groups-toolbar .page-title {
+        font-size: clamp(1.48rem, 7.7vw, 1.95rem);
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-strip {
+        grid-template-columns: minmax(94px, 38%) minmax(0, 1fr);
+        padding: 9px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-art {
+        min-height: 74px;
+        height: 74px;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy h3 {
+        font-size: 0.78rem;
+    }
+
+    .student-dashboard-shell.student-groups-home .groups-feature-copy p {
+        font-size: 0.56rem;
+    }
+}
+
+/* Keep Study Groups search as a single box. */
+.student-dashboard-shell.student-groups-home .groups-controls .search-box input {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: 0;
+}
+
+.student-dashboard-shell.student-groups-home .groups-controls .search-box input:focus {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0;
+}
+
+.group-chat-unread-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    min-height: 28px;
+    margin: 8px 0 0;
+    padding: 0 10px;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    border-radius: 999px;
+    background: rgba(240, 253, 244, 0.96);
+    color: #15803d;
+    font-size: 0.72rem;
+    font-weight: 900;
+}
+
+.group-chat-unread-badge .icon-box {
+    width: 15px;
+    height: 15px;
+}
+
+.student-dashboard-shell .group-chat-panel.content-card,
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-panel.content-card {
+    margin-top: 20px;
+    min-height: 0;
+}
+
+.student-dashboard-shell .group-chat-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.18);
+    color: #effff4;
+    font-size: 0.76rem;
+    font-weight: 900;
+}
+
+.student-dashboard-shell .group-chat-count.quiet {
+    background: rgba(255, 255, 255, 0.08);
+    color: #a8bbaf;
+}
+
+.student-dashboard-shell .group-chat-body {
+    gap: 14px;
+}
+
+.student-dashboard-shell .group-chat-messages {
+    display: grid;
+    max-height: 520px;
+    overflow-y: auto;
+    gap: 12px;
+    padding-right: 4px;
+}
+
+.student-dashboard-shell .group-chat-message {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+}
+
+.student-dashboard-shell .group-chat-message.is-mine {
+    grid-template-columns: minmax(0, 1fr) 38px;
+}
+
+.student-dashboard-shell .group-chat-message.is-mine .group-chat-avatar {
+    grid-column: 2;
+}
+
+.student-dashboard-shell .group-chat-message.is-mine .group-chat-bubble {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    background: rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.18);
+}
+
+.student-dashboard-shell .group-chat-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.16);
+    color: var(--detail-group-accent, #86efac);
+    font-size: 0.78rem;
+    font-weight: 950;
+}
+
+.student-dashboard-shell .group-chat-bubble {
+    width: min(720px, 100%);
+    border: 1px solid rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.14);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.045);
+    padding: 12px 14px;
+}
+
+.student-dashboard-shell .group-chat-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.student-dashboard-shell .group-chat-meta strong {
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 950;
+}
+
+.student-dashboard-shell .group-chat-meta time {
+    color: #8fa294;
+    font-size: 0.74rem;
+    font-weight: 800;
+}
+
+.student-dashboard-shell .group-chat-bubble p {
+    margin: 0;
+    color: #d7e8dd;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.student-dashboard-shell .group-chat-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: end;
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.14);
+}
+
+.student-dashboard-shell .group-chat-form textarea {
+    width: 100%;
+    min-height: 56px;
+    max-height: 160px;
+    resize: vertical;
+    border: 1px solid rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.18);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #effff4;
+    font: inherit;
+    line-height: 1.45;
+    padding: 12px 14px;
+    outline: none;
+}
+
+.student-dashboard-shell .group-chat-form textarea::placeholder {
+    color: #8fa294;
+}
+
+.student-dashboard-shell .group-chat-form textarea:focus {
+    border-color: rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.48);
+    box-shadow: 0 0 0 4px rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.12);
+}
+
+.student-dashboard-shell .group-chat-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    min-width: 112px;
+    border: 1px solid rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.42);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.96), rgba(var(--detail-group-accent-rgb, 85, 217, 135), 0.68));
+    color: #06140d;
+    font: inherit;
+    font-weight: 950;
+    cursor: pointer;
+}
+
+.student-dashboard-shell .group-chat-empty.app-empty-state {
+    min-height: 170px;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-count {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-count.quiet {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-avatar {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-bubble,
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-message.is-mine .group-chat-bubble {
+    border-color: rgba(203, 213, 225, 0.84);
+    background: #ffffff;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-message.is-mine .group-chat-bubble {
+    background: #f0fdf4;
+    border-color: rgba(34, 197, 94, 0.22);
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-meta strong {
+    color: #1f2937;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-meta time,
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-bubble p {
+    color: #64748b;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-form {
+    border-top-color: rgba(203, 213, 225, 0.8);
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-form textarea {
+    border-color: rgba(203, 213, 225, 0.9);
+    background: #ffffff;
+    color: #1f2937;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-form textarea::placeholder {
+    color: #94a3b8;
+}
+
+.student-dashboard-shell:not(.student-theme-dark) .group-chat-form button {
+    border-color: rgba(22, 163, 74, 0.22);
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ffffff;
+    box-shadow: 0 14px 28px rgba(22, 163, 74, 0.18);
+}
+
+@media (max-width: 720px) {
+    .student-dashboard-shell .group-chat-form {
+        grid-template-columns: 1fr;
+    }
+
+    .student-dashboard-shell .group-chat-form button {
+        width: 100%;
+    }
+
+    .student-dashboard-shell .group-chat-messages {
+        max-height: 420px;
+    }
+}
+
+/* Clean mobile group detail hero background. */
+@media (max-width: 720px) {
+    .student-dashboard-shell .detail-hero.content-card,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card {
+        background:
+            radial-gradient(circle at 86% 70%, rgba(125, 211, 252, 0.42), transparent 34%),
+            radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.2), transparent 38%),
+            linear-gradient(135deg, #ffffff 0%, #f4fbff 42%, #d8f3ff 100%);
+    }
+
+    .student-dashboard-shell .detail-hero.content-card::before,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card::before {
+        content: none;
+    }
+
+    .student-dashboard-shell .detail-hero.content-card::after,
+    .student-dashboard-shell:not(.student-theme-dark) .detail-hero.content-card::after {
+        right: -58px;
+        bottom: -70px;
+        width: 190px;
+        height: 190px;
+        background: rgba(14, 165, 233, 0.16);
+    }
+}
+
+@media (max-width: 820px) {
+    .student-dashboard-shell.student-theme-dark .groups-toolbar .page-title,
+    .student-dashboard-shell.student-theme-dark .groups-toolbar h2,
+    .student-dashboard-shell.student-theme-dark .group-card-title,
+    .student-dashboard-shell.student-theme-dark .detail-hero-banner h2,
+    .student-dashboard-shell.student-theme-dark .detail-panel-title,
+    .student-dashboard-shell.student-theme-dark .group-chat-panel h3,
+    .student-dashboard-shell.student-theme-dark .groups-feature-copy h3,
+    .student-dashboard-shell.student-theme-dark .groups-feature-item strong,
+    .student-dashboard-shell.student-theme-dark .group-chat-meta strong {
+        color: #f4fff8 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-toolbar .page-subtitle,
+    .student-dashboard-shell.student-theme-dark .group-card-copy,
+    .student-dashboard-shell.student-theme-dark .group-card-meta,
+    .student-dashboard-shell.student-theme-dark .detail-hero-banner p,
+    .student-dashboard-shell.student-theme-dark .groups-feature-copy p,
+    .student-dashboard-shell.student-theme-dark .groups-feature-item span:last-child,
+    .student-dashboard-shell.student-theme-dark .group-chat-meta time,
+    .student-dashboard-shell.student-theme-dark .group-chat-bubble p {
+        color: #bfd4c6 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-controls,
+    .student-dashboard-shell.student-theme-dark .group-card.content-card,
+    .student-dashboard-shell.student-theme-dark .detail-hero.content-card,
+    .student-dashboard-shell.student-theme-dark .detail-panel.content-card,
+    .student-dashboard-shell.student-theme-dark .groups-feature-strip,
+    .student-dashboard-shell.student-theme-dark .group-chat-panel.content-card,
+    .student-dashboard-shell.student-theme-dark .group-chat-form {
+        border-color: rgba(126, 230, 164, 0.18) !important;
+        background:
+            radial-gradient(circle at 92% 10%, rgba(85, 217, 135, 0.1), transparent 32%),
+            linear-gradient(180deg, rgba(20, 31, 26, 0.96) 0%, rgba(10, 18, 15, 0.96) 100%) !important;
+        color: #ecfff2 !important;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32) !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-controls .search-box,
+    .student-dashboard-shell.student-theme-dark .groups-filter-select,
+    .student-dashboard-shell.student-theme-dark .group-chat-form textarea {
+        border-color: rgba(126, 230, 164, 0.24) !important;
+        background: rgba(5, 13, 10, 0.86) !important;
+        color: #ecfff2 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-controls .search-box input,
+    .student-dashboard-shell.student-theme-dark .groups-controls .search-box input::placeholder,
+    .student-dashboard-shell.student-theme-dark .group-chat-form textarea::placeholder {
+        color: #bfd4c6 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-filter-select option {
+        background: #07100d;
+        color: #ecfff2;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-category-chip,
+    .student-dashboard-shell.student-theme-dark .group-card-tag,
+    .student-dashboard-shell.student-theme-dark .group-card-access,
+    .student-dashboard-shell.student-theme-dark .group-open-link,
+    .student-dashboard-shell.student-theme-dark .group-join-button.joined {
+        border-color: rgba(126, 230, 164, 0.24) !important;
+        background: rgba(255, 255, 255, 0.07) !important;
+        color: #dfffe9 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-category-chip.is-active,
+    .student-dashboard-shell.student-theme-dark .group-category-chip:hover,
+    .student-dashboard-shell.student-theme-dark .group-join-button:not(.joined),
+    .student-dashboard-shell.student-theme-dark .groups-action,
+    .student-dashboard-shell.student-theme-dark .group-chat-form button {
+        border-color: rgba(74, 222, 128, 0.5) !important;
+        background: linear-gradient(135deg, #6ee99a, #16a34a) !important;
+        color: #06120c !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-card-cover,
+    .student-dashboard-shell.student-theme-dark .groups-feature-art {
+        opacity: 0.88;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-card-icon,
+    .student-dashboard-shell.student-theme-dark .groups-feature-item .icon-box,
+    .student-dashboard-shell.student-theme-dark .group-chat-avatar,
+    .student-dashboard-shell.student-theme-dark .group-chat-count {
+        background: rgba(74, 222, 128, 0.18) !important;
+        color: #bbf7d0 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-chat-bubble {
+        border-color: rgba(126, 230, 164, 0.18) !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: #ecfff2 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .group-chat-message.is-mine .group-chat-bubble {
+        background: rgba(34, 197, 94, 0.18) !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-style-card {
+        border-color: rgba(126, 230, 164, 0.22) !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: #ecfff2 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-style-copy strong {
+        color: #f4fff8 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-style-copy span {
+        color: #bfd4c6 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .groups-style-option input:checked + .groups-style-card {
+        border-color: rgba(74, 222, 128, 0.54) !important;
+        background: rgba(34, 197, 94, 0.16) !important;
     }
 }

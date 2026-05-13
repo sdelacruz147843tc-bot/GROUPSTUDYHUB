@@ -4,7 +4,13 @@
 
 @section('page')
     @php
-        $showScheduleModal = $errors->has('title') || $errors->has('group_id') || $errors->has('date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('location') || $errors->has('type') || $errors->has('max_attendees');
+        $showScheduleModal = $errors->has('title') || $errors->has('group_id') || $errors->has('date') || $errors->has('start_time') || $errors->has('end_time') || $errors->has('location') || $errors->has('type') || $errors->has('max_attendees') || $errors->has('notes');
+        $sessionFilters = $sessionFilters ?? ['tab' => 'all', 'view' => 'calendar', 'group_id' => ''];
+        $sessionTab = $sessionFilters['tab'] ?? 'all';
+        $sessionView = $sessionFilters['view'] ?? 'calendar';
+        $sessionGroupId = (string) ($sessionFilters['group_id'] ?? '');
+        $sessionWeekStart = $sessionFilters['week_start'] ?? '';
+        $sessionFilterQuery = fn (array $overrides = []) => array_filter(array_merge($sessionFilters, $overrides), fn ($value) => $value !== '' && $value !== null);
     @endphp
 
     <div class="toolbar">
@@ -32,6 +38,162 @@
                 <span class="sessions-stat-watermark icon-box">{!! $icons[$stat['icon']] !!}</span>
             </article>
         @endforeach
+    </section>
+
+    <section class="sessions-workspace">
+        <div class="content-card sessions-calendar-card">
+            <form class="sessions-calendar-toolbar" method="GET" action="{{ route('studyhub.student.sessions') }}" data-session-filter-form>
+                <div class="sessions-tabs" aria-label="Session views">
+                    <a class="{{ $sessionTab === 'all' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'all'])) }}">All Sessions</a>
+                    <a class="{{ $sessionTab === 'upcoming' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'upcoming'])) }}">Upcoming</a>
+                    <a class="{{ $sessionTab === 'calendar' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'calendar', 'view' => 'calendar'])) }}">Calendar</a>
+                    <a class="{{ $sessionTab === 'past' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'past'])) }}">Past Sessions</a>
+                </div>
+                <div class="sessions-calendar-actions">
+                    <input type="hidden" name="tab" value="{{ $sessionTab }}">
+                    <input type="hidden" name="view" value="{{ $sessionView }}">
+                    <input type="hidden" name="week_start" value="{{ $sessionWeekStart }}">
+                    <label class="sessions-filter-pill sessions-group-filter">
+                        <span class="icon-box">{!! $icons['users'] !!}</span>
+                        <select name="group_id" data-session-filter-auto>
+                            <option value="">All Groups</option>
+                            @foreach ($sessionGroups as $group)
+                                <option value="{{ $group['id'] }}" @selected($sessionGroupId === (string) $group['id'])>{{ $group['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <a class="sessions-filter-pill {{ $sessionView === 'calendar' ? 'active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['view' => 'calendar'])) }}">Calendar View</a>
+                    <a class="sessions-filter-pill {{ $sessionView === 'list' ? 'active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['view' => 'list'])) }}">List View</a>
+                </div>
+            </form>
+
+            <div class="sessions-week-header">
+                <h3>{{ $calendarWeekLabel }}</h3>
+                <div class="sessions-week-controls">
+                    <a href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['week_start' => $calendarPrevWeek])) }}" aria-label="Previous week">&lt;</a>
+                    <a href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['week_start' => $calendarCurrentWeek])) }}">Today</a>
+                    <a href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['week_start' => $calendarNextWeek])) }}" aria-label="Next week">&gt;</a>
+                </div>
+            </div>
+
+            <div class="sessions-calendar-grid {{ $sessionView === 'list' ? 'is-hidden' : '' }}" style="--calendar-day-count: {{ count($calendarDays) }};">
+                <div class="sessions-calendar-days">
+                    <span></span>
+                    @foreach ($calendarDays as $day)
+                        <strong class="{{ $day['is_today'] ? 'is-today' : '' }}">
+                            <span>{{ $day['label'] }}</span>
+                            <em>{{ $day['day'] }}</em>
+                        </strong>
+                    @endforeach
+                </div>
+
+                <div class="sessions-calendar-body">
+                    <div class="sessions-time-column">
+                        @foreach ($calendarHours as $hour)
+                            <span>{{ $hour }}</span>
+                        @endforeach
+                    </div>
+                    <div class="sessions-day-columns">
+                        @foreach ($calendarDays as $day)
+                            <div class="sessions-day-column"></div>
+                        @endforeach
+                        @foreach ($calendarSessions as $calendarSession)
+                            <button
+                                class="sessions-calendar-event {{ $calendarSession['type'] === 'online' ? 'is-online' : '' }}"
+                                type="button"
+                                data-session-details
+                                data-session-title="{{ $calendarSession['title'] }}"
+                                data-session-group="{{ $calendarSession['group'] }}"
+                                data-session-date="{{ $calendarDays[$calendarSession['day_index']]['label'] ?? '' }}"
+                                data-session-time="{{ $calendarSession['time'] }}"
+                                data-session-location="{{ $calendarSession['type'] === 'online' ? 'Online meeting' : 'Study location' }}"
+                                data-session-type="{{ ucfirst($calendarSession['type']) }}"
+                                data-session-attendees="Open details"
+                                data-session-host="StudyHub Member"
+                                data-session-notes="Open the full session card for more details."
+                                style="--event-day: {{ $calendarSession['day_index'] + 1 }}; --event-top: {{ $calendarSession['top'] }}px; --event-height: {{ $calendarSession['height'] }}px;"
+                            >
+                                <strong>{{ Str::limit($calendarSession['title'], 24) }}</strong>
+                                <span>{{ $calendarSession['time'] }}</span>
+                                <small>{{ Str::limit($calendarSession['group'], 26) }}</small>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="sessions-side-rail">
+            <section class="content-card sessions-side-card">
+                <div class="sessions-side-card-header">
+                    <h3>Today's Schedule</h3>
+                    <span>{{ now()->format('M j') }}</span>
+                </div>
+                <div class="sessions-side-list">
+                    @forelse ($todaySchedule as $session)
+                        <button
+                            type="button"
+                            data-session-details
+                            data-session-title="{{ $session['title'] }}"
+                            data-session-group="{{ $session['group'] }}"
+                            data-session-date="{{ $session['date'] }}"
+                            data-session-time="{{ $session['time'] }}"
+                            data-session-location="{{ $session['location'] }}"
+                            data-session-meeting-url="{{ $session['meeting_url'] ?? '' }}"
+                            data-session-type="{{ ucfirst($session['type']) }}"
+                            data-session-attendees="{{ $session['attendees'] }} / {{ $session['max_attendees'] }}"
+                            data-session-host="{{ $session['created_by'] ?? 'StudyHub Member' }}"
+                            data-session-notes="{{ $session['notes'] ?? 'No extra notes yet.' }}"
+                        >
+                            <span>{{ $session['time'] }}</span>
+                            <strong>{{ $session['title'] }}</strong>
+                            <em>{{ $session['group'] }}</em>
+                        </button>
+                    @empty
+                        <p>No sessions scheduled today.</p>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="content-card sessions-side-card">
+                <div class="sessions-side-card-header">
+                    <h3>Upcoming Reminders</h3>
+                    <span>{{ count($upcomingReminders) }}</span>
+                </div>
+                <div class="sessions-reminder-list">
+                    @forelse ($upcomingReminders as $session)
+                        <div>
+                            <span class="icon-box">{!! $icons[$session['type'] === 'online' ? 'video' : 'calendar'] !!}</span>
+                            <p>
+                                <strong>{{ $session['title'] }}</strong>
+                                <small>{{ $session['date'] }} | {{ $session['group'] }}</small>
+                            </p>
+                        </div>
+                    @empty
+                        <p>No upcoming reminders.</p>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="content-card sessions-side-card">
+                <div class="sessions-side-card-header">
+                    <h3>Most Active Groups</h3>
+                    <span>Sessions</span>
+                </div>
+                <div class="sessions-active-groups">
+                    @forelse ($activeSessionGroups as $group)
+                        <div>
+                            <span>{{ Str::of($group['name'])->substr(0, 2)->upper() }}</span>
+                            <strong>{{ $group['name'] }}</strong>
+                            <small>{{ $group['count'] }} sessions</small>
+                        </div>
+                    @empty
+                        <p>No session activity yet.</p>
+                    @endforelse
+                </div>
+                <a class="sessions-side-link" href="{{ route('studyhub.student.groups') }}">View all groups</a>
+            </section>
+        </aside>
     </section>
 
     <h3 class="section-title">Upcoming Sessions</h3>
@@ -117,42 +279,6 @@
         @endforelse
     </section>
 
-    <section class="content-card calendar-card">
-        <div class="calendar-copy">
-            <span class="calendar-kicker">
-                <span class="icon-box">{!! $icons['calendar'] !!}</span>
-                <span>Planner View</span>
-            </span>
-            <h3 class="calendar-title">Planner view for study sessions.</h3>
-            <p class="calendar-subtitle">Review upcoming sessions and RSVP quickly.</p>
-            <div class="calendar-highlights">
-                <span class="calendar-pill">
-                    <span class="icon-box">{!! $icons['clock'] !!}</span>
-                    <span>Fast schedule review</span>
-                </span>
-                <span class="calendar-pill">
-                    <span class="icon-box">{!! $icons['users'] !!}</span>
-                    <span>Built for group coordination</span>
-                </span>
-                <span class="calendar-pill">
-                    <span class="icon-box">{!! $icons['bell'] !!}</span>
-                    <span>Ready for your next session</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="calendar-aside">
-            <div class="calendar-stat">
-                <p class="calendar-stat-label">Session Planner</p>
-                <p class="calendar-stat-value">{{ count($upcomingSessions) }} upcoming blocks</p>
-            </div>
-            <button class="action-button" type="button" data-session-open>
-                <span class="icon-box">{!! $icons['plus'] !!}</span>
-                <span>Create Session</span>
-            </button>
-        </div>
-    </section>
-
     <h3 class="section-title">Past Sessions</h3>
     <section class="content-card past-list">
         @forelse ($pastSessions as $session)
@@ -187,87 +313,137 @@
         @endforelse
     </section>
 
-    @if (isset($sessionsPaginator) && method_exists($sessionsPaginator, 'links'))
-        <div class="mt-6">
-            {{ $sessionsPaginator->links() }}
-        </div>
-    @endif
+    <div class="sessions-create-modal {{ $showScheduleModal ? 'is-open' : '' }}" aria-hidden="{{ $showScheduleModal ? 'false' : 'true' }}" data-studyhub-modal data-sessions-modal>
+        <button class="sessions-create-backdrop" type="button" aria-label="Close create session" data-sessions-close></button>
+        <div class="sessions-create-panel">
+            <div class="sessions-create-heading">
+                <span class="sessions-create-heading-icon icon-box">{!! $icons['calendar'] !!}</span>
+                <div>
+                    <h3>Create Session</h3>
+                    <p>Plan a new study block for one of your joined groups.</p>
+                </div>
+                <button class="sessions-create-close" type="button" aria-label="Close create session" data-sessions-close>&times;</button>
+            </div>
 
-    <x-studyhub.modal
-        title="Create session"
-        subtitle="Plan a new study block for one of your joined groups."
-        close-data="data-sessions-close"
-        :open="$showScheduleModal"
-        size="lg"
-        data-sessions-modal
-    >
-                @if ($showScheduleModal)
-                    <div class="sessions-errors" role="alert" aria-live="polite">
-                        <strong>Session was not scheduled</strong>
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+            @if ($showScheduleModal)
+                <div class="sessions-create-errors" role="alert" aria-live="polite">
+                    <strong>Session was not scheduled</strong>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form class="sessions-create-form" method="POST" action="{{ route('studyhub.student.sessions.store') }}">
+                @csrf
+                <label class="sessions-create-field full">
+                    <span>Title <strong>*</strong></span>
+                    <div class="sessions-create-control">
+                        <span class="icon-box">{!! $icons['settings'] !!}</span>
+                        <input type="text" name="title" maxlength="120" value="{{ old('title') }}" placeholder="e.g. Algorithms Review Session" required>
                     </div>
-                @endif
+                </label>
 
-                <form class="grid grid-cols-1 gap-3 md:grid-cols-2" method="POST" action="{{ route('studyhub.student.sessions.store') }}">
-                    @csrf
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
-                        <span class="text-sm font-extrabold text-[#244231]">Title</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="title" maxlength="120" value="{{ old('title') }}" placeholder="Algorithms Review Session" required>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]">Study group</span>
-                        <select class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="group_id" required>
-                            <option value="">Choose group</option>
+                <label class="sessions-create-field">
+                    <span>Study Group <strong>*</strong></span>
+                    <div class="sessions-create-control select">
+                        <span class="icon-box">{!! $icons['users'] !!}</span>
+                        <select name="group_id" required>
+                            <option value="">Select study group</option>
                             @foreach ($sessionGroups as $group)
                                 <option value="{{ $group['id'] }}" @selected((string) old('group_id') === (string) $group['id'])>{{ $group['name'] }}</option>
                             @endforeach
                         </select>
-                    </label>
+                    </div>
+                </label>
 
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]">Type</span>
-                        <select class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="type" required data-session-type-input>
-                            <option value="">Choose type</option>
+                <div class="sessions-create-field">
+                    <span>Session Type <strong>*</strong></span>
+                    <div class="sessions-create-control select">
+                        <span class="icon-box">{!! $icons['video'] !!}</span>
+                        <select name="type" required data-session-type-input>
+                            <option value="">Select session type</option>
                             <option value="in-person" @selected(old('type') === 'in-person')>In person</option>
                             <option value="online" @selected(old('type') === 'online')>Online</option>
                         </select>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]">Date</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="date" name="date" value="{{ old('date') }}" required>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]" data-session-location-label>Location</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="text" name="location" maxlength="255" value="{{ old('location') }}" placeholder="Library Room 204" required data-session-location-input>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]">Start time</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="time" name="start_time" value="{{ old('start_time') }}" required>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4">
-                        <span class="text-sm font-extrabold text-[#244231]">End time</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="time" name="end_time" value="{{ old('end_time') }}" required>
-                    </label>
-
-                    <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
-                        <span class="text-sm font-extrabold text-[#244231]">Max attendees</span>
-                        <input class="h-[50px] w-full rounded-2xl border border-emerald-100 bg-white/95 px-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" type="number" name="max_attendees" min="2" max="100" value="{{ old('max_attendees', 12) }}" required>
-                    </label>
-
-                    <div class="sticky bottom-0 -mx-5 mt-1 flex justify-end border-t border-emerald-100 bg-white/90 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6 md:col-span-2">
-                        <button class="min-h-[54px] w-full rounded-2xl bg-emerald-500 px-6 font-extrabold text-white shadow-[0_14px_28px_rgba(73,182,112,0.22)] transition hover:bg-emerald-600 sm:w-auto sm:min-w-[180px]" type="submit" data-loading-label="Scheduling...">Create Session</button>
                     </div>
-                </form>
-    </x-studyhub.modal>
+                </div>
+
+                <label class="sessions-create-field">
+                    <span>Date <strong>*</strong></span>
+                    <div class="sessions-create-control">
+                        <span class="icon-box">{!! $icons['calendar'] !!}</span>
+                        <input type="date" name="date" value="{{ old('date') }}" required>
+                    </div>
+                </label>
+
+                <label class="sessions-create-field">
+                    <span data-session-location-label>Location / Meeting Link <strong>*</strong></span>
+                    <div class="sessions-create-control">
+                        <span class="icon-box">{!! $icons['map-pin'] !!}</span>
+                        <input type="text" name="location" maxlength="255" value="{{ old('location') }}" placeholder="e.g. Library Room 204 or paste link" required data-session-location-input>
+                    </div>
+                    <small>Add a room for in-person sessions or a link for online sessions.</small>
+                </label>
+
+                <label class="sessions-create-field compact">
+                    <span>Start Time <strong>*</strong></span>
+                    <div class="sessions-create-control select">
+                        <span class="icon-box">{!! $icons['clock'] !!}</span>
+                        <input type="time" name="start_time" value="{{ old('start_time') }}" required data-session-start-time>
+                    </div>
+                </label>
+
+                <label class="sessions-create-field compact">
+                    <span>End Time <strong>*</strong></span>
+                    <div class="sessions-create-control select">
+                        <span class="icon-box">{!! $icons['clock'] !!}</span>
+                        <input type="time" name="end_time" value="{{ old('end_time') }}" required data-session-end-time>
+                    </div>
+                    <small>End time must be later than start time.</small>
+                </label>
+
+                <div class="sessions-create-duration">
+                    <strong>Duration</strong>
+                    <div><span class="icon-box">{!! $icons['clock'] !!}</span><span data-session-duration>--</span></div>
+                    <small>Automatically calculated</small>
+                </div>
+
+                <label class="sessions-create-field full">
+                    <span>Max Attendees <strong>*</strong></span>
+                    <div class="sessions-create-control">
+                        <span class="icon-box">{!! $icons['users'] !!}</span>
+                        <input type="number" name="max_attendees" min="2" max="100" value="{{ old('max_attendees', 12) }}" placeholder="Enter maximum number of participants" required>
+                    </div>
+                    <small>Set the maximum number of students who can join this session.</small>
+                </label>
+
+                <label class="sessions-create-field full">
+                    <span>Description <em>(Optional)</em></span>
+                    <div class="sessions-create-control textarea">
+                        <span class="icon-box">{!! $icons['file'] !!}</span>
+                        <textarea name="notes" maxlength="500" rows="3" placeholder="Add a brief description, agenda, or notes for this session...">{{ old('notes') }}</textarea>
+                    </div>
+                    <small>This will help participants understand what to expect.</small>
+                </label>
+
+                <div class="sessions-create-options full">
+                    <span><span class="icon-box">{!! $icons['bell'] !!}</span>Add Reminder <i class="is-on"></i></span>
+                    <span><span class="icon-box">{!! $icons['users'] !!}</span>Allow RSVP <i class="is-on"></i></span>
+                </div>
+
+                <div class="sessions-create-actions full">
+                    <button class="sessions-create-cancel" type="button" data-sessions-close>Cancel</button>
+                    <button class="sessions-create-submit" type="submit" data-loading-label="Creating session...">
+                        <span class="icon-box">{!! $icons['calendar'] !!}</span>
+                        <span>Create Session</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <x-studyhub.modal
         title="Session Details"
@@ -312,6 +488,10 @@
             const sessionTypeInput = document.querySelector('[data-session-type-input]');
             const sessionLocationLabel = document.querySelector('[data-session-location-label]');
             const sessionLocationInput = document.querySelector('[data-session-location-input]');
+            const sessionStartTime = document.querySelector('[data-session-start-time]');
+            const sessionEndTime = document.querySelector('[data-session-end-time]');
+            const sessionDuration = document.querySelector('[data-session-duration]');
+            const sessionFilterForm = document.querySelector('[data-session-filter-form]');
 
             const syncSessionLocationField = function () {
                 const isOnline = sessionTypeInput?.value === 'online';
@@ -324,6 +504,35 @@
                     sessionLocationInput.type = isOnline ? 'url' : 'text';
                     sessionLocationInput.placeholder = isOnline ? 'https://meet.google.com/abc-defg-hij' : 'Library Room 204';
                 }
+            };
+
+            const syncSessionDuration = function () {
+                if (! sessionStartTime || ! sessionEndTime || ! sessionDuration) {
+                    return;
+                }
+
+                if (! sessionStartTime.value || ! sessionEndTime.value) {
+                    sessionDuration.textContent = '--';
+                    return;
+                }
+
+                const [startHour, startMinute] = sessionStartTime.value.split(':').map(Number);
+                const [endHour, endMinute] = sessionEndTime.value.split(':').map(Number);
+                const startTotal = (startHour * 60) + startMinute;
+                const endTotal = (endHour * 60) + endMinute;
+                const duration = endTotal - startTotal;
+
+                if (duration <= 0) {
+                    sessionDuration.textContent = 'Invalid time';
+                    return;
+                }
+
+                const hours = Math.floor(duration / 60);
+                const minutes = duration % 60;
+                sessionDuration.textContent = [
+                    hours ? hours + 'h' : '',
+                    minutes ? minutes + 'm' : '',
+                ].filter(Boolean).join(' ');
             };
 
             if (scheduleModal) {
@@ -363,7 +572,20 @@
             }
 
             sessionTypeInput?.addEventListener('change', syncSessionLocationField);
+            sessionStartTime?.addEventListener('change', syncSessionDuration);
+            sessionEndTime?.addEventListener('change', syncSessionDuration);
+            sessionFilterForm?.querySelectorAll('[data-session-filter-auto]').forEach(function (control) {
+                control.addEventListener('change', function () {
+                    if (sessionFilterForm.requestSubmit) {
+                        sessionFilterForm.requestSubmit();
+                        return;
+                    }
+
+                    sessionFilterForm.submit();
+                });
+            });
             syncSessionLocationField();
+            syncSessionDuration();
             window.StudyHubUI.syncBodyOverflow();
         });
     </script>

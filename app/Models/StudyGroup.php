@@ -48,4 +48,14 @@ class StudyGroup extends Model
     {
         return $this->hasMany(StudySession::class, 'group_id');
     }
+
+    public function chatMessages(): HasMany
+    {
+        return $this->hasMany(GroupChatMessage::class, 'study_group_id');
+    }
+
+    public function chatReads(): HasMany
+    {
+        return $this->hasMany(GroupChatRead::class, 'study_group_id');
+    }
 }

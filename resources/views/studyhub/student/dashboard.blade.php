@@ -13,8 +13,13 @@
         <header class="dashboard-topbar">
             <form class="dashboard-search-form" action="{{ route('studyhub.student.dashboard') }}" method="GET">
                 <label class="dashboard-search" for="dashboard-search-input">
-                    <span class="icon-box">{!! $icons['search'] !!}</span>
+                    <button class="dashboard-search-submit icon-box" type="submit" aria-label="Search dashboard">
+                        {!! $icons['search'] !!}
+                    </button>
                     <input id="dashboard-search-input" name="q" type="search" value="{{ $search ?? '' }}" placeholder="Search resources, groups, and more...">
+                    @if (! empty($search))
+                        <a class="dashboard-search-clear" href="{{ route('studyhub.student.dashboard') }}" aria-label="Clear search">&times;</a>
+                    @endif
                 </label>
             </form>
 
@@ -56,10 +61,11 @@
                 <p>Pick up your study flow, check updates, and jump back into your groups.</p>
                 <div class="dashboard-hero-actions">
                     <a class="dashboard-primary-action" href="{{ route('studyhub.student.resources') }}">
-                        <span class="icon-box">{!! $icons['plus'] !!}</span>
+                        <span class="icon-box">{!! $icons['upload-cloud'] ?? $icons['plus'] !!}</span>
                         Upload Resource
                     </a>
                     <a class="dashboard-secondary-action" href="{{ route('studyhub.student.groups') }}">
+                        <span class="icon-box">{!! $icons['users'] !!}</span>
                         Create Group
                     </a>
                 </div>
@@ -105,7 +111,7 @@
                     <div class="chart-grid-lines"></div>
                     <div class="chart-bars">
                         @foreach ($weeklyActivity as $index => $day)
-                            <span title="{{ $day['count'] }} updates on {{ $day['label'] }}" style="--bar-height: {{ $day['height'] }}%; --bar-delay: {{ $index * 35 }}ms;"></span>
+                            <span class="{{ $day['count'] > 0 ? 'has-activity' : '' }}" title="{{ $day['count'] }} updates on {{ $day['label'] }}" style="--bar-height: {{ $day['height'] }}%; --bar-delay: {{ $index * 35 }}ms;"></span>
                         @endforeach
                     </div>
                 </div>
@@ -135,6 +141,7 @@
                                     <strong>{{ $session['title'] }}</strong>
                                     <small>{{ $session['date'] }} - {{ $session['time'] }}</small>
                                 </span>
+                                <span class="dashboard-row-chevron" aria-hidden="true"></span>
                             </div>
                         @empty
                             <div class="dashboard-empty app-empty-state compact">
@@ -209,9 +216,19 @@
     <script>
         (function () {
             const shell = document.querySelector('.student-shell');
+            const searchForm = document.querySelector('.dashboard-search-form');
+            const searchInput = document.querySelector('#dashboard-search-input');
 
             if (shell) {
                 shell.classList.add('student-dashboard-home');
+            }
+
+            if (searchForm && searchInput) {
+                searchInput.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' && searchInput.value.trim() !== '') {
+                        searchForm.requestSubmit ? searchForm.requestSubmit() : searchForm.submit();
+                    }
+                });
             }
         })();
     </script>

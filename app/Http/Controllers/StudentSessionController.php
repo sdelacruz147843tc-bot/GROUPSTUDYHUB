@@ -12,13 +12,36 @@ use Illuminate\Support\Facades\Gate;
 
 class StudentSessionController extends StudyHubController
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $sessions = $this->getPaginatedStudentSessions();
-        $sessionItems = collect($sessions->items());
+        $joinedGroups = $this->getJoinedGroups();
+        $joinedGroupIds = collect($joinedGroups)->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $sessionFilters = [
+            'tab' => in_array($request->query('tab'), ['all', 'upcoming', 'calendar', 'past'], true) ? $request->query('tab') : 'all',
+            'view' => in_array($request->query('view'), ['calendar', 'list'], true) ? $request->query('view') : 'calendar',
+            'group_id' => in_array((string) $request->query('group_id'), $joinedGroupIds, true) ? (string) $request->query('group_id') : '',
+            'week_start' => '',
+        ];
+        $weekStart = now()->startOfWeek();
+
+        if ($request->filled('week_start')) {
+            try {
+                $weekStart = Carbon::parse($request->query('week_start'))->startOfWeek();
+                $sessionFilters['week_start'] = $weekStart->toDateString();
+            } catch (\Throwable) {
+                $sessionFilters['week_start'] = '';
+            }
+        }
+
         $allSessions = collect($this->getStudentSessions());
-        $upcomingSessions = $sessionItems->where('phase', 'upcoming')->values()->all();
-        $pastSessions = $sessionItems->where('phase', 'past')->values()->all();
+        $filteredSessions = $allSessions
+            ->when($sessionFilters['group_id'] !== '', fn ($sessions) => $sessions->where('group_id', (int) $sessionFilters['group_id']))
+            ->when($sessionFilters['tab'] === 'upcoming', fn ($sessions) => $sessions->where('phase', 'upcoming'))
+            ->when($sessionFilters['tab'] === 'past', fn ($sessions) => $sessions->where('phase', 'past'))
+            ->values();
+        $upcomingSessions = $filteredSessions->where('phase', 'upcoming')->values()->all();
+        $pastSessions = $filteredSessions->where('phase', 'past')->values()->all();
+        $weekEnd = $weekStart->copy()->endOfWeek();
         $thisWeekCount = $allSessions
             ->filter(function (array $session) {
                 $date = Carbon::parse($session['date']);
@@ -27,12 +50,73 @@ class StudentSessionController extends StudyHubController
             })
             ->count();
         $nextSession = collect($upcomingSessions)->first();
+        $calendarSessionModels = $this->visibleSessionsQuery()
+            ->with(['group', 'creator', 'attendees'])
+            ->whereBetween('session_date', [$weekStart->toDateString(), $weekEnd->toDateString()])
+            ->when($sessionFilters['group_id'] !== '', fn ($query) => $query->where('group_id', (int) $sessionFilters['group_id']))
+            ->orderBy('session_date')
+            ->orderBy('start_time')
+            ->get();
+        $calendarSessions = $calendarSessionModels
+            ->map(function (StudySession $session) use ($weekStart) {
+                $start = Carbon::parse($session->session_date->format('Y-m-d').' '.$session->start_time);
+                $end = Carbon::parse($session->session_date->format('Y-m-d').' '.$session->end_time);
+                $durationMinutes = max($start->diffInMinutes($end), 45);
+                $top = (($start->hour - 8) * 64) + ($start->minute / 60 * 64);
+                $height = max(50, $durationMinutes / 60 * 64);
+
+                return [
+                    'id' => $session->id,
+                    'title' => $session->title,
+                    'group' => $session->group?->name ?? 'Unknown Group',
+                    'day_index' => $weekStart->diffInDays($session->session_date),
+                    'time' => $start->format('g:i A').' - '.$end->format('g:i A'),
+                    'top' => max(0, $top),
+                    'height' => $height,
+                    'type' => $session->type,
+                ];
+            })
+            ->filter(fn (array $session) => $session['day_index'] >= 0 && $session['day_index'] <= 6)
+            ->values()
+            ->all();
+        $todaySchedule = $allSessions
+            ->filter(fn (array $session) => Carbon::parse($session['date'])->isToday())
+            ->take(3)
+            ->values()
+            ->all();
+        $upcomingReminders = collect($upcomingSessions)->take(3)->values()->all();
+        $activeSessionGroups = $allSessions
+            ->groupBy('group')
+            ->map(fn ($items, string $group) => [
+                'name' => $group,
+                'count' => $items->count(),
+            ])
+            ->sortByDesc('count')
+            ->take(4)
+            ->values()
+            ->all();
 
         return $this->renderStudent('studyhub.student.sessions', [
             'upcomingSessions' => $upcomingSessions,
             'pastSessions' => $pastSessions,
-            'sessionsPaginator' => $sessions,
-            'sessionGroups' => $this->getJoinedGroups(),
+            'sessionGroups' => $joinedGroups,
+            'sessionFilters' => $sessionFilters,
+            'calendarWeekLabel' => $weekStart->format('M j').' - '.$weekEnd->format('M j, Y'),
+            'calendarPrevWeek' => $weekStart->copy()->subWeek()->toDateString(),
+            'calendarCurrentWeek' => now()->startOfWeek()->toDateString(),
+            'calendarNextWeek' => $weekStart->copy()->addWeek()->toDateString(),
+            'calendarDays' => collect(range(0, 6))
+                ->map(fn (int $offset) => [
+                    'label' => $weekStart->copy()->addDays($offset)->format('D'),
+                    'day' => $weekStart->copy()->addDays($offset)->format('j'),
+                    'is_today' => $weekStart->copy()->addDays($offset)->isToday(),
+                ])
+                ->all(),
+            'calendarHours' => collect(range(8, 20))->map(fn (int $hour) => Carbon::createFromTime($hour)->format('g A'))->all(),
+            'calendarSessions' => $calendarSessions,
+            'todaySchedule' => $todaySchedule,
+            'upcomingReminders' => $upcomingReminders,
+            'activeSessionGroups' => $activeSessionGroups,
             'sessionStats' => [
                 [
                     'label' => 'Upcoming Sessions',
@@ -51,6 +135,12 @@ class StudentSessionController extends StudyHubController
                     'value' => $thisWeekCount,
                     'hint' => 'Sessions scheduled',
                     'icon' => 'trend',
+                ],
+                [
+                    'label' => 'Completed Sessions',
+                    'value' => count($pastSessions),
+                    'hint' => 'This month',
+                    'icon' => 'clock',
                 ],
             ],
         ]);
@@ -76,6 +166,7 @@ class StudentSessionController extends StudyHubController
             'location' => $locationRules,
             'type' => ['required', 'in:in-person,online'],
             'max_attendees' => ['required', 'integer', 'min:2', 'max:100'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ], [
             'location.url' => 'Please enter a valid meeting link for online sessions.',
         ]);
@@ -89,6 +180,11 @@ class StudentSessionController extends StudyHubController
         $date = Carbon::parse($validated['date']);
         $sessionEndsAt = Carbon::parse($date->format('Y-m-d').' '.$validated['end_time']);
 
+        $notes = trim($validated['notes'] ?? '');
+        $storedNotes = $notes !== ''
+            ? $notes
+            : 'Scheduled through your StudyHub session planner.';
+
         $session = StudySession::create([
             'group_id' => (int) $validated['group_id'],
             'created_by' => $request->user()->id,
@@ -101,7 +197,7 @@ class StudentSessionController extends StudyHubController
             'type' => $validated['type'],
             'max_attendees' => (int) $validated['max_attendees'],
             'status' => $sessionEndsAt->isPast() ? 'completed' : 'confirmed',
-            'notes' => 'Scheduled through your StudyHub session planner.',
+            'notes' => $storedNotes,
         ]);
         $session->attendees()->attach($request->user()->id);
 

@@ -16,6 +16,9 @@ class Discussion extends Model
         'author_id',
         'title',
         'body',
+        'image_path',
+        'image_original_name',
+        'image_mime_type',
         'views',
         'trending',
         'last_active_at',
@@ -42,5 +45,10 @@ class Discussion extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(DiscussionReply::class);
+    }
+
+    public function helpfulVotes(): HasMany
+    {
+        return $this->hasMany(DiscussionHelpfulVote::class);
     }
 }

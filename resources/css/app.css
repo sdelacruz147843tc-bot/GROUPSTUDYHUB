@@ -172,6 +172,7 @@ html.dark {
 @import './studyhub/dashboard.css';
 @import './studyhub/groups.css';
 @import './studyhub/resources.css';
+@import './studyhub/library.css';
 @import './studyhub/sessions.css';
 @import './studyhub/discussions.css';
 

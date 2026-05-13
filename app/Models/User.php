@@ -72,6 +72,26 @@ class User extends Authenticatable
         return $this->hasMany(StudyResource::class, 'uploaded_by');
     }
 
+    public function resourceReviews(): HasMany
+    {
+        return $this->hasMany(StudyResourceReview::class);
+    }
+
+    public function resourceFolders(): HasMany
+    {
+        return $this->hasMany(ResourceFolder::class);
+    }
+
+    public function savedResources(): HasMany
+    {
+        return $this->hasMany(SavedResource::class);
+    }
+
+    public function resourceViews(): HasMany
+    {
+        return $this->hasMany(ResourceView::class);
+    }
+
     public function discussions(): HasMany
     {
         return $this->hasMany(Discussion::class, 'author_id');
@@ -91,5 +111,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(StudySession::class, 'session_attendees', 'user_id', 'study_session_id')
             ->withTimestamps();
+    }
+
+    public function groupChatMessages(): HasMany
+    {
+        return $this->hasMany(GroupChatMessage::class);
+    }
+
+    public function groupChatReads(): HasMany
+    {
+        return $this->hasMany(GroupChatRead::class);
     }
 }

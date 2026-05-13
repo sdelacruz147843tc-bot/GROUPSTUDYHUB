@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GroupChatMessage;
+use App\Models\GroupChatRead;
 use App\Models\StudyGroup;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +17,7 @@ class StudentGroupController extends StudyHubController
         return $this->renderStudent('studyhub.student.groups', [
             'groups' => $this->getStudentGroups(),
             'joinedGroupIds' => $this->getJoinedGroupIds(),
+            'unreadChatGroupIds' => $this->getUnreadChatGroupIds(),
             'groupCategories' => $this->studentGroupCategories(),
         ]);
     }
@@ -142,4 +145,65 @@ class StudentGroupController extends StudyHubController
             'resourceCategories' => $this->studentResourceCategoriesWithoutAll(),
         ]);
     }
+
+    public function storeMessage(Request $request, StudyGroup $group): RedirectResponse
+    {
+        if (Gate::denies('createContent', $group)) {
+            return redirect($request->headers->get('referer') ?: route('studyhub.student.group.show', $group))
+                ->with('status', 'Join this group before using its chat.');
+        }
+
+        $validated = $request->validateWithBag('groupChat', [
+            'body' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $message = GroupChatMessage::create([
+            'study_group_id' => $group->id,
+            'user_id' => $request->user()->id,
+            'body' => trim($validated['body']),
+        ]);
+
+        $this->markGroupChatRead($group);
+        $this->logActivity(
+            'group_chat_message_posted',
+            'Group chat message posted',
+            ($request->user()->display_name ?: $request->user()->name).' posted in '.$group->name.' chat.',
+            $group,
+            $message,
+        );
+
+        return redirect($request->headers->get('referer') ?: route('studyhub.student.group.show', $group))
+            ->with('open_chat', true)
+            ->with('open_chat_thread_id', $group->id)
+            ->with('status', 'Message sent.');
+    }
+
+    private function getUnreadChatGroupIds(): array
+    {
+        $user = $this->studentUser();
+        $joinedGroupIds = $this->getJoinedGroupIds();
+
+        if (empty($joinedGroupIds)) {
+            return [];
+        }
+
+        return StudyGroup::query()
+            ->whereIn('id', $joinedGroupIds)
+            ->whereHas('chatMessages', function ($query) use ($user) {
+                $query
+                    ->where('user_id', '<>', $user->id)
+                    ->where(function ($query) use ($user) {
+                        $query
+                            ->whereDoesntHave('group.chatReads', fn ($query) => $query->where('user_id', $user->id))
+                            ->orWhereHas('group.chatReads', function ($query) use ($user) {
+                                $query->where('user_id', $user->id)
+                                    ->whereColumn('group_chat_reads.last_read_at', '<', 'group_chat_messages.created_at');
+                            });
+                    });
+            })
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
 }

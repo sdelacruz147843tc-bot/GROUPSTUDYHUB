@@ -216,6 +216,7 @@ new class extends Component
                                             </span>
                                             <span class="thread-child-time">{{ $childReply['time'] }}</span>
                                         </span>
+                                        <span class="thread-nested-badge">Nested reply</span>
                                     </div>
                                     <p class="thread-child-target">Replying to {{ $childReply['parent_author'] }}</p>
                                     <p class="thread-reply-body">{{ $childReply['body'] }}</p>

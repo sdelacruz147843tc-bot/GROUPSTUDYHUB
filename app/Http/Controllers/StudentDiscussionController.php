@@ -3,19 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discussion;
+use App\Models\DiscussionHelpfulVote;
 use App\Models\DiscussionNotificationPreference;
 use App\Models\DiscussionReply;
 use App\Models\StudyGroup;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentDiscussionController extends StudyHubController
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $discussions = $this->getPaginatedStudentDiscussions();
+        $filters = [
+            'tab' => $request->query('tab', 'all'),
+            'q' => trim((string) $request->query('q', '')),
+        ];
+        $discussions = $this->getPaginatedStudentDiscussions(filters: $filters);
         $discussionItems = collect($discussions->items());
         $profile = $this->getStudentProfile();
         $stats = [
@@ -28,6 +36,7 @@ class StudentDiscussionController extends StudyHubController
             'stats' => $stats,
             'discussions' => $discussions,
             'discussionGroups' => $this->getJoinedGroups(),
+            'discussionFilters' => $filters,
         ]);
     }
 
@@ -42,6 +51,7 @@ class StudentDiscussionController extends StudyHubController
             'title' => ['required', 'string', 'max:120'],
             'group_id' => ['required', 'in:'.implode(',', $joinedGroupIds)],
             'body' => ['required', 'string', 'max:500'],
+            'discussion_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'],
         ]);
 
         $group = StudyGroup::find((int) $validated['group_id']);
@@ -50,11 +60,25 @@ class StudentDiscussionController extends StudyHubController
             return back()->with('status', 'You can only post discussions to groups you joined.');
         }
 
+        $imagePath = null;
+        $imageOriginalName = null;
+        $imageMimeType = null;
+
+        if ($request->hasFile('discussion_image')) {
+            $image = $request->file('discussion_image');
+            $imagePath = $image->store('studyhub-discussion-images', 'local');
+            $imageOriginalName = $image->getClientOriginalName();
+            $imageMimeType = $image->getMimeType();
+        }
+
         $discussion = Discussion::create([
             'group_id' => (int) $validated['group_id'],
             'author_id' => $request->user()->id,
             'title' => $validated['title'],
             'body' => $validated['body'],
+            'image_path' => $imagePath,
+            'image_original_name' => $imageOriginalName,
+            'image_mime_type' => $imageMimeType,
             'views' => 1,
             'trending' => false,
             'last_active_at' => now(),
@@ -74,6 +98,29 @@ class StudentDiscussionController extends StudyHubController
         return redirect()
             ->route('studyhub.student.discussions')
             ->with('status', 'Discussion posted successfully.');
+    }
+
+    public function image(Discussion $discussion): RedirectResponse|StreamedResponse
+    {
+        $discussion->load('group');
+
+        if (Gate::denies('view', $discussion)) {
+            return redirect()
+                ->route('studyhub.student.discussions')
+                ->with('status', 'You need to join that private group before viewing its discussion.');
+        }
+
+        if (! $discussion->image_path || ! Storage::disk('local')->exists($discussion->image_path)) {
+            return redirect()
+                ->route('studyhub.student.discussions.show', $discussion)
+                ->with('status', 'That discussion image could not be found.');
+        }
+
+        return Storage::disk('local')->response(
+            $discussion->image_path,
+            $discussion->image_original_name ?: basename($discussion->image_path),
+            ['Content-Type' => $discussion->image_mime_type ?: 'image/jpeg'],
+        );
     }
 
     public function show(Discussion $discussion): View|RedirectResponse
@@ -111,6 +158,10 @@ class StudentDiscussionController extends StudyHubController
 
         if (Gate::denies('delete', $discussion)) {
             return back()->with('status', 'You can only delete discussions you created.');
+        }
+
+        if ($discussion->image_path) {
+            Storage::disk('local')->delete($discussion->image_path);
         }
 
         $discussion->delete();
@@ -181,6 +232,51 @@ class StudentDiscussionController extends StudyHubController
         ])->save();
 
         return back()->with('status', $isEnabled ? 'Notifications enabled for this discussion.' : 'Notifications muted for this discussion.');
+    }
+
+    public function toggleHelpful(Request $request, Discussion $discussion): RedirectResponse|JsonResponse
+    {
+        $discussion->load('group');
+
+        if (Gate::denies('view', $discussion)) {
+            return redirect()
+                ->route('studyhub.student.discussions')
+                ->with('status', 'You need to join that private group before voting on its discussion.');
+        }
+
+        $vote = DiscussionHelpfulVote::query()
+            ->where('discussion_id', $discussion->id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($vote) {
+            $vote->delete();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'helpful_votes' => $discussion->helpfulVotes()->count(),
+                    'viewer_voted_helpful' => false,
+                    'message' => 'Helpful vote removed.',
+                ]);
+            }
+
+            return back()->with('status', 'Helpful vote removed.');
+        }
+
+        DiscussionHelpfulVote::create([
+            'discussion_id' => $discussion->id,
+            'user_id' => $request->user()->id,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'helpful_votes' => $discussion->helpfulVotes()->count(),
+                'viewer_voted_helpful' => true,
+                'message' => 'Marked as helpful.',
+            ]);
+        }
+
+        return back()->with('status', 'Marked as helpful.');
     }
 
     public function markNotificationsRead(Request $request): RedirectResponse

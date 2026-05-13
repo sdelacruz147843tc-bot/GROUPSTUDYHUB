@@ -137,8 +137,8 @@ class StudentDashboardController extends StudyHubController
 
     private function weeklyActivity($student): array
     {
-        $start = now()->startOfWeek();
-        $end = now()->endOfWeek();
+        $start = now()->startOfWeek(Carbon::SUNDAY);
+        $end = now()->endOfWeek(Carbon::SATURDAY);
         $visibleGroupIds = StudyGroup::query()
             ->where(fn ($query) => $this->applyVisibleGroupContentConstraint($query, $student))
             ->pluck('id')
@@ -202,7 +202,7 @@ class StudentDashboardController extends StudyHubController
                 'type' => 'Resource',
                 'title' => $resource->name,
                 'meta' => $resource->group?->name ?: 'Study resource',
-                'url' => route('studyhub.student.resources'),
+                'url' => route('studyhub.student.resources', ['q' => $search]),
             ]);
 
         $discussions = $this->visibleDiscussionsQuery($student)
@@ -221,9 +221,28 @@ class StudentDashboardController extends StudyHubController
                 'url' => route('studyhub.student.discussions.show', $discussion),
             ]);
 
+        $sessions = $this->visibleSessionsQuery($student)
+            ->with('group')
+            ->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('location', 'like', '%'.$search.'%')
+                    ->orWhereHas('group', fn ($groupQuery) => $groupQuery->where('name', 'like', '%'.$search.'%'));
+            })
+            ->orderBy('session_date')
+            ->orderBy('start_time')
+            ->limit(3)
+            ->get()
+            ->map(fn (StudySession $session) => [
+                'type' => 'Session',
+                'title' => $session->title,
+                'meta' => ($session->group?->name ?: 'Study session').' - '.$session->session_date->format('M j, Y'),
+                'url' => route('studyhub.student.sessions', ['tab' => 'calendar', 'week_start' => $session->session_date->copy()->startOfWeek()->toDateString()]),
+            ]);
+
         return $groups
             ->merge($resources)
             ->merge($discussions)
+            ->merge($sessions)
             ->take(8)
             ->values()
             ->all();

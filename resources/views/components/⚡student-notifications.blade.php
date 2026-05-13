@@ -151,7 +151,7 @@ new class extends Component
         aria-expanded="{{ $open ? 'true' : 'false' }}"
         wire:click="toggle"
     >
-        <span class="icon-box">{!! $icons['message'] ?? '' !!}</span>
+        <span class="icon-box">{!! $icons['bell'] ?? $icons['message'] ?? '' !!}</span>
         @if (($notifications['unread_count'] ?? 0) > 0)
             <span class="student-notification-badge">{{ min((int) $notifications['unread_count'], 9) }}</span>
         @endif

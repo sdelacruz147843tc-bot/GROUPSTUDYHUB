@@ -160,6 +160,7 @@
         @foreach ($groups as $group)
             @php
                 $isJoined = in_array((int) $group['id'], $joinedGroupIds ?? [], true);
+                $hasUnreadChat = in_array((int) $group['id'], $unreadChatGroupIds ?? [], true);
                 $meetingStyle = ucfirst(str_replace('-', ' ', $group['meeting_style'] ?? 'in-person'));
                 $groupTheme = $groupThemeFor($group);
                 $filterCategory = $groupFilterCategoryFor($group);
@@ -182,6 +183,12 @@
                     <div class="group-card-body">
                         <div class="group-card-content">
                             <span class="group-card-access">{{ $meetingStyle }}</span>
+                            @if ($isJoined && $hasUnreadChat)
+                                <span class="group-chat-unread-badge">
+                                    <span class="icon-box">{!! $icons['message'] !!}</span>
+                                    <span>New chat</span>
+                                </span>
+                            @endif
                             <h3 class="group-card-title">{{ $group['name'] }}</h3>
                             <p class="group-card-copy">{{ $group['description'] }}</p>
                             <div class="group-card-tags">
@@ -314,7 +321,7 @@
                     </label>
 
                     <label class="flex flex-col gap-2 rounded-[18px] border border-emerald-100 bg-emerald-50/35 p-4 md:col-span-2">
-                        <span class="text-sm font-extrabold text-[#244231]">Description</span>
+                        <span class="text-sm font-extrabold text-[#244231]">Description <strong class="text-rose-500">*</strong></span>
                         <textarea class="min-h-[120px] w-full resize-y rounded-2xl border border-emerald-100 bg-white/95 p-4 text-[#1f3528] outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100" name="description" maxlength="160" placeholder="Share notes and plan review sessions." required>{{ old('description') }}</textarea>
                     </label>
 
