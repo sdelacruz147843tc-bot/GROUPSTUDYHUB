@@ -39,6 +39,25 @@ test('admin accounts are redirected to the admin dashboard after login', functio
     $response->assertRedirect(route('studyhub.admin.dashboard', absolute: false));
 });
 
+test('new student accounts must log in after registering', function () {
+    $response = $this->from(route('studyhub.login'))->post(route('studyhub.register'), [
+        'name' => 'New Student',
+        'email' => 'new.student@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'role' => 'student',
+    ]);
+
+    $this->assertGuest();
+    $this->assertDatabaseHas('users', [
+        'name' => 'New Student',
+        'email' => 'new.student@example.com',
+        'role' => 'student',
+    ]);
+    $response->assertRedirect(route('studyhub.login'));
+    $response->assertSessionHas('status', 'Your account has been created. Please log in to continue.');
+});
+
 test('users can not log into the wrong dashboard role', function () {
     $user = User::factory()->create([
         'role' => 'student',

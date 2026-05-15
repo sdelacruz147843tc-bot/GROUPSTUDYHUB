@@ -130,12 +130,15 @@
                     $activeChatThreadId = $activeChatThreadId ?: (int) (collect($studentChatThreads)->first()['id'] ?? 0);
                 @endphp
 
-                <div class="student-chat-menu {{ session('open_chat') || $errors->groupChat->any() ? 'is-open' : '' }}" data-student-chat-menu>
+                <div
+                    class="student-chat-menu {{ session('open_chat') || $errors->groupChat->any() ? 'is-open' : '' }}"
+                    data-student-chat-menu
+                    data-chat-refresh-url="{{ route('studyhub.student.groups.chats') }}"
+                    data-chat-read-url-template="{{ route('studyhub.student.groups.messages.read', ['group' => '__GROUP_ID__']) }}"
+                >
                     <button class="student-top-icon-button student-chat-button" type="button" aria-label="Open chats" aria-expanded="{{ session('open_chat') || $errors->groupChat->any() ? 'true' : 'false' }}" data-student-chat-button>
                         <span class="icon-box">{!! $icons['message'] !!}</span>
-                        @if ($studentUnreadChatCount > 0)
-                            <span class="student-notification-badge">{{ $studentUnreadChatCount }}</span>
-                        @endif
+                        <span class="student-notification-badge" data-student-chat-badge @if ($studentUnreadChatCount <= 0) hidden @endif>{{ $studentUnreadChatCount }}</span>
                     </button>
 
                     <section class="student-chat-popover" aria-label="Chats" data-student-chat-panel>
@@ -158,14 +161,14 @@
                                 <div class="student-chat-thread-list">
                                     @foreach ($studentChatThreads as $thread)
                                         <button
-                                            class="student-chat-thread {{ (int) $thread['id'] === $activeChatThreadId ? 'is-active' : '' }}"
+                                            class="student-chat-thread {{ (int) $thread['id'] === $activeChatThreadId ? 'is-active' : '' }} {{ $thread['unread_count'] > 0 ? 'has-unread' : '' }}"
                                             type="button"
                                             data-student-chat-thread="{{ $thread['id'] }}"
                                         >
                                             <span class="student-chat-thread-avatar">{{ $thread['initials'] }}</span>
                                             <span class="student-chat-thread-copy">
                                                 <strong>{{ $thread['name'] }}</strong>
-                                                <span>
+                                                <span data-student-chat-latest>
                                                     @if ($thread['latest_author'])
                                                         {{ $thread['latest_author'] }}:
                                                     @endif
@@ -173,12 +176,8 @@
                                                 </span>
                                             </span>
                                             <span class="student-chat-thread-meta">
-                                                @if ($thread['latest_time'])
-                                                    <time>{{ $thread['latest_time'] }}</time>
-                                                @endif
-                                                @if ($thread['unread_count'] > 0)
-                                                    <span>{{ $thread['unread_count'] }}</span>
-                                                @endif
+                                                <time data-student-chat-time @if (! $thread['latest_time']) hidden @endif>{{ $thread['latest_time'] }}</time>
+                                                <span data-student-chat-thread-badge @if ($thread['unread_count'] <= 0) hidden @endif>{{ $thread['unread_count'] }}</span>
                                             </span>
                                         </button>
                                     @endforeach
@@ -188,21 +187,33 @@
                                     @foreach ($studentChatThreads as $thread)
                                         <article class="student-chat-conversation {{ (int) $thread['id'] === $activeChatThreadId ? 'is-active' : '' }}" data-student-chat-conversation="{{ $thread['id'] }}">
                                             <div class="student-chat-conversation-header">
+                                                <button class="student-chat-back" type="button" aria-label="Back to chats" data-student-chat-back>
+                                                    <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                                                </button>
                                                 <div class="student-chat-thread-avatar">{{ $thread['initials'] }}</div>
                                                 <div>
                                                     <strong>{{ $thread['name'] }}</strong>
-                                                    <span>{{ count($thread['messages']) }} messages</span>
+                                                    <span data-student-chat-message-count>{{ count($thread['messages']) }} messages</span>
                                                 </div>
                                             </div>
 
-                                            <div class="student-chat-messages">
+                                            <div class="student-chat-messages" data-student-chat-messages>
                                                 @forelse ($thread['messages'] as $message)
-                                                    <div class="student-chat-message {{ $message['is_mine'] ? 'is-mine' : '' }}">
-                                                        <div class="student-chat-message-meta">
-                                                            <strong>{{ $message['author'] }}</strong>
-                                                            <time>{{ $message['time'] }}</time>
+                                                    <div class="student-chat-message-row {{ $message['is_mine'] ? 'is-mine' : '' }}">
+                                                        <span class="student-chat-message-avatar" title="{{ $message['author'] }}">
+                                                            @if (! empty($message['author_avatar_url']))
+                                                                <img src="{{ $message['author_avatar_url'] }}" alt="{{ $message['author'] }}">
+                                                            @else
+                                                                {{ $message['author_initials'] }}
+                                                            @endif
+                                                        </span>
+                                                        <div class="student-chat-message">
+                                                            <div class="student-chat-message-meta">
+                                                                <strong>{{ $message['author'] }}</strong>
+                                                                <time>{{ $message['time'] }}</time>
+                                                            </div>
+                                                            <p>{{ $message['body'] }}</p>
                                                         </div>
-                                                        <p>{{ $message['body'] }}</p>
                                                     </div>
                                                 @empty
                                                     <div class="student-chat-empty">
@@ -213,7 +224,7 @@
                                                 @endforelse
                                             </div>
 
-                                            <form class="student-chat-form" method="POST" action="{{ route('studyhub.student.groups.messages.store', $thread['id']) }}">
+                                            <form class="student-chat-form" method="POST" action="{{ route('studyhub.student.groups.messages.store', $thread['id']) }}" data-student-chat-form="{{ $thread['id'] }}">
                                                 @csrf
                                                 <input type="hidden" name="chat_thread_id" value="{{ $thread['id'] }}">
                                                 <label class="sr-only" for="student-chat-body-{{ $thread['id'] }}">Message {{ $thread['name'] }}</label>
@@ -427,6 +438,199 @@
             const chatMenu = document.querySelector('[data-student-chat-menu]');
             const chatButton = document.querySelector('[data-student-chat-button]');
             const chatClose = document.querySelector('[data-student-chat-close]');
+            const chatMobileQuery = window.matchMedia('(max-width: 720px)');
+            const csrfToken = @json(csrf_token());
+            let chatRefreshTimer = null;
+            let chatIsSyncing = false;
+
+            function isMobileChat() {
+                return chatMobileQuery.matches;
+            }
+
+            function escapeHtml(value) {
+                const div = document.createElement('div');
+                div.textContent = value || '';
+                return div.innerHTML;
+            }
+
+            function pluralize(count, singular, plural) {
+                return count === 1 ? singular : plural;
+            }
+
+            function activeChatThreadId() {
+                return chatMenu?.querySelector('[data-student-chat-thread].is-active')?.dataset.studentChatThread || '';
+            }
+
+            function chatReadUrl(threadId) {
+                return (chatMenu?.dataset.chatReadUrlTemplate || '').replace('__GROUP_ID__', encodeURIComponent(threadId));
+            }
+
+            function setBadgeValue(badge, value) {
+                if (! badge) {
+                    return;
+                }
+
+                const count = Number(value) || 0;
+                badge.textContent = count;
+                badge.hidden = count <= 0;
+            }
+
+            function messageHtml(message) {
+                const avatar = message.author_avatar_url
+                    ? '<img src="' + escapeHtml(message.author_avatar_url) + '" alt="' + escapeHtml(message.author) + '">'
+                    : escapeHtml(message.author_initials);
+
+                return [
+                    '<div class="student-chat-message-row ' + (message.is_mine ? 'is-mine' : '') + '" data-student-chat-message="' + escapeHtml(String(message.id)) + '">',
+                        '<span class="student-chat-message-avatar" title="' + escapeHtml(message.author) + '">' + avatar + '</span>',
+                        '<div class="student-chat-message">',
+                            '<div class="student-chat-message-meta">',
+                                '<strong>' + escapeHtml(message.author) + '</strong>',
+                                '<time>' + escapeHtml(message.time) + '</time>',
+                            '</div>',
+                            '<p>' + escapeHtml(message.body) + '</p>',
+                        '</div>',
+                    '</div>',
+                ].join('');
+            }
+
+            function emptyChatHtml() {
+                return [
+                    '<div class="student-chat-empty">',
+                        '<span class="icon-box">{!! $icons['message'] !!}</span>',
+                        '<strong>No messages yet</strong>',
+                        '<span>Start this group chat with a quick update.</span>',
+                    '</div>',
+                ].join('');
+            }
+
+            function applyChatPayload(payload) {
+                if (! chatMenu || ! payload || ! Array.isArray(payload.threads)) {
+                    return;
+                }
+
+                setBadgeValue(chatMenu.querySelector('[data-student-chat-badge]'), payload.unread_total);
+
+                payload.threads.forEach(function (thread) {
+                    const threadButton = chatMenu.querySelector('[data-student-chat-thread="' + thread.id + '"]');
+                    const conversation = chatMenu.querySelector('[data-student-chat-conversation="' + thread.id + '"]');
+
+                    if (threadButton) {
+                        const latest = threadButton.querySelector('[data-student-chat-latest]');
+                        const time = threadButton.querySelector('[data-student-chat-time]');
+
+                        threadButton.classList.toggle('has-unread', Number(thread.unread_count) > 0);
+                        setBadgeValue(threadButton.querySelector('[data-student-chat-thread-badge]'), thread.unread_count);
+
+                        if (latest) {
+                            latest.textContent = (thread.latest_author ? thread.latest_author + ': ' : '') + thread.latest_body;
+                        }
+
+                        if (time) {
+                            time.textContent = thread.latest_time || '';
+                            time.hidden = ! thread.latest_time;
+                        }
+                    }
+
+                    if (conversation) {
+                        const count = Number(thread.messages?.length || 0);
+                        const countLabel = conversation.querySelector('[data-student-chat-message-count]');
+                        const messageList = conversation.querySelector('[data-student-chat-messages]');
+
+                        if (countLabel) {
+                            countLabel.textContent = count + ' ' + pluralize(count, 'message', 'messages');
+                        }
+
+                        if (messageList) {
+                            const wasNearBottom = messageList.scrollTop + messageList.clientHeight >= messageList.scrollHeight - 80;
+                            messageList.innerHTML = count > 0 ? thread.messages.map(messageHtml).join('') : emptyChatHtml();
+
+                            if (wasNearBottom || conversation.classList.contains('is-active')) {
+                                messageList.scrollTop = messageList.scrollHeight;
+                            }
+                        }
+                    }
+                });
+            }
+
+            function refreshChats() {
+                if (! chatMenu?.dataset.chatRefreshUrl || chatIsSyncing) {
+                    return Promise.resolve();
+                }
+
+                chatIsSyncing = true;
+                const url = new URL(chatMenu.dataset.chatRefreshUrl, window.location.origin);
+                const threadId = activeChatThreadId();
+
+                if (threadId) {
+                    url.searchParams.set('active_thread_id', threadId);
+                }
+
+                return fetch(url, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then(function (response) {
+                        return response.ok ? response.json() : null;
+                    })
+                    .then(applyChatPayload)
+                    .finally(function () {
+                        chatIsSyncing = false;
+                    });
+            }
+
+            function markChatRead(threadId) {
+                const url = chatReadUrl(threadId);
+
+                if (! url) {
+                    return Promise.resolve();
+                }
+
+                const threadButton = chatMenu?.querySelector('[data-student-chat-thread="' + threadId + '"]');
+                const threadBadge = threadButton?.querySelector('[data-student-chat-thread-badge]');
+                const globalBadge = chatMenu?.querySelector('[data-student-chat-badge]');
+                const previousUnread = Number(threadBadge?.textContent || 0);
+                const previousTotal = Number(globalBadge?.textContent || 0);
+
+                threadButton?.classList.remove('has-unread');
+                setBadgeValue(threadBadge, 0);
+                setBadgeValue(globalBadge, Math.max(0, previousTotal - previousUnread));
+
+                return fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({}),
+                })
+                    .then(function (response) {
+                        return response.ok ? response.json() : null;
+                    })
+                    .then(applyChatPayload);
+            }
+
+            function startChatPolling() {
+                if (chatRefreshTimer || ! chatMenu) {
+                    return;
+                }
+
+                refreshChats();
+                chatRefreshTimer = window.setInterval(refreshChats, 5000);
+            }
+
+            function stopChatPolling() {
+                if (! chatRefreshTimer) {
+                    return;
+                }
+
+                window.clearInterval(chatRefreshTimer);
+                chatRefreshTimer = null;
+            }
 
             function setOpen(isOpen) {
                 if (! menu || ! button) {
@@ -444,6 +648,28 @@
 
                 chatMenu.classList.toggle('is-open', isOpen);
                 chatButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                if (! isOpen) {
+                    chatMenu.classList.remove('is-viewing-chat');
+                }
+
+                document.body.classList.toggle('student-chat-is-open', isOpen && isMobileChat());
+
+                if (isOpen) {
+                    startChatPolling();
+
+                    if (! isMobileChat() && activeChatThreadId()) {
+                        markChatRead(activeChatThreadId());
+                    }
+                }
+            }
+
+            function setChatMobileView(isViewingChat) {
+                if (! chatMenu) {
+                    return;
+                }
+
+                chatMenu.classList.toggle('is-viewing-chat', isViewingChat && isMobileChat());
             }
 
             if (menu && button) {
@@ -463,12 +689,24 @@
             if (chatMenu && chatButton) {
                 chatButton.addEventListener('click', function (event) {
                     event.stopPropagation();
-                    setChatOpen(! chatMenu.classList.contains('is-open'));
+                    const shouldOpen = ! chatMenu.classList.contains('is-open');
+
+                    setChatOpen(shouldOpen);
+                    if (shouldOpen) {
+                        setChatMobileView(false);
+                    }
+
                     setOpen(false);
                 });
 
                 chatClose?.addEventListener('click', function () {
                     setChatOpen(false);
+                });
+
+                chatMenu.querySelectorAll('[data-student-chat-back]').forEach(function (backButton) {
+                    backButton.addEventListener('click', function () {
+                        setChatMobileView(false);
+                    });
                 });
 
                 chatMenu.addEventListener('click', function (event) {
@@ -492,7 +730,67 @@
                         chatMenu.querySelectorAll('[data-student-chat-conversation]').forEach(function (conversation) {
                             conversation.classList.toggle('is-active', conversation.dataset.studentChatConversation === threadId);
                         });
+
+                        setChatMobileView(true);
+                        markChatRead(threadId);
                     });
+                });
+
+                chatMenu.querySelectorAll('[data-student-chat-form]').forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        const textarea = form.querySelector('textarea[name="body"]');
+                        const body = textarea?.value.trim() || '';
+
+                        if (! body) {
+                            return;
+                        }
+
+                        submitButton.disabled = true;
+
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: new FormData(form),
+                        })
+                            .then(function (response) {
+                                return response.ok ? response.json() : Promise.reject(response);
+                            })
+                            .then(function (payload) {
+                                textarea.value = '';
+                                applyChatPayload(payload);
+                                markChatRead(form.dataset.studentChatForm);
+                            })
+                            .finally(function () {
+                                submitButton.disabled = false;
+                            });
+                    });
+                });
+
+                if (chatMenu.classList.contains('is-open')) {
+                    setChatMobileView(isMobileChat());
+                    document.body.classList.toggle('student-chat-is-open', isMobileChat());
+
+                    if (! isMobileChat() && activeChatThreadId()) {
+                        markChatRead(activeChatThreadId());
+                    }
+                }
+
+                startChatPolling();
+
+                chatMobileQuery.addEventListener('change', function () {
+                    document.body.classList.toggle('student-chat-is-open', chatMenu.classList.contains('is-open') && isMobileChat());
+
+                    if (! isMobileChat()) {
+                        chatMenu.classList.remove('is-viewing-chat');
+                    }
                 });
             }
 

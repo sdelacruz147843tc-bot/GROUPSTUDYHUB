@@ -7,6 +7,7 @@ use App\Models\GroupChatRead;
 use App\Models\StudyGroup;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -146,9 +147,13 @@ class StudentGroupController extends StudyHubController
         ]);
     }
 
-    public function storeMessage(Request $request, StudyGroup $group): RedirectResponse
+    public function storeMessage(Request $request, StudyGroup $group): RedirectResponse|JsonResponse
     {
         if (Gate::denies('createContent', $group)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Join this group before using its chat.'], 403);
+            }
+
             return redirect($request->headers->get('referer') ?: route('studyhub.student.group.show', $group))
                 ->with('status', 'Join this group before using its chat.');
         }
@@ -172,10 +177,41 @@ class StudentGroupController extends StudyHubController
             $message,
         );
 
+        if ($request->expectsJson()) {
+            return response()->json($this->chatPayload($group->id));
+        }
+
         return redirect($request->headers->get('referer') ?: route('studyhub.student.group.show', $group))
             ->with('open_chat', true)
             ->with('open_chat_thread_id', $group->id)
             ->with('status', 'Message sent.');
+    }
+
+    public function chatThreads(Request $request): JsonResponse
+    {
+        return response()->json($this->chatPayload((int) $request->integer('active_thread_id')));
+    }
+
+    public function markMessagesRead(StudyGroup $group): JsonResponse
+    {
+        if (Gate::denies('createContent', $group)) {
+            return response()->json(['message' => 'Join this group before using its chat.'], 403);
+        }
+
+        $this->markGroupChatRead($group);
+
+        return response()->json($this->chatPayload($group->id));
+    }
+
+    private function chatPayload(?int $activeThreadId = null): array
+    {
+        $threads = $this->getStudentChatThreads();
+
+        return [
+            'threads' => $threads,
+            'active_thread_id' => $activeThreadId,
+            'unread_total' => collect($threads)->sum(fn (array $thread) => (int) ($thread['unread_count'] ?? 0)),
+        ];
     }
 
     private function getUnreadChatGroupIds(): array

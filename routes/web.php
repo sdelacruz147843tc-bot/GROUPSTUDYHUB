@@ -44,7 +44,9 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
             Route::post('/groups', [StudentGroupController::class, 'store'])->name('groups.store');
             Route::post('/groups/{group}/join', [StudentGroupController::class, 'join'])->name('groups.join');
             Route::post('/groups/{group}/leave', [StudentGroupController::class, 'leave'])->name('groups.leave');
+            Route::get('/groups/chats', [StudentGroupController::class, 'chatThreads'])->name('groups.chats');
             Route::post('/groups/{group}/messages', [StudentGroupController::class, 'storeMessage'])->name('groups.messages.store');
+            Route::post('/groups/{group}/messages/read', [StudentGroupController::class, 'markMessagesRead'])->name('groups.messages.read');
             Route::get('/groups/{group}', [StudentGroupController::class, 'show'])->name('group.show');
             Route::get('/library', [StudentLibraryController::class, 'index'])->name('library');
             Route::post('/library/folders', [StudentLibraryController::class, 'storeFolder'])->name('library.folders.store');
@@ -61,6 +63,7 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
             Route::get('/discussions', [StudentDiscussionController::class, 'index'])->name('discussions');
             Route::post('/discussions', [StudentDiscussionController::class, 'store'])->name('discussions.store');
             Route::get('/discussions/{discussion}/image', [StudentDiscussionController::class, 'image'])->name('discussions.image');
+            Route::get('/discussions/{discussion}/images/{imageIndex}', [StudentDiscussionController::class, 'image'])->whereNumber('imageIndex')->name('discussions.images.show');
             Route::get('/discussions/{discussion}', [StudentDiscussionController::class, 'show'])->name('discussions.show');
             Route::delete('/discussions/{discussion}', [StudentDiscussionController::class, 'destroy'])->name('discussions.delete');
             Route::post('/discussions/{discussion}/helpful', [StudentDiscussionController::class, 'toggleHelpful'])->name('discussions.helpful');
@@ -85,6 +88,8 @@ Route::prefix('studyhub')->name('studyhub.')->group(function () {
             Route::put('/groups/{group}', [AdminDashboardController::class, 'updateGroup'])->name('groups.update');
             Route::delete('/groups/{group}', [AdminDashboardController::class, 'deleteGroup'])->name('groups.delete');
             Route::delete('/resources/{resource}', [StudentResourceController::class, 'destroy'])->name('resources.delete');
+            Route::delete('/discussions/{discussion}', [AdminDashboardController::class, 'deleteDiscussion'])->name('discussions.delete');
+            Route::delete('/discussion-replies/{reply}', [AdminDashboardController::class, 'deleteDiscussionReply'])->name('discussion-replies.delete');
             Route::delete('/sessions/{session}', [AdminDashboardController::class, 'deleteSession'])->name('sessions.delete');
             Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
             Route::get('/reports/export', [AdminDashboardController::class, 'exportReports'])->name('reports.export');

@@ -8,15 +8,24 @@ use App\Models\StudyGroup;
 use App\Models\StudyResource;
 use App\Models\StudySession;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class StudentDashboardController extends StudyHubController
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $student = $this->studentUser();
         $search = trim((string) $request->query('q', ''));
+
+        if ($request->boolean('live_search')) {
+            return response()->json([
+                'query' => $search,
+                'results' => $search !== '' ? $this->dashboardSearchResults($student, $search) : [],
+            ]);
+        }
+
         $joinedGroupIds = $student->joinedGroups()
             ->pluck('study_groups.id')
             ->map(fn ($id) => (int) $id)
@@ -239,10 +248,10 @@ class StudentDashboardController extends StudyHubController
                 'url' => route('studyhub.student.sessions', ['tab' => 'calendar', 'week_start' => $session->session_date->copy()->startOfWeek()->toDateString()]),
             ]);
 
-        return $groups
-            ->merge($resources)
-            ->merge($discussions)
-            ->merge($sessions)
+        return collect($groups->all())
+            ->merge($resources->all())
+            ->merge($discussions->all())
+            ->merge($sessions->all())
             ->take(8)
             ->values()
             ->all();

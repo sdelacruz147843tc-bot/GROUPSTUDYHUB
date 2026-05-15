@@ -13,24 +13,31 @@
     <div class="studyhub-shell login-shell">
         <main class="login-frame" aria-label="StudyHub authentication">
             <section class="login-feature-panel" aria-label="StudyHub features">
-                <div class="login-brand">
-                    <div class="brand-lockup">
-                        <span class="brand-logo-mark" aria-hidden="true">
-                            <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M48 8 16 22l32 14 32-14L48 8Z" fill="#122D5D"/>
-                                <path d="M31 27c0-3 8-8 17-8s17 5 17 8v11H31V27Z" fill="#122D5D"/>
-                                <path d="M48 31c2 0 4 2 5 5l4 18H39l4-18c1-3 3-5 5-5Z" fill="#122D5D"/>
-                                <path d="M21 44 15 71c10-4 22-6 33-6V50c-9 0-18-2-27-6Z" fill="#1F8BFF"/>
-                                <path d="M75 44c-9 4-18 6-27 6v15c11 0 23 2 33 6l-6-27Z" fill="#4CCB68"/>
-                                <path d="M48 50v15c-12 0-25 2-37 7l3-13c10-4 22-6 34-6v-3Z" fill="#122D5D"/>
-                                <path d="M48 50v15c12 0 25 2 37 7l-3-13c-10-4-22-6-34-6v-3Z" fill="#122D5D"/>
-                                <path d="M80 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="#122D5D"/>
-                                <path d="M80 35v14" stroke="#122D5D" stroke-width="3" stroke-linecap="round"/>
-                                <path d="M80 49c-3 0-4 4-4 7h8c0-3-1-7-4-7Z" fill="#4CCB68"/>
-                            </svg>
-                        </span>
-                        <span class="brand-wordmark">Study<span>Hub</span></span>
+                <div class="login-mobile-header">
+                    <div class="login-brand">
+                        <div class="brand-lockup">
+                            <span class="brand-logo-mark" aria-hidden="true">
+                                <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M48 8 16 22l32 14 32-14L48 8Z" fill="#122D5D"/>
+                                    <path d="M31 27c0-3 8-8 17-8s17 5 17 8v11H31V27Z" fill="#122D5D"/>
+                                    <path d="M48 31c2 0 4 2 5 5l4 18H39l4-18c1-3 3-5 5-5Z" fill="#122D5D"/>
+                                    <path d="M21 44 15 71c10-4 22-6 33-6V50c-9 0-18-2-27-6Z" fill="#1F8BFF"/>
+                                    <path d="M75 44c-9 4-18 6-27 6v15c11 0 23 2 33 6l-6-27Z" fill="#4CCB68"/>
+                                    <path d="M48 50v15c-12 0-25 2-37 7l3-13c10-4 22-6 34-6v-3Z" fill="#122D5D"/>
+                                    <path d="M48 50v15c12 0 25 2 37 7l-3-13c-10-4-22-6-34-6v-3Z" fill="#122D5D"/>
+                                    <path d="M80 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="#122D5D"/>
+                                    <path d="M80 35v14" stroke="#122D5D" stroke-width="3" stroke-linecap="round"/>
+                                    <path d="M80 49c-3 0-4 4-4 7h8c0-3-1-7-4-7Z" fill="#4CCB68"/>
+                                </svg>
+                            </span>
+                            <span class="brand-wordmark">Study<span>Hub</span></span>
+                        </div>
                     </div>
+
+                    <button class="theme-toggle-pill login-theme-toggle-mobile" type="button" data-login-theme-toggle aria-pressed="false">
+                        <span data-login-theme-label>Light</span>
+                        <i></i>
+                    </button>
                 </div>
 
                 <div class="feature-copy">
@@ -274,7 +281,7 @@
                 </div>
             </section>
 
-            <aside class="login-illustration" aria-hidden="true">
+            <aside class="login-illustration">
                 <button class="theme-toggle-pill" type="button" data-login-theme-toggle aria-pressed="false">
                     <span data-login-theme-label>Light</span>
                     <i></i>
@@ -296,8 +303,8 @@
             const roleButtons = document.querySelectorAll('.role-pill[data-role]');
             const passwordToggles = document.querySelectorAll('[data-password-target]');
             const loginShell = document.querySelector('.login-shell');
-            const themeToggle = document.querySelector('[data-login-theme-toggle]');
-            const themeLabel = document.querySelector('[data-login-theme-label]');
+            const themeToggles = document.querySelectorAll('[data-login-theme-toggle]');
+            const themeLabels = document.querySelectorAll('[data-login-theme-label]');
             const themeInputs = document.querySelectorAll('[data-login-theme-input]');
             const themeStorageKey = 'studyhub-login-theme';
 
@@ -308,14 +315,14 @@
                     loginShell.classList.toggle('login-theme-dark', isDark);
                 }
 
-                if (themeToggle) {
-                    themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-                    themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
-                }
+                themeToggles.forEach(function (toggle) {
+                    toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+                });
 
-                if (themeLabel) {
-                    themeLabel.textContent = isDark ? 'Dark' : 'Light';
-                }
+                themeLabels.forEach(function (label) {
+                    label.textContent = isDark ? 'Dark' : 'Light';
+                });
 
                 themeInputs.forEach(function (input) {
                     input.value = isDark ? 'dark' : 'light';
@@ -390,12 +397,12 @@
                 });
             });
 
-            if (themeToggle) {
+            themeToggles.forEach(function (themeToggle) {
                 themeToggle.addEventListener('click', function () {
                     const nextTheme = loginShell && loginShell.classList.contains('login-theme-dark') ? 'light' : 'dark';
                     setLoginTheme(nextTheme);
                 });
-            }
+            });
 
             let storedTheme = 'light';
             try {

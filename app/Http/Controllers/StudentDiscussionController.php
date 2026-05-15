@@ -51,7 +51,8 @@ class StudentDiscussionController extends StudyHubController
             'title' => ['required', 'string', 'max:120'],
             'group_id' => ['required', 'in:'.implode(',', $joinedGroupIds)],
             'body' => ['required', 'string', 'max:500'],
-            'discussion_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'],
+            'discussion_images' => ['nullable', 'array', 'max:6'],
+            'discussion_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'],
         ]);
 
         $group = StudyGroup::find((int) $validated['group_id']);
@@ -60,25 +61,27 @@ class StudentDiscussionController extends StudyHubController
             return back()->with('status', 'You can only post discussions to groups you joined.');
         }
 
-        $imagePath = null;
-        $imageOriginalName = null;
-        $imageMimeType = null;
+        $images = [];
 
-        if ($request->hasFile('discussion_image')) {
-            $image = $request->file('discussion_image');
-            $imagePath = $image->store('studyhub-discussion-images', 'local');
-            $imageOriginalName = $image->getClientOriginalName();
-            $imageMimeType = $image->getMimeType();
+        foreach ($request->file('discussion_images', []) as $image) {
+            $images[] = [
+                'path' => $image->store('studyhub-discussion-images', 'local'),
+                'name' => $image->getClientOriginalName(),
+                'mime_type' => $image->getMimeType(),
+            ];
         }
+
+        $firstImage = $images[0] ?? null;
 
         $discussion = Discussion::create([
             'group_id' => (int) $validated['group_id'],
             'author_id' => $request->user()->id,
             'title' => $validated['title'],
             'body' => $validated['body'],
-            'image_path' => $imagePath,
-            'image_original_name' => $imageOriginalName,
-            'image_mime_type' => $imageMimeType,
+            'image_path' => $firstImage['path'] ?? null,
+            'image_original_name' => $firstImage['name'] ?? null,
+            'image_mime_type' => $firstImage['mime_type'] ?? null,
+            'images' => $images ?: null,
             'views' => 1,
             'trending' => false,
             'last_active_at' => now(),
@@ -100,7 +103,7 @@ class StudentDiscussionController extends StudyHubController
             ->with('status', 'Discussion posted successfully.');
     }
 
-    public function image(Discussion $discussion): RedirectResponse|StreamedResponse
+    public function image(Discussion $discussion, int $imageIndex = 0): RedirectResponse|StreamedResponse
     {
         $discussion->load('group');
 
@@ -110,16 +113,18 @@ class StudentDiscussionController extends StudyHubController
                 ->with('status', 'You need to join that private group before viewing its discussion.');
         }
 
-        if (! $discussion->image_path || ! Storage::disk('local')->exists($discussion->image_path)) {
+        $image = $this->discussionImageAt($discussion, $imageIndex);
+
+        if (! $image || ! Storage::disk('local')->exists($image['path'])) {
             return redirect()
                 ->route('studyhub.student.discussions.show', $discussion)
                 ->with('status', 'That discussion image could not be found.');
         }
 
         return Storage::disk('local')->response(
-            $discussion->image_path,
-            $discussion->image_original_name ?: basename($discussion->image_path),
-            ['Content-Type' => $discussion->image_mime_type ?: 'image/jpeg'],
+            $image['path'],
+            $image['name'] ?: basename($image['path']),
+            ['Content-Type' => $image['mime_type'] ?: 'image/jpeg'],
         );
     }
 
@@ -160,9 +165,10 @@ class StudentDiscussionController extends StudyHubController
             return back()->with('status', 'You can only delete discussions you created.');
         }
 
-        if ($discussion->image_path) {
-            Storage::disk('local')->delete($discussion->image_path);
-        }
+        collect($this->discussionImages($discussion))
+            ->pluck('path')
+            ->filter()
+            ->each(fn (string $path) => Storage::disk('local')->delete($path));
 
         $discussion->delete();
 
@@ -277,6 +283,38 @@ class StudentDiscussionController extends StudyHubController
         }
 
         return back()->with('status', 'Marked as helpful.');
+    }
+
+    private function discussionImageAt(Discussion $discussion, int $index): ?array
+    {
+        return $this->discussionImages($discussion)[$index] ?? null;
+    }
+
+    private function discussionImages(Discussion $discussion): array
+    {
+        $images = collect($discussion->images ?: [])
+            ->filter(fn ($image) => is_array($image) && ! empty($image['path']))
+            ->map(fn (array $image) => [
+                'path' => (string) $image['path'],
+                'name' => (string) ($image['name'] ?? ''),
+                'mime_type' => (string) ($image['mime_type'] ?? ''),
+            ])
+            ->values()
+            ->all();
+
+        if ($images !== []) {
+            return $images;
+        }
+
+        if (! $discussion->image_path) {
+            return [];
+        }
+
+        return [[
+            'path' => $discussion->image_path,
+            'name' => $discussion->image_original_name ?: '',
+            'mime_type' => $discussion->image_mime_type ?: '',
+        ]];
     }
 
     public function markNotificationsRead(Request $request): RedirectResponse

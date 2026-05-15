@@ -15,6 +15,8 @@ class StudyHubFormatter
     public function discussion(Discussion $discussion): array
     {
         $authorName = $discussion->author?->display_name ?: $discussion->author?->name ?: 'Unknown';
+        $images = $this->discussionImages($discussion);
+        $firstImage = $images[0] ?? null;
 
         return [
             'id' => $discussion->id,
@@ -38,9 +40,11 @@ class StudyHubFormatter
             'last_active' => $this->humanizeTime($discussion->last_active_at ?: $discussion->updated_at ?: $discussion->created_at),
             'trending' => (bool) $discussion->trending,
             'body' => $discussion->body,
-            'image_url' => $discussion->image_path ? route('studyhub.student.discussions.image', $discussion) : '',
-            'image_name' => $discussion->image_original_name ?: '',
-            'has_image' => (bool) $discussion->image_path,
+            'image_url' => $firstImage['url'] ?? '',
+            'image_name' => $firstImage['name'] ?? '',
+            'images' => $images,
+            'image_count' => count($images),
+            'has_image' => $images !== [],
         ];
     }
 
@@ -182,5 +186,28 @@ class StudyHubFormatter
             ->take(2)
             ->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))
             ->implode('');
+    }
+
+    private function discussionImages(Discussion $discussion): array
+    {
+        $images = collect($discussion->images ?: [])
+            ->filter(fn ($image) => is_array($image) && ! empty($image['path']))
+            ->values();
+
+        if ($images->isEmpty() && $discussion->image_path) {
+            $images = collect([[
+                'path' => $discussion->image_path,
+                'name' => $discussion->image_original_name ?: '',
+                'mime_type' => $discussion->image_mime_type ?: '',
+            ]]);
+        }
+
+        return $images
+            ->map(fn (array $image, int $index) => [
+                'url' => route('studyhub.student.discussions.images.show', [$discussion, $index]),
+                'name' => (string) ($image['name'] ?? ''),
+                'mime_type' => (string) ($image['mime_type'] ?? ''),
+            ])
+            ->all();
     }
 }

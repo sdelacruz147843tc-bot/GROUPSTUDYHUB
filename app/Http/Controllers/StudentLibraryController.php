@@ -70,6 +70,10 @@ class StudentLibraryController extends StudyHubController
             $savedQuery->whereHas('resource.views', fn ($query) => $query->where('user_id', $user->id));
         }
 
+        if ($filters['item'] === 'uploaded') {
+            $savedQuery->whereHas('resource', fn ($query) => $query->where('uploaded_by', $user->id));
+        }
+
         match ($filters['sort']) {
             'oldest' => $savedQuery->orderBy('saved_at'),
             'name' => $savedQuery->join('study_resources as sorted_resources', 'saved_resources.study_resource_id', '=', 'sorted_resources.id')
@@ -309,7 +313,7 @@ class StudentLibraryController extends StudyHubController
             'file_type' => preg_match('/^[a-z0-9]+$/', $fileType) ? $fileType : '',
             'sort' => in_array($sort, ['newest', 'oldest', 'name'], true) ? $sort : 'newest',
             'availability' => in_array($availability, ['all', 'downloadable'], true) ? $availability : 'all',
-            'item' => in_array($item, ['all', 'recent'], true) ? $item : 'all',
+            'item' => in_array($item, ['all', 'recent', 'uploaded'], true) ? $item : 'all',
         ];
     }
 

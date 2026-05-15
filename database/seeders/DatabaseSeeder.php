@@ -14,6 +14,7 @@ use App\Models\StudySession;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -168,6 +169,50 @@ class DatabaseSeeder extends Seeder
                 'owner' => 'Rachel Green',
                 'members' => ['Rachel Green', 'Mia Cruz', 'David Kim'],
             ],
+            [
+                'name' => 'Language Exchange Circle',
+                'description' => 'Conversation practice, vocabulary drills, and peer feedback',
+                'category' => 'Language',
+                'meeting_style' => 'online',
+                'visibility' => 'public',
+                'join_code' => null,
+                'color' => '#7C3AED',
+                'owner' => 'Mia Cruz',
+                'members' => ['Mia Cruz', 'Noah Tan', 'Emma Davis', 'Alex Student'],
+            ],
+            [
+                'name' => 'Business Analytics Lab',
+                'description' => 'Dashboard practice, case studies, and spreadsheet modeling',
+                'category' => 'Business',
+                'meeting_style' => 'hybrid',
+                'visibility' => 'public',
+                'join_code' => null,
+                'color' => '#0EA5E9',
+                'owner' => 'David Kim',
+                'members' => ['David Kim', 'Lisa Park', 'Rachel Green', 'Alex Student'],
+            ],
+            [
+                'name' => 'UI UX Design Studio',
+                'description' => 'Wireframes, prototypes, usability notes, and portfolio reviews',
+                'category' => 'Design',
+                'meeting_style' => 'in-person',
+                'visibility' => 'public',
+                'join_code' => null,
+                'color' => '#F97316',
+                'owner' => 'Alex Wong',
+                'members' => ['Alex Wong', 'Mia Cruz', 'Sarah Chen', 'Alex Student'],
+            ],
+            [
+                'name' => 'Cybersecurity Review Team',
+                'description' => 'Security basics, threat modeling, and lab walkthroughs',
+                'category' => 'Programming',
+                'meeting_style' => 'online',
+                'visibility' => 'private',
+                'join_code' => 'SECURE',
+                'color' => '#DC2626',
+                'owner' => 'Noah Tan',
+                'members' => ['Noah Tan', 'David Kim', 'Sarah Chen'],
+            ],
         ])->mapWithKeys(function (array $data) use ($sampleUsers, $student) {
             $owner = $data['owner'] === 'Alex Student' ? $student : $sampleUsers[$data['owner']];
 
@@ -210,18 +255,32 @@ class DatabaseSeeder extends Seeder
             ['group' => 'Web Development', 'uploader' => 'Alex Wong', 'name' => 'Web Dev Project Template.zip', 'category' => 'Code', 'download_count' => 96, 'rating_average' => 4.3, 'rating_count' => 18, 'size_bytes' => 2202009, 'uploaded_at' => now()->subDays(3)],
             ['group' => 'Database Systems', 'uploader' => 'Lisa Park', 'name' => 'Database Schema Design.pdf', 'category' => 'Lecture Notes', 'download_count' => 84, 'rating_average' => 4.4, 'rating_count' => 16, 'size_bytes' => 1887436, 'uploaded_at' => now()->subDays(2)],
             ['group' => 'Machine Learning Basics', 'uploader' => 'Rachel Green', 'name' => 'ML Algorithm Implementations.py', 'category' => 'Code', 'download_count' => 76, 'rating_average' => 4.2, 'rating_count' => 12, 'size_bytes' => 46080, 'uploaded_at' => now()->subDay()],
+            ['group' => 'Language Exchange Circle', 'uploader' => 'Mia Cruz', 'name' => 'Spanish Conversation Prompts.pdf', 'category' => 'Study Guide', 'download_count' => 64, 'rating_average' => 4.5, 'rating_count' => 11, 'size_bytes' => 704512, 'uploaded_at' => now()->subHours(20)],
+            ['group' => 'Language Exchange Circle', 'uploader' => 'Noah Tan', 'name' => 'Vocabulary Builder Week 3.xlsx', 'category' => 'Assignments', 'download_count' => 38, 'rating_average' => 4.1, 'rating_count' => 7, 'size_bytes' => 120832, 'uploaded_at' => now()->subHours(14)],
+            ['group' => 'Business Analytics Lab', 'uploader' => 'David Kim', 'name' => 'Sales Dashboard Case Study.xlsx', 'category' => 'Datasets', 'download_count' => 91, 'rating_average' => 4.6, 'rating_count' => 19, 'size_bytes' => 832512, 'uploaded_at' => now()->subHours(18)],
+            ['group' => 'Business Analytics Lab', 'uploader' => 'Lisa Park', 'name' => 'Pivot Table Practice Pack.pdf', 'category' => 'Study Guide', 'download_count' => 72, 'rating_average' => 4.4, 'rating_count' => 13, 'size_bytes' => 1048576, 'uploaded_at' => now()->subHours(11)],
+            ['group' => 'UI UX Design Studio', 'uploader' => 'Alex Wong', 'name' => 'Mobile App Wireframe Kit.fig', 'category' => 'Design Files', 'download_count' => 58, 'rating_average' => 4.8, 'rating_count' => 10, 'size_bytes' => 5242880, 'uploaded_at' => now()->subHours(16)],
+            ['group' => 'UI UX Design Studio', 'uploader' => 'Mia Cruz', 'name' => 'Usability Testing Notes.md', 'category' => 'Lecture Notes', 'download_count' => 44, 'rating_average' => 4.3, 'rating_count' => 8, 'size_bytes' => 32768, 'uploaded_at' => now()->subHours(9)],
+            ['group' => 'Cybersecurity Review Team', 'uploader' => 'Noah Tan', 'name' => 'Network Security Lab Guide.pdf', 'category' => 'Lab Manual', 'download_count' => 67, 'rating_average' => 4.7, 'rating_count' => 15, 'size_bytes' => 2097152, 'uploaded_at' => now()->subHours(12)],
+            ['group' => 'Cybersecurity Review Team', 'uploader' => 'David Kim', 'name' => 'Threat Modeling Checklist.md', 'category' => 'Study Guide', 'download_count' => 49, 'rating_average' => 4.5, 'rating_count' => 9, 'size_bytes' => 40960, 'uploaded_at' => now()->subHours(7)],
         ])->each(function (array $resource) use ($groups, $sampleUsers) {
+            $extension = strtolower(pathinfo($resource['name'], PATHINFO_EXTENSION) ?: 'file');
+            $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', $resource['name']);
+            $path = 'studyhub/resources/seeded/'.strtolower($safeName);
+
+            Storage::disk('local')->put($path, "StudyHub sample download placeholder.\n");
+
             StudyResource::create([
                 'group_id' => $groups[$resource['group']]->id,
                 'uploaded_by' => $sampleUsers[$resource['uploader']]->id,
                 'name' => $resource['name'],
                 'category' => $resource['category'],
-                'path' => null,
-                'file_type' => strtolower(pathinfo($resource['name'], PATHINFO_EXTENSION) ?: 'file'),
+                'path' => $path,
+                'file_type' => $extension,
                 'download_count' => $resource['download_count'] ?? 0,
                 'rating_average' => $resource['rating_average'] ?? 0,
                 'rating_count' => $resource['rating_count'] ?? 0,
-                'size_bytes' => $resource['size_bytes'],
+                'size_bytes' => Storage::disk('local')->size($path),
                 'uploaded_at' => $resource['uploaded_at'],
             ]);
         });
@@ -434,6 +493,62 @@ class DatabaseSeeder extends Seeder
                 'status' => 'completed',
                 'notes' => 'Reviewed normalization, schema patterns, and sample ER diagrams.',
                 'attendees' => ['Alex Wong', 'Lisa Park', 'Sarah Chen', 'Emma Davis', 'Alex Student'],
+            ],
+            [
+                'title' => 'Language Practice Hour',
+                'group' => 'Language Exchange Circle',
+                'creator' => 'Mia Cruz',
+                'session_date' => now()->addDays(4)->toDateString(),
+                'start_time' => '18:00:00',
+                'end_time' => '19:00:00',
+                'location' => 'Online (Meet)',
+                'type' => 'online',
+                'max_attendees' => 10,
+                'status' => 'confirmed',
+                'notes' => 'Use the prompt sheet and pair up for 10-minute rotations.',
+                'attendees' => ['Mia Cruz', 'Noah Tan', 'Emma Davis', 'Alex Student'],
+            ],
+            [
+                'title' => 'Analytics Dashboard Critique',
+                'group' => 'Business Analytics Lab',
+                'creator' => 'David Kim',
+                'session_date' => now()->addDays(5)->toDateString(),
+                'start_time' => '14:00:00',
+                'end_time' => '15:30:00',
+                'location' => 'Business Lab 2',
+                'type' => 'in-person',
+                'max_attendees' => 14,
+                'status' => 'confirmed',
+                'notes' => 'Bring one chart you want feedback on.',
+                'attendees' => ['David Kim', 'Lisa Park', 'Rachel Green', 'Alex Student'],
+            ],
+            [
+                'title' => 'Prototype Review Session',
+                'group' => 'UI UX Design Studio',
+                'creator' => 'Alex Wong',
+                'session_date' => now()->addDays(6)->toDateString(),
+                'start_time' => '10:00:00',
+                'end_time' => '12:00:00',
+                'location' => 'Design Studio A',
+                'type' => 'in-person',
+                'max_attendees' => 12,
+                'status' => 'confirmed',
+                'notes' => 'Review flows, visual hierarchy, and mobile spacing.',
+                'attendees' => ['Alex Wong', 'Mia Cruz', 'Sarah Chen', 'Alex Student'],
+            ],
+            [
+                'title' => 'Security Lab Walkthrough',
+                'group' => 'Cybersecurity Review Team',
+                'creator' => 'Noah Tan',
+                'session_date' => now()->addDays(7)->toDateString(),
+                'start_time' => '20:00:00',
+                'end_time' => '21:30:00',
+                'location' => 'Online (Discord)',
+                'type' => 'online',
+                'max_attendees' => 8,
+                'status' => 'confirmed',
+                'notes' => 'Private lab walkthrough for network security practice.',
+                'attendees' => ['Noah Tan', 'David Kim', 'Sarah Chen'],
             ],
         ])->each(function (array $sessionData) use ($groups, $sampleUsers, $student) {
             $creator = $sessionData['creator'] === 'Alex Student' ? $student : $sampleUsers[$sessionData['creator']];

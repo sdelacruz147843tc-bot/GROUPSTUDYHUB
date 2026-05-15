@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discussion;
+use App\Models\DiscussionReply;
 use App\Models\StudyGroup;
 use App\Models\StudyResource;
 use App\Models\StudySession;
@@ -25,44 +26,60 @@ class AdminDashboardController extends StudyHubController
     {
         $totalUsers = User::count();
         $studentCount = User::query()->where('role', 'student')->count();
-        $adminCount = User::query()->where('role', 'admin')->count();
+        $activeStudentCount = User::query()
+            ->where('role', 'student')
+            ->where(function (Builder $query) {
+                $query
+                    ->whereHas('joinedGroups')
+                    ->orWhereHas('discussions')
+                    ->orWhereHas('attendingSessions');
+            })
+            ->count();
         $groupCount = StudyGroup::count();
         $resourceCount = StudyResource::count();
         $discussionCount = Discussion::count();
+        $sessionCount = StudySession::count();
 
         $stats = [
-            ['label' => 'Total Users', 'value' => (string) $totalUsers, 'change' => $studentCount.' students', 'icon' => 'users', 'color' => '#0F4C75'],
-            ['label' => 'Active Groups', 'value' => (string) $groupCount, 'change' => 'Live group records', 'icon' => 'book', 'color' => '#3282B8'],
-            ['label' => 'Resources Shared', 'value' => (string) $resourceCount, 'change' => 'Library items', 'icon' => 'activity', 'color' => '#06D6A0'],
-            ['label' => 'Admins', 'value' => (string) $adminCount, 'change' => $discussionCount.' discussions', 'icon' => 'discussion', 'color' => '#FF6B35'],
+            ['label' => 'Total Users', 'value' => (string) $totalUsers, 'change' => $studentCount.' students enrolled', 'icon' => 'users', 'color' => '#0F4C75'],
+            ['label' => 'Active Students', 'value' => (string) $activeStudentCount, 'change' => $this->percentLabel($activeStudentCount, max($studentCount, 1)).' of students engaged', 'icon' => 'trend', 'color' => '#06D6A0'],
+            ['label' => 'Study Groups', 'value' => (string) $groupCount, 'change' => StudyGroup::query()->where('visibility', 'private')->count().' private groups', 'icon' => 'groups', 'color' => '#3282B8'],
+            ['label' => 'Resources', 'value' => (string) $resourceCount, 'change' => StudyResource::query()->where('created_at', '>=', now()->subDays(7))->count().' uploaded this week', 'icon' => 'book', 'color' => '#79532d'],
+            ['label' => 'Discussions', 'value' => (string) $discussionCount, 'change' => Discussion::query()->where('created_at', '>=', now()->subDays(7))->count().' posted this week', 'icon' => 'discussion', 'color' => '#FF6B35'],
+            ['label' => 'Sessions', 'value' => (string) $sessionCount, 'change' => StudySession::query()->where('session_date', '>=', today())->count().' upcoming sessions', 'icon' => 'activity', 'color' => '#0F4C75'],
         ];
 
         $userActivityData = $this->withPercentages($this->monthlyUserActivity(), 'users');
 
-        $resourceData = StudyResource::query()
+        $resourceData = $this->withPercentages(StudyResource::query()
             ->selectRaw('category, count(*) as count')
             ->groupBy('category')
             ->orderByDesc('count')
             ->get()
             ->map(fn ($row) => [
-                'category' => $row->category,
+                'category' => $row->category ?: 'Uncategorized',
                 'count' => (int) $row->count,
             ])
             ->values()
-            ->all();
+            ->all(), 'count');
 
-        $recentAlerts = [
-            ['type' => 'info', 'message' => 'Role-based dashboard routing is active.', 'time' => 'Live'],
-            ['type' => 'info', 'message' => $totalUsers.' user accounts are available in the database.', 'time' => 'Live'],
-            ['type' => StudyGroup::query()->where('visibility', 'private')->exists() ? 'warning' : 'info', 'message' => StudyGroup::query()->where('visibility', 'private')->count().' private groups are being monitored.', 'time' => 'Live'],
-            ['type' => 'info', 'message' => StudySession::count().' study sessions are stored in the database.', 'time' => 'Live'],
+        $quickActions = [
+            ['label' => 'Manage Users', 'description' => 'Create, edit, and verify accounts.', 'route' => route('studyhub.admin.users'), 'icon' => 'users', 'style' => 'primary'],
+            ['label' => 'Review Groups', 'description' => 'Inspect group activity and content.', 'route' => route('studyhub.admin.groups'), 'icon' => 'groups', 'style' => 'secondary'],
+            ['label' => 'View Reports', 'description' => 'Open platform analytics.', 'route' => route('studyhub.admin.reports'), 'icon' => 'reports', 'style' => 'secondary'],
+            ['label' => 'Export Report', 'description' => 'Download the latest CSV summary.', 'route' => route('studyhub.admin.reports.export'), 'icon' => 'download', 'style' => 'secondary'],
         ];
+
+        $recentAlerts = $this->dashboardAlerts();
+        $recentActivity = $this->recentPlatformActivity();
 
         return $this->renderAdmin('studyhub.admin.dashboard', [
             'stats' => $stats,
+            'quickActions' => $quickActions,
             'userActivityData' => $userActivityData,
             'resourceData' => $resourceData,
             'recentAlerts' => $recentAlerts,
+            'recentActivity' => $recentActivity,
         ]);
     }
 
@@ -257,6 +274,7 @@ class AdminDashboardController extends StudyHubController
             'owner:id,name,display_name,email',
             'resources.uploader:id,name,display_name,email',
             'discussions.author:id,name,display_name,email',
+            'discussions.replies.author:id,name,display_name,email',
             'sessions.creator:id,name,display_name,email',
         ])->loadCount(['members', 'resources', 'discussions', 'sessions']);
 
@@ -274,11 +292,19 @@ class AdminDashboardController extends StudyHubController
             ->sortBy(fn (StudySession $session) => ($session->session_date?->format('Y-m-d') ?? '').' '.$session->start_time)
             ->values();
 
+        $recentReplies = DiscussionReply::query()
+            ->whereHas('discussion', fn (Builder $query) => $query->where('group_id', $group->id))
+            ->with(['author:id,name,display_name,email', 'discussion:id,title,group_id'])
+            ->latest()
+            ->take(8)
+            ->get();
+
         return $this->renderAdmin('studyhub.admin.group-detail', [
             'group' => $group,
             'recentResources' => $recentResources,
             'recentDiscussions' => $recentDiscussions,
             'upcomingSessions' => $upcomingSessions,
+            'recentReplies' => $recentReplies,
             'meetingStyles' => [
                 'in-person' => 'In person',
                 'online' => 'Online',
@@ -356,6 +382,54 @@ class AdminDashboardController extends StudyHubController
 
         return $this->sessionDeletionRedirect($request, $group)
             ->with('status', $sessionTitle.' was deleted successfully.');
+    }
+
+    public function deleteDiscussion(Request $request, Discussion $discussion): RedirectResponse
+    {
+        $discussion->loadMissing('group');
+
+        $group = $discussion->group;
+        $discussionTitle = $discussion->title;
+        $groupName = $group?->name ?: 'a StudyHub group';
+
+        $this->logActivity(
+            'discussion_deleted',
+            'Discussion deleted',
+            ($request->user()->display_name ?: $request->user()->name).' deleted "'.$discussionTitle.'" from '.$groupName.'.',
+            $group,
+            $discussion,
+        );
+
+        collect($this->discussionImagePaths($discussion))
+            ->each(fn (string $path) => Storage::disk('local')->delete($path));
+
+        DB::transaction(fn () => $discussion->delete());
+
+        return $this->adminModerationRedirect($request, $group)
+            ->with('status', $discussionTitle.' was deleted successfully.');
+    }
+
+    public function deleteDiscussionReply(Request $request, DiscussionReply $reply): RedirectResponse
+    {
+        $reply->loadMissing(['discussion.group', 'author']);
+
+        $discussion = $reply->discussion;
+        $group = $discussion?->group;
+        $replyAuthor = $reply->author?->display_name ?: $reply->author?->name ?: 'Unknown member';
+        $replyPreview = str($reply->body)->limit(72)->toString();
+
+        $this->logActivity(
+            'discussion_reply_deleted',
+            'Discussion reply deleted',
+            ($request->user()->display_name ?: $request->user()->name).' deleted a reply by '.$replyAuthor.': "'.$replyPreview.'".',
+            $group,
+            $reply,
+        );
+
+        DB::transaction(fn () => $reply->delete());
+
+        return $this->adminModerationRedirect($request, $group)
+            ->with('status', 'Discussion reply deleted successfully.');
     }
 
     public function reports(Request $request): View
@@ -458,6 +532,150 @@ class AdminDashboardController extends StudyHubController
     }
 
     /**
+     * @return array<int, array<string, string>>
+     */
+    private function dashboardAlerts(): array
+    {
+        $pendingUsers = User::query()->whereNull('email_verified_at')->count();
+        $privateGroups = StudyGroup::query()->where('visibility', 'private')->count();
+        $recentUploads = StudyResource::query()->where('created_at', '>=', now()->subDays(7))->count();
+        $emptyGroups = StudyGroup::query()
+            ->whereDoesntHave('members')
+            ->whereDoesntHave('resources')
+            ->whereDoesntHave('discussions')
+            ->whereDoesntHave('sessions')
+            ->count();
+
+        $activityGroups = StudyGroup::query()
+            ->withCount(['members', 'resources', 'discussions', 'sessions'])
+            ->get()
+            ->map(fn (StudyGroup $group) => (int) $group->members_count + (int) $group->resources_count + (int) $group->discussions_count + (int) $group->sessions_count);
+
+        $highActivityGroups = $activityGroups->filter(fn (int $score): bool => $score >= 8)->count();
+        $lowActivityGroups = $activityGroups->filter(fn (int $score): bool => $score > 0 && $score <= 1)->count();
+
+        return [
+            [
+                'type' => $pendingUsers > 0 ? 'warning' : 'info',
+                'label' => 'Pending users',
+                'message' => $pendingUsers > 0
+                    ? $pendingUsers.' user '.str('account')->plural($pendingUsers).' still '.($pendingUsers === 1 ? 'needs' : 'need').' verification.'
+                    : 'No user accounts are waiting for verification.',
+                'time' => 'Live',
+            ],
+            [
+                'type' => $privateGroups > 0 ? 'warning' : 'info',
+                'label' => 'Private groups',
+                'message' => $privateGroups.' private '.str('group')->plural($privateGroups).' currently '.($privateGroups === 1 ? 'requires' : 'require').' admin visibility.',
+                'time' => 'Live',
+            ],
+            [
+                'type' => $recentUploads > 0 ? 'info' : 'warning',
+                'label' => 'Recent uploads',
+                'message' => $recentUploads.' resource '.str('upload')->plural($recentUploads).' recorded in the last 7 days.',
+                'time' => '7 days',
+            ],
+            [
+                'type' => $highActivityGroups > 0 ? 'info' : 'warning',
+                'label' => 'High activity groups',
+                'message' => $highActivityGroups.' high-activity '.str('group')->plural($highActivityGroups).' found.',
+                'time' => 'Live',
+            ],
+            [
+                'type' => ($emptyGroups + $lowActivityGroups) > 0 ? 'warning' : 'info',
+                'label' => 'Low activity groups',
+                'message' => $emptyGroups.' empty and '.$lowActivityGroups.' low-activity '.str('group')->plural($emptyGroups + $lowActivityGroups).' found.',
+                'time' => 'Live',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function recentPlatformActivity(): array
+    {
+        $resources = StudyResource::query()
+            ->with(['uploader:id,name,display_name', 'group:id,name'])
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (StudyResource $resource) => [
+                'type' => 'Resource',
+                'icon' => 'book',
+                'message' => 'A new resource was uploaded',
+                'title' => $resource->name,
+                'meta' => trim(($resource->uploader?->display_name ?: $resource->uploader?->name ?: 'Unknown user').' • '.($resource->group?->name ?: 'No group')),
+                'timestamp' => $resource->created_at,
+            ]);
+
+        $groups = StudyGroup::query()
+            ->with('owner:id,name,display_name')
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (StudyGroup $group) => [
+                'type' => 'Group',
+                'icon' => 'groups',
+                'message' => 'A group was created',
+                'title' => $group->name,
+                'meta' => ($group->owner?->display_name ?: $group->owner?->name ?: 'No owner').' • '.ucfirst($group->visibility),
+                'timestamp' => $group->created_at,
+            ]);
+
+        $discussions = Discussion::query()
+            ->with(['author:id,name,display_name', 'group:id,name'])
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (Discussion $discussion) => [
+                'type' => 'Discussion',
+                'icon' => 'discussion',
+                'message' => 'A discussion was posted',
+                'title' => $discussion->title,
+                'meta' => trim(($discussion->author?->display_name ?: $discussion->author?->name ?: 'Unknown user').' • '.($discussion->group?->name ?: 'No group')),
+                'timestamp' => $discussion->created_at,
+            ]);
+
+        $sessions = StudySession::query()
+            ->with(['creator:id,name,display_name', 'group:id,name'])
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (StudySession $session) => [
+                'type' => 'Session',
+                'icon' => 'activity',
+                'message' => 'A session was scheduled',
+                'title' => $session->title,
+                'meta' => trim(($session->creator?->display_name ?: $session->creator?->name ?: 'Unknown user').' • '.($session->group?->name ?: 'No group')),
+                'timestamp' => $session->created_at,
+            ]);
+
+        return $resources
+            ->concat($groups)
+            ->concat($discussions)
+            ->concat($sessions)
+            ->filter(fn (array $activity): bool => $activity['timestamp'] !== null)
+            ->sortByDesc('timestamp')
+            ->take(8)
+            ->map(fn (array $activity) => [
+                'type' => $activity['type'],
+                'icon' => $activity['icon'],
+                'message' => $activity['message'],
+                'title' => $activity['title'],
+                'meta' => $activity['meta'],
+                'time' => $activity['timestamp']->diffForHumans(),
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function percentLabel(int $value, int $total): string
+    {
+        return ((int) round(($value / max($total, 1)) * 100)).'%';
+    }
+
+    /**
      * @return array<int, array<string, int|string>>
      */
     private function monthlyUserActivity(?CarbonInterface $since = null): array
@@ -555,6 +773,38 @@ class AdminDashboardController extends StudyHubController
         }
 
         return redirect()->route('studyhub.admin.groups');
+    }
+
+    private function adminModerationRedirect(Request $request, ?StudyGroup $group): RedirectResponse
+    {
+        $redirectTo = $request->string('redirect_to')->toString();
+
+        if ($redirectTo !== '' && str_starts_with($redirectTo, url('/studyhub/admin/'))) {
+            return redirect($redirectTo);
+        }
+
+        if ($group) {
+            return redirect()->route('studyhub.admin.groups.show', $group);
+        }
+
+        return redirect()->route('studyhub.admin.groups');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function discussionImagePaths(Discussion $discussion): array
+    {
+        $paths = collect($discussion->images ?: [])
+            ->pluck('path')
+            ->filter()
+            ->values();
+
+        if ($discussion->image_path) {
+            $paths->push($discussion->image_path);
+        }
+
+        return $paths->unique()->values()->all();
     }
 
     /**

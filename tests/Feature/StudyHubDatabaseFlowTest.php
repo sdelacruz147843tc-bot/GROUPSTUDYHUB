@@ -19,6 +19,21 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
+test('database seeder creates realistic StudyHub demo data', function () {
+    $this->seed();
+
+    expect(User::where('email', 'admin@studyhub.test')->where('role', 'admin')->exists())->toBeTrue();
+    expect(User::where('email', 'student@studyhub.test')->where('role', 'student')->exists())->toBeTrue();
+    expect(User::where('role', 'student')->count())->toBeGreaterThanOrEqual(10);
+    expect(StudyGroup::count())->toBeGreaterThanOrEqual(8);
+    expect(StudyResource::count())->toBeGreaterThanOrEqual(8);
+    expect(Discussion::count())->toBeGreaterThanOrEqual(5);
+    expect(DiscussionReply::count())->toBeGreaterThanOrEqual(8);
+    expect(StudySession::count())->toBeGreaterThanOrEqual(5);
+    expect(GroupChatMessage::count())->toBeGreaterThanOrEqual(5);
+    expect(ActivityLog::count())->toBeGreaterThanOrEqual(3);
+});
+
 test('students can create a study group in the database', function () {
     $student = User::factory()->create([
         'role' => 'student',
@@ -129,7 +144,7 @@ test('students can create discussions in joined groups', function () {
     expect(Discussion::where('title', 'Best way to review reactions?')->exists())->toBeTrue();
 });
 
-test('students can create discussions with images', function () {
+test('students can create discussions with multiple images', function () {
     Storage::fake('local');
 
     $student = User::factory()->create([
@@ -152,10 +167,16 @@ test('students can create discussions with images', function () {
         'title' => 'Can someone explain this graph?',
         'group_id' => $group->id,
         'body' => 'I attached the graph from my notes.',
-        'discussion_image' => UploadedFile::fake()->createWithContent(
-            'graph.png',
-            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
-        ),
+        'discussion_images' => [
+            UploadedFile::fake()->createWithContent(
+                'graph.png',
+                base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
+            ),
+            UploadedFile::fake()->createWithContent(
+                'notes.png',
+                base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
+            ),
+        ],
     ]);
 
     $response->assertRedirect(route('studyhub.student.discussions'));
@@ -165,10 +186,16 @@ test('students can create discussions with images', function () {
     expect($discussion)->not->toBeNull();
     expect($discussion->image_path)->not->toBeNull();
     expect($discussion->image_original_name)->toBe('graph.png');
-    Storage::disk('local')->assertExists($discussion->image_path);
+    expect($discussion->images)->toHaveCount(2);
+    expect($discussion->images[1]['name'])->toBe('notes.png');
+    Storage::disk('local')->assertExists($discussion->images[0]['path']);
+    Storage::disk('local')->assertExists($discussion->images[1]['path']);
 
     $imageResponse = $this->actingAs($student)->get(route('studyhub.student.discussions.image', $discussion));
     $imageResponse->assertOk();
+
+    $secondImageResponse = $this->actingAs($student)->get(route('studyhub.student.discussions.images.show', [$discussion, 1]));
+    $secondImageResponse->assertOk();
 });
 
 test('students can mark discussions as helpful', function () {
@@ -436,6 +463,11 @@ test('students can filter resources by library fields', function () {
     $student = User::factory()->create([
         'role' => 'student',
     ]);
+    $uploader = User::factory()->create([
+        'name' => 'Mina Resource',
+        'display_name' => 'Mina Uploader',
+        'role' => 'student',
+    ]);
 
     $group = StudyGroup::create([
         'owner_id' => $student->id,
@@ -446,7 +478,7 @@ test('students can filter resources by library fields', function () {
         'visibility' => 'public',
         'color' => '#3282B8',
     ]);
-    $group->members()->attach($student->id);
+    $group->members()->attach([$student->id, $uploader->id]);
 
     StudyResource::create([
         'group_id' => $group->id,
@@ -471,6 +503,16 @@ test('students can filter resources by library fields', function () {
         'uploaded_at' => now()->subDay(),
     ]);
 
+    StudyResource::create([
+        'group_id' => $group->id,
+        'uploaded_by' => $uploader->id,
+        'name' => 'Final Presentation Kit.pptx',
+        'category' => 'Presentations',
+        'file_type' => 'pptx',
+        'size_bytes' => 1024,
+        'uploaded_at' => now()->subHours(3),
+    ]);
+
     $response = $this->actingAs($student)->get(route('studyhub.student.resources', [
         'q' => 'trees',
         'category' => 'Study Guide',
@@ -485,6 +527,80 @@ test('students can filter resources by library fields', function () {
     expect($resourceNames)->toContain('Exam Trees Reviewer.pdf');
     expect($resourceNames)->not->toContain('Lecture Outline.docx');
     expect($response->viewData('activeFilterCount'))->toBeGreaterThan(0);
+
+    $groupSearchNames = collect($this->actingAs($student)
+        ->get(route('studyhub.student.resources', ['q' => 'Resource Search Group']))
+        ->viewData('resources')
+        ->items())
+        ->pluck('name');
+    expect($groupSearchNames)->toContain('Exam Trees Reviewer.pdf', 'Lecture Outline.docx', 'Final Presentation Kit.pptx');
+
+    $categorySearchNames = collect($this->actingAs($student)
+        ->get(route('studyhub.student.resources', ['q' => 'Presentations']))
+        ->viewData('resources')
+        ->items())
+        ->pluck('name');
+    expect($categorySearchNames)->toContain('Final Presentation Kit.pptx');
+    expect($categorySearchNames)->not->toContain('Lecture Outline.docx');
+
+    $uploaderSearchNames = collect($this->actingAs($student)
+        ->get(route('studyhub.student.resources', ['q' => 'Mina Uploader']))
+        ->viewData('resources')
+        ->items())
+        ->pluck('name');
+    expect($uploaderSearchNames)->toContain('Final Presentation Kit.pptx');
+    expect($uploaderSearchNames)->not->toContain('Exam Trees Reviewer.pdf');
+});
+
+test('student dashboard and discussion search return matching records', function () {
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Search Student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Searchable Algorithms Group',
+        'description' => 'A visible group for search checks.',
+        'category' => 'Computer Science',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+    $group->members()->attach($student->id);
+
+    Discussion::create([
+        'group_id' => $group->id,
+        'author_id' => $student->id,
+        'title' => 'Binary Search Strategy',
+        'body' => 'Can someone explain the invariant?',
+        'last_active_at' => now(),
+    ]);
+
+    Discussion::create([
+        'group_id' => $group->id,
+        'author_id' => $student->id,
+        'title' => 'Database Normal Forms',
+        'body' => 'Reviewing normalization notes.',
+        'last_active_at' => now()->subHour(),
+    ]);
+
+    $discussionResponse = $this->actingAs($student)->get(route('studyhub.student.discussions', [
+        'q' => 'Binary',
+    ]));
+
+    $discussionResponse->assertOk();
+    expect(collect($discussionResponse->viewData('discussions')->items())->pluck('title'))
+        ->toContain('Binary Search Strategy')
+        ->not->toContain('Database Normal Forms');
+
+    $dashboardResponse = $this->actingAs($student)->get(route('studyhub.student.dashboard', [
+        'q' => 'Binary',
+    ]));
+
+    $dashboardResponse->assertOk();
+    expect(collect($dashboardResponse->viewData('searchResults'))->pluck('title'))
+        ->toContain('Binary Search Strategy');
 });
 
 test('students can sort resources by downloads and rating', function () {
@@ -770,6 +886,12 @@ test('students can use my library header filters', function () {
     expect(collect($fileTypeResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
     expect(collect($downloadableResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
     expect(collect($recentResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
+
+    $searchResponse = $this->actingAs($student)->get(route('studyhub.student.library', [
+        'q' => 'Formula',
+    ]));
+
+    expect(collect($searchResponse->viewData('savedResources')->items())->pluck('name'))->toContain('Downloadable Formula.pdf')->not->toContain('Offline Outline.docx');
 });
 
 test('students cannot save private resources they cannot view', function () {

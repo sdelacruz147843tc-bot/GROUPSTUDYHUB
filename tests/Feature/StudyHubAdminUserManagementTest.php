@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\ActivityLog;
+use App\Models\Discussion;
+use App\Models\DiscussionReply;
 use App\Models\StudyGroup;
 use App\Models\StudyResource;
 use App\Models\StudySession;
@@ -71,6 +73,12 @@ test('admin management pages render', function () {
         'color' => '#FF6B35',
     ]);
 
+    $this->actingAs($admin)
+        ->get(route('studyhub.admin.dashboard'))
+        ->assertOk()
+        ->assertSee('Manage Users')
+        ->assertSee('Recent Activity')
+        ->assertSee('Resource Distribution');
     $this->actingAs($admin)->get(route('studyhub.admin.users.edit', $targetUser))->assertOk();
     $this->actingAs($admin)->get(route('studyhub.admin.groups.show', $group))->assertOk();
     $this->actingAs($admin)->get(route('studyhub.admin.reports'))->assertOk();
@@ -196,6 +204,64 @@ test('admins can delete study sessions from admin group monitoring', function ()
     expect(StudySession::find($session->id))->toBeNull();
     expect(DB::table('session_attendees')->where('study_session_id', $session->id)->exists())->toBeFalse();
     expect(ActivityLog::query()->where('type', 'session_deleted')->where('subject_id', $session->id)->exists())->toBeTrue();
+});
+
+test('admins can moderate discussions and replies from admin group monitoring', function () {
+    $admin = User::factory()->admin()->create([
+        'display_name' => 'Admin Moderator',
+    ]);
+    $student = User::factory()->create([
+        'role' => 'student',
+        'display_name' => 'Discussion Student',
+    ]);
+
+    $group = StudyGroup::create([
+        'owner_id' => $student->id,
+        'name' => 'Moderated Discussion Group',
+        'description' => 'A group that needs admin moderation.',
+        'category' => 'General',
+        'meeting_style' => 'online',
+        'visibility' => 'public',
+        'color' => '#3282B8',
+    ]);
+
+    $discussion = Discussion::create([
+        'group_id' => $group->id,
+        'author_id' => $student->id,
+        'title' => 'Off topic discussion',
+        'body' => 'This should be removable by an admin.',
+        'last_active_at' => now(),
+    ]);
+
+    $reply = DiscussionReply::create([
+        'discussion_id' => $discussion->id,
+        'author_id' => $student->id,
+        'body' => 'This reply should be removable too.',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('studyhub.admin.groups.show', $group))
+        ->assertOk()
+        ->assertSee('Recent Replies')
+        ->assertSee('Off topic discussion');
+
+    $replyResponse = $this->actingAs($admin)->delete(route('studyhub.admin.discussion-replies.delete', $reply), [
+        'redirect_to' => route('studyhub.admin.groups.show', $group),
+    ]);
+
+    $replyResponse->assertRedirect(route('studyhub.admin.groups.show', $group));
+    $replyResponse->assertSessionHas('status', 'Discussion reply deleted successfully.');
+    expect(DiscussionReply::find($reply->id))->toBeNull();
+    expect(ActivityLog::query()->where('type', 'discussion_reply_deleted')->where('subject_id', $reply->id)->exists())->toBeTrue();
+
+    $discussionResponse = $this->actingAs($admin)->delete(route('studyhub.admin.discussions.delete', $discussion), [
+        'redirect_to' => route('studyhub.admin.groups.show', $group),
+    ]);
+
+    $discussionResponse->assertRedirect(route('studyhub.admin.groups.show', $group));
+    $discussionResponse->assertSessionHas('status', 'Off topic discussion was deleted successfully.');
+    expect(Discussion::find($discussion->id))->toBeNull();
+    expect(ActivityLog::query()->where('type', 'discussion_deleted')->where('subject_id', $discussion->id)->exists())->toBeTrue();
 });
 
 test('admins can export reports as csv', function () {

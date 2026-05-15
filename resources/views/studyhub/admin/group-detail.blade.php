@@ -203,15 +203,52 @@
             <h3>Recent Discussions</h3>
             <div class="detail-list">
                 @forelse ($recentDiscussions as $discussion)
-                    <div class="detail-list-row">
-                        <strong>{{ $discussion->title }}</strong>
-                        <span>{{ \Illuminate\Support\Str::limit($discussion->body, 90) }}</span>
+                    <div class="detail-list-row inline">
+                        <div>
+                            <strong>{{ $discussion->title }}</strong>
+                            <span>{{ \Illuminate\Support\Str::limit($discussion->body, 90) }}</span>
+                        </div>
+                        <form class="action-form" method="POST" action="{{ route('studyhub.admin.discussions.delete', $discussion) }}" onsubmit="return confirm('Delete this discussion and its replies?')">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="redirect_to" value="{{ route('studyhub.admin.groups.show', $group) }}">
+                            <button class="action-chip delete" type="submit">
+                                <span class="icon-box">{!! $icons['trash'] !!}</span>
+                                <span>Delete</span>
+                            </button>
+                        </form>
                     </div>
                 @empty
                     <div class="empty-panel">No discussions have been started in this group.</div>
                 @endforelse
             </div>
         </article>
+    </section>
+
+    <section class="content-card report-panel mt-6">
+        <h3>Recent Replies</h3>
+        <div class="detail-list">
+            @forelse ($recentReplies as $reply)
+                <div class="detail-list-row inline">
+                    <div>
+                        <strong>{{ $reply->author?->display_name ?: $reply->author?->name ?: 'Unknown member' }}</strong>
+                        <span>{{ \Illuminate\Support\Str::limit($reply->body, 110) }}</span>
+                        <small>On "{{ $reply->discussion?->title ?? 'Deleted discussion' }}"</small>
+                    </div>
+                    <form class="action-form" method="POST" action="{{ route('studyhub.admin.discussion-replies.delete', $reply) }}" onsubmit="return confirm('Delete this discussion reply?')">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="redirect_to" value="{{ route('studyhub.admin.groups.show', $group) }}">
+                        <button class="action-chip delete" type="submit">
+                            <span class="icon-box">{!! $icons['trash'] !!}</span>
+                            <span>Delete</span>
+                        </button>
+                    </form>
+                </div>
+            @empty
+                <div class="empty-panel">No discussion replies have been posted in this group.</div>
+            @endforelse
+        </div>
     </section>
 
     <section class="content-card report-panel mt-6">

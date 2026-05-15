@@ -9,13 +9,30 @@
             '#3282B8' => 'bg-[#3282B8]/20 text-[#3282B8]',
             '#06D6A0' => 'bg-[#06D6A0]/20 text-[#06D6A0]',
             '#FF6B35' => 'bg-[#FF6B35]/20 text-[#FF6B35]',
+            '#79532d' => 'bg-[#79532d]/20 text-[#79532d]',
         ];
     @endphp
 
-    <h2 class="page-title">Admin Dashboard</h2>
-    <p class="page-subtitle">Monitor and manage the StudyHub platform.</p>
+    <div class="admin-dashboard-header">
+        <div>
+            <h2 class="page-title">Admin Dashboard</h2>
+            <p class="page-subtitle">Monitor platform health, jump into admin workflows, and review new activity.</p>
+        </div>
+    </div>
 
-    <section class="stats-grid">
+    <section class="admin-quick-actions" aria-label="Quick admin actions">
+        @foreach ($quickActions as $action)
+            <a class="admin-quick-action {{ $action['style'] === 'primary' ? 'is-primary' : '' }}" href="{{ $action['route'] }}">
+                <span class="icon-box">{!! $icons[$action['icon']] !!}</span>
+                <span>
+                    <strong>{{ $action['label'] }}</strong>
+                    <small>{{ $action['description'] }}</small>
+                </span>
+            </a>
+        @endforeach
+    </section>
+
+    <section class="stats-grid admin-dashboard-stats">
         @foreach ($stats as $stat)
             <article class="stat-card">
                 <div class="flex items-center justify-between gap-3.5">
@@ -53,33 +70,61 @@
         <article class="content-card panel">
             <h3>Recent Alerts</h3>
             <div class="alert-list">
-                @foreach ($recentAlerts as $alert)
-                    <div class="alert-row">
+                @forelse ($recentAlerts as $alert)
+                    <div class="alert-row {{ $alert['type'] === 'warning' ? 'is-warning' : 'is-info' }}">
                         <div class="mb-2 flex items-center gap-2.5">
                             <span class="icon-box {{ $alert['type'] === 'warning' ? 'text-[#e76f51]' : 'text-[#2a9d8f]' }}">
                                 {!! $icons[$alert['type'] === 'warning' ? 'warning' : 'info'] !!}
                             </span>
-                            <strong>{{ ucfirst($alert['type']) }}</strong>
+                            <strong>{{ $alert['label'] }}</strong>
                         </div>
                         <div>{{ $alert['message'] }}</div>
                         <div class="alert-meta">{{ $alert['time'] }}</div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-panel">No alerts need attention right now.</div>
+                @endforelse
             </div>
         </article>
     </section>
 
-    <section class="content-card panel">
-        <h3>Resource Distribution</h3>
-        <div class="resource-list">
-            @forelse ($resourceData as $resource)
-                <div class="resource-row">
-                    <strong>{{ $resource['category'] }}</strong>
-                    <span class="muted">{{ $resource['count'] }}</span>
-                </div>
-            @empty
-                <div class="empty-panel">No resources have been uploaded yet.</div>
-            @endforelse
-        </div>
+    <section class="admin-grid admin-grid-balanced">
+        <article class="content-card panel">
+            <h3>Recent Activity</h3>
+            <div class="admin-activity-feed">
+                @forelse ($recentActivity as $activity)
+                    <div class="admin-activity-row">
+                        <span class="icon-box">{!! $icons[$activity['icon']] !!}</span>
+                        <span class="admin-activity-copy">
+                            <strong>{{ $activity['message'] }}</strong>
+                            <span>{{ $activity['title'] }}</span>
+                            <small>{{ $activity['meta'] }}</small>
+                        </span>
+                        <time>{{ $activity['time'] }}</time>
+                    </div>
+                @empty
+                    <div class="empty-panel">No platform activity has been recorded yet.</div>
+                @endforelse
+            </div>
+        </article>
+
+        <article class="content-card panel">
+            <h3>Resource Distribution</h3>
+            <div class="resource-list admin-resource-bars">
+                @forelse ($resourceData as $resource)
+                    <div class="resource-row admin-resource-row">
+                        <div class="admin-resource-row-top">
+                            <strong>{{ $resource['category'] }}</strong>
+                            <span class="muted">{{ $resource['count'] }}</span>
+                        </div>
+                        <div class="resource-bar-track" aria-hidden="true">
+                            <div class="resource-bar-fill" style="width: {{ (int) $resource['percent'] }}%"></div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-panel">No resources have been uploaded yet.</div>
+                @endforelse
+            </div>
+        </article>
     </section>
 @endsection

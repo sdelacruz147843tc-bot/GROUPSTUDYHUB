@@ -11,8 +11,10 @@
         $sessionGroupId = (string) ($sessionFilters['group_id'] ?? '');
         $sessionWeekStart = $sessionFilters['week_start'] ?? '';
         $sessionFilterQuery = fn (array $overrides = []) => array_filter(array_merge($sessionFilters, $overrides), fn ($value) => $value !== '' && $value !== null);
+        $mobileNextSession = $nextSession ?? collect($upcomingSessions)->first();
     @endphp
 
+    <div class="sessions-page">
     <div class="toolbar">
         <div>
             <h2 class="page-title">Study Sessions</h2>
@@ -40,11 +42,70 @@
         @endforeach
     </section>
 
+    <section class="sessions-mobile-controls" aria-label="Mobile session filters">
+        <nav class="sessions-mobile-tabs" aria-label="Session status filters">
+            <a class="{{ in_array($sessionTab, ['all', 'upcoming'], true) ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'upcoming'])) }}">Upcoming</a>
+            <a class="{{ $sessionTab === 'today' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'today'])) }}">Today</a>
+            <a class="{{ $sessionTab === 'calendar' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'calendar', 'view' => 'calendar'])) }}">Calendar</a>
+            <a class="{{ $sessionTab === 'past' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'past'])) }}">Past</a>
+        </nav>
+
+        <form class="sessions-mobile-filter-row" method="GET" action="{{ route('studyhub.student.sessions') }}" data-session-filter-form>
+            <input type="hidden" name="tab" value="{{ $sessionTab }}">
+            <input type="hidden" name="view" value="{{ $sessionView }}">
+            <input type="hidden" name="week_start" value="{{ $sessionWeekStart }}">
+            <label>
+                <span class="icon-box">{!! $icons['users'] !!}</span>
+                <select name="group_id" data-session-filter-auto>
+                    <option value="">All Groups</option>
+                    @foreach ($sessionGroups as $group)
+                        <option value="{{ $group['id'] }}" @selected($sessionGroupId === (string) $group['id'])>{{ $group['name'] }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <a class="{{ $sessionView === 'calendar' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['view' => 'calendar'])) }}">Calendar</a>
+            <a class="{{ $sessionView === 'list' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['view' => 'list'])) }}">List</a>
+        </form>
+    </section>
+
+    @if ($mobileNextSession)
+        <section class="content-card sessions-mobile-next-card">
+            <span class="sessions-mobile-next-kicker">Next Session</span>
+            <div class="sessions-mobile-next-main">
+                <span class="session-subject-icon">{{ Str::of($mobileNextSession['group'])->substr(0, 2)->upper() }}</span>
+                <div>
+                    <h3>{{ $mobileNextSession['title'] }}</h3>
+                    <p>{{ $mobileNextSession['group'] }}</p>
+                </div>
+            </div>
+            <div class="sessions-mobile-next-meta">
+                <span><span class="icon-box">{!! $icons['calendar'] !!}</span>{{ $mobileNextSession['date'] }}</span>
+                <span><span class="icon-box">{!! $icons['clock'] !!}</span>{{ $mobileNextSession['time'] }}</span>
+            </div>
+            <button
+                class="session-secondary"
+                type="button"
+                data-session-details
+                data-session-title="{{ $mobileNextSession['title'] }}"
+                data-session-group="{{ $mobileNextSession['group'] }}"
+                data-session-date="{{ $mobileNextSession['date'] }}"
+                data-session-time="{{ $mobileNextSession['time'] }}"
+                data-session-location="{{ $mobileNextSession['location'] }}"
+                data-session-meeting-url="{{ $mobileNextSession['meeting_url'] ?? '' }}"
+                data-session-type="{{ ucfirst($mobileNextSession['type']) }}"
+                data-session-attendees="{{ $mobileNextSession['attendees'] }} / {{ $mobileNextSession['max_attendees'] }}"
+                data-session-host="{{ $mobileNextSession['created_by'] ?? 'StudyHub Member' }}"
+                data-session-notes="{{ $mobileNextSession['notes'] ?? 'No extra notes yet.' }}"
+            >Details</button>
+        </section>
+    @endif
+
     <section class="sessions-workspace">
-        <div class="content-card sessions-calendar-card">
+        <div class="content-card sessions-calendar-card {{ $sessionTab === 'calendar' ? 'is-mobile-active' : '' }}">
             <form class="sessions-calendar-toolbar" method="GET" action="{{ route('studyhub.student.sessions') }}" data-session-filter-form>
                 <div class="sessions-tabs" aria-label="Session views">
                     <a class="{{ $sessionTab === 'all' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'all'])) }}">All Sessions</a>
+                    <a class="{{ $sessionTab === 'today' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'today'])) }}">Today</a>
                     <a class="{{ $sessionTab === 'upcoming' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'upcoming'])) }}">Upcoming</a>
                     <a class="{{ $sessionTab === 'calendar' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'calendar', 'view' => 'calendar'])) }}">Calendar</a>
                     <a class="{{ $sessionTab === 'past' ? 'is-active' : '' }}" href="{{ route('studyhub.student.sessions', $sessionFilterQuery(['tab' => 'past'])) }}">Past Sessions</a>
@@ -480,6 +541,7 @@
                     </div>
                 </div>
     </x-studyhub.modal>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -491,7 +553,7 @@
             const sessionStartTime = document.querySelector('[data-session-start-time]');
             const sessionEndTime = document.querySelector('[data-session-end-time]');
             const sessionDuration = document.querySelector('[data-session-duration]');
-            const sessionFilterForm = document.querySelector('[data-session-filter-form]');
+            const sessionFilterForms = document.querySelectorAll('[data-session-filter-form]');
 
             const syncSessionLocationField = function () {
                 const isOnline = sessionTypeInput?.value === 'online';
@@ -574,14 +636,16 @@
             sessionTypeInput?.addEventListener('change', syncSessionLocationField);
             sessionStartTime?.addEventListener('change', syncSessionDuration);
             sessionEndTime?.addEventListener('change', syncSessionDuration);
-            sessionFilterForm?.querySelectorAll('[data-session-filter-auto]').forEach(function (control) {
-                control.addEventListener('change', function () {
-                    if (sessionFilterForm.requestSubmit) {
-                        sessionFilterForm.requestSubmit();
-                        return;
-                    }
+            sessionFilterForms.forEach(function (sessionFilterForm) {
+                sessionFilterForm.querySelectorAll('[data-session-filter-auto]').forEach(function (control) {
+                    control.addEventListener('change', function () {
+                        if (sessionFilterForm.requestSubmit) {
+                            sessionFilterForm.requestSubmit();
+                            return;
+                        }
 
-                    sessionFilterForm.submit();
+                        sessionFilterForm.submit();
+                    });
                 });
             });
             syncSessionLocationField();

@@ -73,6 +73,7 @@
         .discussion-feed-card { position: relative; display: grid; grid-template-columns: 58px minmax(0,1fr) 26px; gap: 16px; align-items: center; padding: 18px; }
         .discussion-feed-card.has-image { grid-template-columns: 58px minmax(0,1fr) minmax(150px,240px) 26px; }
         .discussion-feed-card.is-hidden { display: none; }
+        .discussion-feed-card[data-thread-url] { cursor: pointer; }
         .discussion-vote-rail { display: grid; gap: 4px; justify-items: center; align-self: stretch; color: #079344; font-size: .72rem; font-weight: 900; }
         .discussion-helpful-form { margin: 0; }
         .discussion-helpful-button { display: grid; gap: 2px; justify-items: center; border: 0; background: transparent; color: #079344; font: inherit; font-weight: 950; cursor: pointer; }
@@ -133,7 +134,7 @@
 
         <div class="discussion-feed-layout">
             <main class="discussion-feed-main">
-                <section class="discussion-composer-card" data-discussion-composer>
+                <section class="discussion-composer-card {{ $errors->any() || old('title') || old('body') ? 'is-expanded' : '' }}" data-discussion-composer>
                     @if ($errors->any())
                         <div class="discussion-errors" role="alert" aria-live="polite">
                             <strong>Post was not created</strong>
@@ -164,8 +165,8 @@
                         <div class="discussion-composer-actions">
                             <label class="discussion-tool-button">
                                 <span class="icon-box">{!! $icons['file'] !!}</span>
-                                <span>Image</span>
-                                <input type="file" name="discussion_image" accept="image/png,image/jpeg,image/webp,image/gif" data-discussion-image-input>
+                                <span>Images</span>
+                                <input type="file" name="discussion_images[]" accept="image/png,image/jpeg,image/webp,image/gif" multiple data-discussion-image-input>
                             </label>
                             <label class="discussion-group-select">
                                 <span class="icon-box">{!! $icons['users'] !!}</span>
@@ -177,7 +178,7 @@
                                 </select>
                             </label>
                             <div class="discussion-image-preview-chip" data-discussion-image-preview hidden>
-                                <img src="" alt="" data-discussion-image-preview-img>
+                                <span class="discussion-image-preview-stack" data-discussion-image-preview-stack></span>
                                 <span>
                                     <strong data-discussion-image-name></strong>
                                     <small data-discussion-image-size></small>
@@ -195,7 +196,7 @@
                     <a class="{{ $activeTab === 'unanswered' ? 'active' : '' }}" href="{{ $discussionTabUrl('unanswered') }}" data-discussion-tab="unanswered"><span class="icon-box">{!! $icons['message'] !!}</span><span>Unanswered</span></a>
                     <a class="{{ $activeTab === 'helpful' ? 'active' : '' }}" href="{{ $discussionTabUrl('helpful') }}" data-discussion-tab="helpful"><span class="icon-box">{!! $icons['trend'] !!}</span><span>Most Helpful</span></a>
                     <a class="{{ $activeTab === 'mine' ? 'active' : '' }}" href="{{ $discussionTabUrl('mine') }}" data-discussion-tab="mine"><span class="icon-box">{!! $icons['users'] !!}</span><span>My Groups</span></a>
-                    <form class="discussion-feed-search" method="GET" action="{{ route('studyhub.student.discussions') }}" role="search">
+                    <form class="discussion-feed-search {{ filled($filters['q'] ?? '') ? 'is-active' : '' }}" method="GET" action="{{ route('studyhub.student.discussions') }}" role="search">
                         <input type="hidden" name="tab" value="{{ $activeTab }}">
                         <span class="icon-box">{!! $icons['search'] !!}</span>
                         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Filter" data-discussion-search>
@@ -209,7 +210,8 @@
                             $views = (int) ($discussion['views'] ?? 0);
                             $helpfulVotes = (int) ($discussion['helpful_votes'] ?? 0);
                             $isOwn = ($discussion['author'] ?? '') === $displayName;
-                            $badge = $replyCount === 0 ? 'Question' : ($discussion['has_image'] ? 'With image' : 'Discussion');
+                            $imageCount = (int) ($discussion['image_count'] ?? 0);
+                            $badge = $replyCount === 0 ? 'Question' : ($discussion['has_image'] ? $imageCount.' '.Str::plural('image', $imageCount) : 'Discussion');
                         @endphp
                         <article
                             class="discussion-feed-card {{ ! empty($discussion['has_image']) ? 'has-image' : '' }} {{ $isOwn ? 'is-own' : '' }}"
@@ -224,6 +226,7 @@
                             data-has-image="{{ ! empty($discussion['has_image']) ? '1' : '0' }}"
                             data-own="{{ $isOwn ? '1' : '0' }}"
                             data-my-group="{{ in_array((string) ($discussion['group_id'] ?? ''), $joinedGroupIds, true) ? '1' : '0' }}"
+                            data-thread-url="{{ route('studyhub.student.discussions.show', $discussion['id']) }}"
                         >
                             <aside class="discussion-vote-rail">
                                 <form class="discussion-helpful-form" method="POST" action="{{ route('studyhub.student.discussions.helpful', $discussion['id']) }}">
@@ -285,24 +288,26 @@
                             </div>
 
                             @if (! empty($discussion['has_image']))
-                                <a class="discussion-image-preview" href="{{ route('studyhub.student.discussions.show', $discussion['id']) }}">
-                                    <img src="{{ $discussion['image_url'] }}" alt="{{ $discussion['image_name'] ?: $discussion['title'] }}">
-                                    <span>1/1</span>
+                                <a class="discussion-image-preview {{ $imageCount > 1 ? 'is-gallery' : '' }}" href="{{ route('studyhub.student.discussions.show', $discussion['id']) }}">
+                                    @foreach (collect($discussion['images'] ?? [])->take(4) as $image)
+                                        <img src="{{ $image['url'] }}" alt="{{ $image['name'] ?: $discussion['title'] }}">
+                                    @endforeach
+                                    @if ($imageCount > 1)
+                                        <span>{{ $imageCount }}</span>
+                                    @endif
                                 </a>
                             @endif
 
-                            <div class="discussion-card-menu">
-                                @if ($isOwn)
+                            @if ($isOwn)
+                                <div class="discussion-card-menu">
                                     <button class="discussion-card-menu-toggle" type="button" aria-expanded="false" aria-label="Post options" data-discussion-card-menu-toggle>...</button>
-                                    <form class="discussion-delete-menu" method="POST" action="{{ route('studyhub.student.discussions.delete', $discussion['id']) }}">
+                                    <form class="discussion-delete-menu" method="POST" action="{{ route('studyhub.student.discussions.delete', $discussion['id']) }}" onsubmit="return confirm('Delete this discussion and its replies?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" data-loading-label="Deleting...">Delete</button>
                                     </form>
-                                @else
-                                    <a href="{{ route('studyhub.student.discussions.show', $discussion['id']) }}" aria-label="Open {{ $discussion['title'] }}">...</a>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                         </article>
                     @endforeach
                 </section>
@@ -315,7 +320,7 @@
                 </div>
 
                 @if (method_exists($discussions, 'links'))
-                    <div class="mt-6">
+                    <div class="mt-6" data-discussion-pagination>
                         {{ $discussions->links() }}
                     </div>
                 @endif
@@ -351,7 +356,7 @@
                     <h3>{!! $icons['settings'] !!}<span>How it works</span></h3>
                     <ul class="discussion-how-list">
                         <li>Ask a question or start a discussion.</li>
-                        <li>Add an image for clearer context.</li>
+                        <li>Add images for clearer context.</li>
                         <li>Choose a group so the right classmates see it.</li>
                         <li>Open a post to reply and keep the thread moving.</li>
                     </ul>
@@ -363,10 +368,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const composer = document.querySelector('[data-discussion-composer]');
+            const composerTitle = composer?.querySelector('input[name="title"]');
+            const composerBody = composer?.querySelector('textarea[name="body"]');
             const focusButtons = document.querySelectorAll('[data-discussion-focus]');
             const imageInput = document.querySelector('[data-discussion-image-input]');
             const imagePreview = document.querySelector('[data-discussion-image-preview]');
-            const imagePreviewImg = document.querySelector('[data-discussion-image-preview-img]');
+            const imagePreviewStack = document.querySelector('[data-discussion-image-preview-stack]');
             const imageName = document.querySelector('[data-discussion-image-name]');
             const imageSize = document.querySelector('[data-discussion-image-size]');
             const imageClear = document.querySelector('[data-discussion-image-clear]');
@@ -375,31 +382,57 @@
             const discussionList = document.querySelector('.discussion-feed-list');
             const discussionRows = Array.from(document.querySelectorAll('[data-discussion-row]'));
             const emptyState = document.querySelector('[data-discussion-empty]');
+            const pagination = document.querySelector('[data-discussion-pagination]');
             const helpfulForms = Array.from(document.querySelectorAll('.discussion-helpful-form'));
             const menuToggles = Array.from(document.querySelectorAll('[data-discussion-card-menu-toggle]'));
             let activeTab = '{{ $activeTab }}';
 
-            focusButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    composer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    composer?.querySelector('input[name="title"]')?.focus();
+            discussionRows.forEach(function (row) {
+                row.addEventListener('click', function (event) {
+                    if (event.target.closest('a, button, input, select, textarea, form, label')) {
+                        return;
+                    }
+
+                    const threadUrl = row.dataset.threadUrl;
+
+                    if (threadUrl) {
+                        window.location.href = threadUrl;
+                    }
                 });
             });
 
-            let previewObjectUrl = null;
+            focusButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    composer?.classList.add('is-expanded');
+                    composer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    composerTitle?.focus();
+                });
+            });
+
+            [composerTitle, composerBody].forEach(function (field) {
+                field?.addEventListener('focus', function () {
+                    composer?.classList.add('is-expanded');
+                });
+            });
+
+            composer?.addEventListener('click', function () {
+                composer.classList.add('is-expanded');
+            });
+
+            let previewObjectUrls = [];
 
             const clearImagePreview = function () {
-                if (previewObjectUrl) {
-                    URL.revokeObjectURL(previewObjectUrl);
-                    previewObjectUrl = null;
-                }
+                previewObjectUrls.forEach(function (url) {
+                    URL.revokeObjectURL(url);
+                });
+                previewObjectUrls = [];
 
                 if (imageInput) {
                     imageInput.value = '';
                 }
 
-                if (imagePreviewImg) {
-                    imagePreviewImg.removeAttribute('src');
+                if (imagePreviewStack) {
+                    imagePreviewStack.innerHTML = '';
                 }
 
                 imagePreview?.classList.remove('is-visible');
@@ -418,7 +451,7 @@
 
             const formatBytes = function (bytes) {
                 if (! bytes) {
-                    return 'Image selected';
+                    return 'Images selected';
                 }
 
                 if (bytes < 1024 * 1024) {
@@ -429,31 +462,43 @@
             };
 
             imageInput?.addEventListener('change', function () {
-                const file = imageInput.files?.[0];
+                const files = Array.from(imageInput.files || []);
 
-                if (! file) {
+                if (files.length === 0) {
                     clearImagePreview();
                     return;
                 }
 
-                if (previewObjectUrl) {
-                    URL.revokeObjectURL(previewObjectUrl);
-                }
+                previewObjectUrls.forEach(function (url) {
+                    URL.revokeObjectURL(url);
+                });
+                previewObjectUrls = [];
 
-                previewObjectUrl = URL.createObjectURL(file);
+                if (imagePreviewStack) {
+                    imagePreviewStack.innerHTML = '';
+                    files.slice(0, 3).forEach(function (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        previewObjectUrls.push(imageUrl);
 
-                if (imagePreviewImg) {
-                    imagePreviewImg.src = previewObjectUrl;
-                    imagePreviewImg.alt = file.name;
+                        const image = document.createElement('img');
+                        image.src = imageUrl;
+                        image.alt = file.name;
+                        imagePreviewStack.appendChild(image);
+                    });
                 }
 
                 if (imageName) {
-                    imageName.textContent = compactFileName(file.name);
-                    imageName.title = file.name;
+                    imageName.textContent = files.length === 1 ? compactFileName(files[0].name) : files.length + ' images selected';
+                    imageName.title = files.map(function (file) {
+                        return file.name;
+                    }).join(', ');
                 }
 
                 if (imageSize) {
-                    imageSize.textContent = formatBytes(file.size);
+                    const totalBytes = files.reduce(function (total, file) {
+                        return total + file.size;
+                    }, 0);
+                    imageSize.textContent = files.length === 1 ? formatBytes(totalBytes) : formatBytes(totalBytes) + ' total';
                 }
 
                 imagePreview?.removeAttribute('hidden');
@@ -583,10 +628,14 @@
                     filteredTitle: 'No discussions match your filters',
                     filteredCopy: 'Try another tab or search term.',
                 });
+
+                searchInput?.closest('form')?.classList.toggle('is-active', searchTerm !== '');
+                pagination?.classList.toggle('is-hidden', activeTab !== 'all' || searchTerm !== '');
             };
 
             tabButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
                     activeTab = button.dataset.discussionTab || 'all';
                     tabButtons.forEach(function (tab) {
                         tab.classList.toggle('active', tab === button);
@@ -595,7 +644,20 @@
                 });
             });
 
-            searchInput?.addEventListener('input', applyDiscussionControls);
+            searchInput?.addEventListener('input', function () {
+                applyDiscussionControls();
+            });
+
+            searchInput?.closest('form')?.addEventListener('submit', function (event) {
+                event.preventDefault();
+                applyDiscussionControls();
+            });
+
+            searchInput?.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
             applyDiscussionControls();
         });
     </script>

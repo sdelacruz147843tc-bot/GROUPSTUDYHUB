@@ -17,7 +17,7 @@ class StudentSessionController extends StudyHubController
         $joinedGroups = $this->getJoinedGroups();
         $joinedGroupIds = collect($joinedGroups)->pluck('id')->map(fn ($id) => (string) $id)->all();
         $sessionFilters = [
-            'tab' => in_array($request->query('tab'), ['all', 'upcoming', 'calendar', 'past'], true) ? $request->query('tab') : 'all',
+            'tab' => in_array($request->query('tab'), ['all', 'today', 'upcoming', 'calendar', 'past'], true) ? $request->query('tab') : 'all',
             'view' => in_array($request->query('view'), ['calendar', 'list'], true) ? $request->query('view') : 'calendar',
             'group_id' => in_array((string) $request->query('group_id'), $joinedGroupIds, true) ? (string) $request->query('group_id') : '',
             'week_start' => '',
@@ -36,6 +36,7 @@ class StudentSessionController extends StudyHubController
         $allSessions = collect($this->getStudentSessions());
         $filteredSessions = $allSessions
             ->when($sessionFilters['group_id'] !== '', fn ($sessions) => $sessions->where('group_id', (int) $sessionFilters['group_id']))
+            ->when($sessionFilters['tab'] === 'today', fn ($sessions) => $sessions->filter(fn (array $session) => Carbon::parse($session['date'])->isToday()))
             ->when($sessionFilters['tab'] === 'upcoming', fn ($sessions) => $sessions->where('phase', 'upcoming'))
             ->when($sessionFilters['tab'] === 'past', fn ($sessions) => $sessions->where('phase', 'past'))
             ->values();
@@ -99,6 +100,7 @@ class StudentSessionController extends StudyHubController
         return $this->renderStudent('studyhub.student.sessions', [
             'upcomingSessions' => $upcomingSessions,
             'pastSessions' => $pastSessions,
+            'nextSession' => $nextSession,
             'sessionGroups' => $joinedGroups,
             'sessionFilters' => $sessionFilters,
             'calendarWeekLabel' => $weekStart->format('M j').' - '.$weekEnd->format('M j, Y'),

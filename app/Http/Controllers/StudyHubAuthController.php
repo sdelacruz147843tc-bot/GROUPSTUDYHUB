@@ -92,12 +92,11 @@ class StudyHubAuthController extends Controller
             'display_name' => $validated['name'],
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
         $this->syncThemeFromRequest($request, $user);
 
-        return $this->redirectForRole($user->role);
+        return redirect()
+            ->route('studyhub.login')
+            ->with('status', 'Your account has been created. Please log in to continue.');
     }
 
     public function destroy(Request $request): RedirectResponse

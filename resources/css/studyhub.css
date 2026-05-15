@@ -1086,6 +1086,11 @@
                 animation: loginFadeUp 520ms ease both;
             }
 
+            .login-mobile-header {
+                display: grid;
+                gap: 16px;
+            }
+
             .login-brand {
                 justify-items: start;
                 margin: 0;
@@ -1408,6 +1413,10 @@
                 transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
             }
 
+            .login-theme-toggle-mobile {
+                display: none;
+            }
+
             .theme-toggle-pill::before {
                 content: '';
                 width: 11px;
@@ -1584,8 +1593,52 @@
                     justify-items: center;
                 }
 
+                .login-mobile-header {
+                    position: relative;
+                    width: 100%;
+                    min-height: 46px;
+                    grid-template-columns: 1fr;
+                    align-items: center;
+                    justify-items: center;
+                    gap: 0;
+                }
+
                 .login-brand {
                     justify-items: center;
+                }
+
+                .login-theme-toggle-mobile {
+                    position: absolute;
+                    top: 50%;
+                    right: -4px;
+                    display: inline-flex;
+                    gap: 4px;
+                    justify-self: end;
+                    margin-top: 0;
+                    padding: 4px 6px;
+                    font-size: 0.58rem;
+                    transform: translateY(-50%);
+                }
+
+                .login-theme-toggle-mobile::before {
+                    width: 7px;
+                    height: 7px;
+                }
+
+                .login-theme-toggle-mobile i {
+                    width: 23px;
+                    height: 13px;
+                }
+
+                .login-theme-toggle-mobile i::after {
+                    top: 2.5px;
+                    right: 2.5px;
+                    width: 8px;
+                    height: 8px;
+                }
+
+                .login-theme-dark .login-theme-toggle-mobile i::after {
+                    right: 12.5px;
                 }
 
                 .quick-access-list {

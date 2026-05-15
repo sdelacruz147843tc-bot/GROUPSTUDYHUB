@@ -432,6 +432,7 @@ abstract class StudyHubController extends Controller
                 'id' => $message->id,
                 'author' => $message->user?->display_name ?: $message->user?->name ?: 'StudyHub Member',
                 'author_initials' => $this->initials($message->user?->display_name ?: $message->user?->name ?: 'StudyHub Member'),
+                'author_avatar_url' => $message->user?->avatar_url ?: '',
                 'is_mine' => (int) $message->user_id === (int) auth()->id(),
                 'body' => $message->body,
                 'time' => $this->humanizeTime($message->created_at),

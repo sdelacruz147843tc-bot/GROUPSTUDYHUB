@@ -183,12 +183,6 @@
                     <div class="group-card-body">
                         <div class="group-card-content">
                             <span class="group-card-access">{{ $meetingStyle }}</span>
-                            @if ($isJoined && $hasUnreadChat)
-                                <span class="group-chat-unread-badge">
-                                    <span class="icon-box">{!! $icons['message'] !!}</span>
-                                    <span>New chat</span>
-                                </span>
-                            @endif
                             <h3 class="group-card-title">{{ $group['name'] }}</h3>
                             <p class="group-card-copy">{{ $group['description'] }}</p>
                             <div class="group-card-tags">
@@ -403,6 +397,106 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.querySelector('[data-group-search]');
+            const categorySelect = document.querySelector('[data-group-category]');
+            const visibilitySelect = document.querySelector('[data-group-visibility]');
+            const categoryChips = Array.from(document.querySelectorAll('[data-group-category-chip]'));
+            const cards = Array.from(document.querySelectorAll('[data-group-card]'));
+            const emptyState = document.querySelector('[data-groups-empty]');
+
+            const normalize = function (value) {
+                return String(value || '').trim().toLowerCase();
+            };
+
+            const syncCategoryChips = function () {
+                const category = normalize(categorySelect?.value);
+
+                categoryChips.forEach(function (chip) {
+                    const isActive = normalize(chip.dataset.groupCategoryChip) === category;
+                    chip.classList.toggle('is-active', isActive);
+                    chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+            };
+
+            const applyGroupFilters = function () {
+                const searchTerm = normalize(searchInput?.value);
+                const category = normalize(categorySelect?.value);
+                const visibility = normalize(visibilitySelect?.value);
+                let visibleCount = 0;
+
+                cards.forEach(function (card) {
+                    const searchableText = [
+                        card.dataset.name,
+                        card.dataset.description,
+                        card.dataset.category,
+                        card.dataset.filterCategory,
+                        card.dataset.visibility,
+                        card.textContent,
+                    ].map(normalize).join(' ');
+                    const matchesSearch = searchTerm === '' || searchableText.includes(searchTerm);
+                    const matchesCategory = category === ''
+                        || normalize(card.dataset.filterCategory) === category
+                        || normalize(card.dataset.category) === category;
+                    const matchesVisibility = visibility === ''
+                        || (visibility === 'joined' && card.dataset.joined === 'yes')
+                        || (visibility !== 'joined' && normalize(card.dataset.visibility) === visibility);
+                    const isVisible = matchesSearch && matchesCategory && matchesVisibility;
+
+                    card.classList.toggle('is-hidden', ! isVisible);
+                    card.hidden = ! isVisible;
+                    card.style.display = isVisible ? '' : 'none';
+
+                    if (isVisible) {
+                        visibleCount += 1;
+                    }
+                });
+
+                if (emptyState) {
+                    const title = emptyState.querySelector('[data-empty-title]');
+                    const copy = emptyState.querySelector('[data-empty-copy]');
+                    const hasFilters = searchTerm !== '' || category !== '' || visibility !== '';
+
+                    if (title) {
+                        title.textContent = searchTerm !== '' ? 'No groups found for "' + (searchInput?.value || '').trim() + '"' : 'No groups match your filters';
+                    }
+
+                    if (copy) {
+                        copy.textContent = hasFilters ? 'Try another group name, category, or access filter.' : 'Groups you create or join will appear here.';
+                    }
+
+                    emptyState.classList.toggle('hidden', visibleCount > 0);
+                }
+            };
+
+            searchInput?.addEventListener('input', applyGroupFilters);
+            searchInput?.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
+            categorySelect?.addEventListener('change', function () {
+                syncCategoryChips();
+                applyGroupFilters();
+            });
+            visibilitySelect?.addEventListener('change', applyGroupFilters);
+            categoryChips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    if (categorySelect) {
+                        categorySelect.value = chip.dataset.groupCategoryChip || '';
+                    }
+
+                    syncCategoryChips();
+                    applyGroupFilters();
+                });
+            });
+
+            syncCategoryChips();
+            applyGroupFilters();
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const modal = document.querySelector('[data-create-group-modal]');
             const privateJoinModal = document.querySelector('[data-private-join-modal]');
             const privateJoinForm = document.querySelector('[data-private-join-form]');
@@ -491,14 +585,9 @@
                     }
                 });
 
-                window.StudyHubUI.setEmptyState(emptyState, {
-                    visibleCount: visibleCount,
-                    totalCount: cards.length,
-                    emptyTitle: 'No groups yet',
-                    emptyCopy: 'Groups you create or join will appear here.',
-                    filteredTitle: 'No groups match your filters',
-                    filteredCopy: 'Try clearing the search, category, or access filter.',
-                });
+                if (emptyState) {
+                    emptyState.classList.toggle('hidden', visibleCount > 0);
+                }
             };
 
             searchInput?.addEventListener('input', applyGroupFilters);

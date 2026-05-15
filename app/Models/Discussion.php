@@ -19,6 +19,7 @@ class Discussion extends Model
         'image_path',
         'image_original_name',
         'image_mime_type',
+        'images',
         'views',
         'trending',
         'last_active_at',
@@ -27,6 +28,7 @@ class Discussion extends Model
     protected function casts(): array
     {
         return [
+            'images' => 'array',
             'trending' => 'boolean',
             'last_active_at' => 'datetime',
         ];

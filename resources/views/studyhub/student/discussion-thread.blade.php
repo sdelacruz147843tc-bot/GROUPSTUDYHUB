@@ -15,15 +15,10 @@
 @section('page')
     <a class="thread-back" href="{{ route('studyhub.student.discussions') }}">
         <span class="icon-box">{!! $icons['arrow-left'] !!}</span>
-        <span>Back to Discussions</span>
+        <span>Back</span>
     </a>
 
     <section class="thread-hero">
-        <div class="thread-hero-kicker">
-            <span>{{ $discussion['group'] }}</span>
-            <span>{{ ($discussion['author'] ?? '') === $studentProfile['display_name'] ? 'Started by you' : 'Discussion thread' }}</span>
-            <span>Secure live hub</span>
-        </div>
         <h2 class="thread-title">{{ $discussion['title'] }}</h2>
         <div class="thread-profile {{ ($discussion['author'] ?? '') === $studentProfile['display_name'] ? 'is-own' : '' }}">
             <span class="thread-profile-avatar">
@@ -40,7 +35,7 @@
                         <span class="thread-you-badge">You</span>
                     @endif
                 </span>
-                <span class="thread-profile-role">{{ $discussion['group'] }} discussion starter</span>
+                <span class="thread-profile-role">{{ $discussion['group'] }}</span>
             </span>
         </div>
         <div class="thread-meta">
@@ -51,12 +46,13 @@
         </div>
         <p class="thread-body">{{ $discussion['body'] }}</p>
         @if (! empty($discussion['has_image']))
-            <figure class="thread-image-attachment">
-                <img src="{{ $discussion['image_url'] }}" alt="{{ $discussion['image_name'] ?: $discussion['title'] }}">
-                @if (! empty($discussion['image_name']))
-                    <figcaption>{{ $discussion['image_name'] }}</figcaption>
-                @endif
-            </figure>
+            <div class="thread-image-gallery {{ ($discussion['image_count'] ?? 0) > 1 ? 'is-gallery' : '' }}">
+                @foreach ($discussion['images'] ?? [] as $image)
+                    <figure class="thread-image-attachment">
+                        <img src="{{ $image['url'] }}" alt="{{ $image['name'] ?: $discussion['title'] }}">
+                    </figure>
+                @endforeach
+            </div>
         @endif
        
         <div class="thread-hero-actions">
@@ -71,7 +67,7 @@
                 </button>
             </form>
             @if (($discussion['author'] ?? '') === $studentProfile['display_name'])
-                <form class="thread-delete-form" method="POST" action="{{ route('studyhub.student.discussions.delete', $discussion['id']) }}">
+                <form class="thread-delete-form" method="POST" action="{{ route('studyhub.student.discussions.delete', $discussion['id']) }}" onsubmit="return confirm('Delete this discussion and its replies?')">
                     @csrf
                     @method('DELETE')
                     <button class="thread-delete-button" type="submit" data-loading-label="Deleting...">Delete Discussion</button>

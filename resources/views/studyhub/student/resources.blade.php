@@ -59,6 +59,10 @@
                 <h2 class="page-title">Resource Library</h2>
                 <p class="page-subtitle">Access all your study materials in one place</p>
             </div>
+            <button class="resource-mobile-upload-button" type="button" data-resource-upload-open>
+                <span class="icon-box">{!! $icons['upload-cloud'] ?? $icons['plus'] !!}</span>
+                <span>Upload Resources</span>
+            </button>
             <div class="resource-hero-art" aria-hidden="true">
                 <span></span>
                 <span></span>
@@ -77,7 +81,7 @@
                     <div class="resource-filter-primary">
                         <label class="resource-search-field">
                             <span class="icon-box">{!! $icons['search'] !!}</span>
-                            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Search file name, group, category, or uploader...">
+                            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Search file name, group, category, or uploader..." data-resource-search>
                         </label>
 
                         <label class="resource-sort-field">
@@ -201,8 +205,15 @@
                                 @php
                                     $extension = strtoupper($resource['file_type'] ?: pathinfo($resource['name'], PATHINFO_EXTENSION) ?: 'FILE');
                                     $resourceTheme = $resourceThemeFor($resource, $extension);
+                                    $resourceSearchText = strtolower(implode(' ', [
+                                        $resource['name'] ?? '',
+                                        $resource['group'] ?? '',
+                                        $resource['category'] ?? '',
+                                        $resource['uploaded_by'] ?? '',
+                                        $extension,
+                                    ]));
                                 @endphp
-                                <article class="resource-file-card" style="--resource-rgb: {{ $resourceTheme['rgb'] }}; --resource-soft-rgb: {{ $resourceTheme['soft'] }}; --resource-text: {{ $resourceTheme['text'] }};">
+                                <article class="resource-file-card" style="--resource-rgb: {{ $resourceTheme['rgb'] }}; --resource-soft-rgb: {{ $resourceTheme['soft'] }}; --resource-text: {{ $resourceTheme['text'] }};" data-resource-file-card data-resource-search-text="{{ $resourceSearchText }}">
                                     <div class="resource-file-card-top">
                                         <span class="icon-box resource-file-icon">{!! $icons['file'] !!}</span>
                                         <form class="resource-card-save-form" method="POST" action="{{ ! empty($resource['is_saved']) ? route('studyhub.student.resources.unsave', $resource['id']) : route('studyhub.student.resources.save', $resource['id']) }}">
@@ -243,8 +254,14 @@
                         </div>
                     @endif
 
+                    <div class="resources-empty-state app-empty-state hidden" data-resource-live-empty>
+                        <span class="app-empty-icon">{!! $icons['search'] !!}</span>
+                        <strong>No resources match your search</strong>
+                        <span>Try a file name, group, category, or uploader.</span>
+                    </div>
+
                     @if (method_exists($resources, 'links'))
-                        <div class="resource-pagination">
+                        <div class="resource-pagination" data-resource-pagination>
                             {{ $resources->links() }}
                         </div>
                     @endif
@@ -434,9 +451,13 @@
             const deleteName = document.querySelector('[data-resource-delete-target]');
             const deleteConfirm = document.querySelector('[data-resource-delete-confirm]');
             const filterForm = document.querySelector('[data-resource-filter-form]');
+            const searchInput = document.querySelector('[data-resource-search]');
             const autoSubmitControls = filterForm ? Array.from(filterForm.querySelectorAll('[data-resource-auto-submit]')) : [];
             const uploadDropzones = document.querySelectorAll('[data-upload-dropzone]');
             const filesView = document.querySelector('[data-resource-files-view]');
+            const resourceCards = Array.from(document.querySelectorAll('[data-resource-file-card]'));
+            const resourceLiveEmpty = document.querySelector('[data-resource-live-empty]');
+            const resourcePagination = document.querySelector('[data-resource-pagination]');
             const viewButtons = Array.from(document.querySelectorAll('[data-resource-view-toggle]'));
             let pendingDeleteForm = null;
             let filterSubmitTimer = null;
@@ -526,6 +547,31 @@
                     }, 120);
                 });
             });
+
+            const applyResourceLiveSearch = function () {
+                const searchTerm = (searchInput?.value || '').trim().toLowerCase();
+                let visibleCount = 0;
+
+                resourceCards.forEach(function (card) {
+                    const isVisible = searchTerm === '' || (card.dataset.resourceSearchText || '').includes(searchTerm);
+                    card.classList.toggle('is-hidden', ! isVisible);
+
+                    if (isVisible) {
+                        visibleCount += 1;
+                    }
+                });
+
+                resourceLiveEmpty?.classList.toggle('hidden', searchTerm === '' || visibleCount > 0);
+                resourcePagination?.classList.toggle('is-hidden', searchTerm !== '');
+            };
+
+            searchInput?.addEventListener('input', applyResourceLiveSearch);
+            searchInput?.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
+            applyResourceLiveSearch();
 
             const setResourceViewMode = function (mode) {
                 const normalizedMode = mode === 'list' ? 'list' : 'grid';

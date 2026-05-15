@@ -1,4 +1,9 @@
 /* Source: resources/views/studyhub/student/resources.blade.php */
+.resource-file-card.is-hidden,
+.resource-pagination.is-hidden {
+    display: none !important;
+}
+
 .resource-library-page {
     color: #14251c;
 }
@@ -613,6 +618,12 @@
 
 .resource-study-card h4 {
     min-height: 52px;
+    display: flex;
+    flex-direction: column;
+}
+
+.resource-files-grid:not(.is-list-view) .resource-file-card h4 {
+    min-height: 42px;
     display: flex;
     flex-direction: column;
 }
@@ -1924,5 +1935,199 @@
     .resource-filter-submit {
         min-height: 33px;
         font-size: 0.58rem;
+    }
+}
+
+/* Q&A-style mobile resource filters. */
+@media (max-width: 760px) {
+    .resource-library-hero {
+        min-height: auto !important;
+        padding: 16px !important;
+    }
+
+    .resource-library-hero .page-title {
+        font-size: clamp(2rem, 10vw, 2.65rem) !important;
+        line-height: 1 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .resource-library-hero .page-subtitle {
+        max-width: 260px !important;
+        margin-top: 7px !important;
+        font-size: 0.82rem !important;
+        line-height: 1.35 !important;
+    }
+
+    .file-scope-switch {
+        display: flex !important;
+        gap: 8px !important;
+        margin-inline: -14px !important;
+        overflow-x: auto !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 14px 2px !important;
+        scrollbar-width: none !important;
+    }
+
+    .file-scope-switch::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .file-scope-switch a {
+        flex: 0 0 auto !important;
+        min-height: 38px !important;
+        border: 1px solid rgba(211, 228, 218, 0.96) !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #475569 !important;
+        padding: 0 14px !important;
+        font-size: 0.76rem !important;
+        font-weight: 900 !important;
+    }
+
+    .file-scope-switch a.active {
+        border-color: rgba(9, 166, 75, 0.24) !important;
+        background: #e9fbf0 !important;
+        color: #07853d !important;
+    }
+
+    .resource-filter-panel {
+        gap: 10px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    .resource-filter-primary {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        gap: 8px !important;
+        align-items: center !important;
+    }
+
+    .resource-search-field {
+        grid-column: 1 / -1 !important;
+        min-height: 44px !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.94) !important;
+        padding: 0 14px !important;
+    }
+
+    .resource-search-field input,
+    .resource-search-field input::placeholder {
+        font-size: 0.84rem !important;
+    }
+
+    .resource-sort-field {
+        display: inline-flex !important;
+        min-width: 0 !important;
+        align-items: center !important;
+        min-height: 38px !important;
+        border: 1px solid rgba(211, 228, 218, 0.96) !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        padding: 0 10px !important;
+    }
+
+    .resource-sort-field span {
+        display: none !important;
+    }
+
+    .resource-sort-field select {
+        width: 150px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-size: 0.74rem !important;
+    }
+
+    .resource-view-toggle {
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .resource-filter-grid {
+        display: flex !important;
+        gap: 8px !important;
+        margin-inline: -14px !important;
+        overflow-x: auto !important;
+        padding: 0 14px 2px !important;
+        scrollbar-width: none !important;
+    }
+
+    .resource-filter-grid::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .resource-filter-grid label,
+    .resource-filter-submit,
+    .resource-filter-clear {
+        flex: 0 0 auto !important;
+        min-height: 38px !important;
+        border: 1px solid rgba(211, 228, 218, 0.96) !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        padding: 0 12px !important;
+    }
+
+    .resource-filter-grid label {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .resource-filter-grid label > span {
+        display: none !important;
+    }
+
+    .resource-filter-grid select {
+        width: auto !important;
+        max-width: 160px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-size: 0.74rem !important;
+    }
+
+    .resource-filter-submit {
+        color: #07853d !important;
+        font-size: 0.74rem !important;
+    }
+
+    .resource-filter-clear {
+        display: inline-flex !important;
+        align-items: center !important;
+        color: #b45309 !important;
+        font-size: 0.74rem !important;
+        font-weight: 900 !important;
+        text-decoration: none !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .file-scope-switch a,
+    .student-dashboard-shell.student-theme-dark .resource-search-field,
+    .student-dashboard-shell.student-theme-dark .resource-sort-field,
+    .student-dashboard-shell.student-theme-dark .resource-view-toggle,
+    .student-dashboard-shell.student-theme-dark .resource-filter-grid label,
+    .student-dashboard-shell.student-theme-dark .resource-filter-submit,
+    .student-dashboard-shell.student-theme-dark .resource-filter-clear {
+        border-color: rgba(126, 230, 164, 0.16) !important;
+        background: rgba(8, 18, 14, 0.76) !important;
+        color: #bfcec4 !important;
+    }
+
+    .student-dashboard-shell.student-theme-dark .file-scope-switch a.active {
+        border-color: rgba(126, 230, 164, 0.28) !important;
+        background: rgba(85, 217, 135, 0.16) !important;
+        color: #8df0ad !important;
     }
 }

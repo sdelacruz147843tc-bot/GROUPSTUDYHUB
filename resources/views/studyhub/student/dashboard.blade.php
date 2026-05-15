@@ -11,16 +11,17 @@
 
     <div class="student-dashboard-page">
         <header class="dashboard-topbar">
-            <form class="dashboard-search-form" action="{{ route('studyhub.student.dashboard') }}" method="GET">
+            <form class="dashboard-search-form" action="{{ route('studyhub.student.dashboard') }}" method="GET" data-dashboard-search-form>
                 <label class="dashboard-search" for="dashboard-search-input">
                     <button class="dashboard-search-submit icon-box" type="submit" aria-label="Search dashboard">
                         {!! $icons['search'] !!}
                     </button>
-                    <input id="dashboard-search-input" name="q" type="search" value="{{ $search ?? '' }}" placeholder="Search resources, groups, and more...">
+                    <input id="dashboard-search-input" name="q" type="search" value="{{ $search ?? '' }}" placeholder="Search resources, groups, and more..." autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="dashboard-search-suggestions" data-dashboard-search-input>
                     @if (! empty($search))
                         <a class="dashboard-search-clear" href="{{ route('studyhub.student.dashboard') }}" aria-label="Clear search">&times;</a>
                     @endif
                 </label>
+                <div id="dashboard-search-suggestions" class="dashboard-search-suggestions" role="listbox" hidden data-dashboard-search-suggestions></div>
             </form>
 
             <span class="dashboard-topbar-spacer" aria-hidden="true"></span>
@@ -216,17 +217,155 @@
     <script>
         (function () {
             const shell = document.querySelector('.student-shell');
-            const searchForm = document.querySelector('.dashboard-search-form');
-            const searchInput = document.querySelector('#dashboard-search-input');
+            const searchForm = document.querySelector('[data-dashboard-search-form]');
+            const searchInput = document.querySelector('[data-dashboard-search-input]');
+            const suggestions = document.querySelector('[data-dashboard-search-suggestions]');
+            let searchTimer = null;
+            let activeFetch = null;
 
             if (shell) {
                 shell.classList.add('student-dashboard-home');
             }
 
-            if (searchForm && searchInput) {
+            const escapeHtml = function (value) {
+                return String(value ?? '').replace(/[&<>"']/g, function (match) {
+                    return {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;',
+                    }[match];
+                });
+            };
+
+            const highlightMatch = function (value, query) {
+                const text = String(value ?? '');
+                const needle = String(query ?? '').trim().toLowerCase();
+                const index = needle === '' ? -1 : text.toLowerCase().indexOf(needle);
+
+                if (index < 0) {
+                    return escapeHtml(text);
+                }
+
+                return escapeHtml(text.slice(0, index))
+                    + '<mark>' + escapeHtml(text.slice(index, index + needle.length)) + '</mark>'
+                    + escapeHtml(text.slice(index + needle.length));
+            };
+
+            const hideSuggestions = function () {
+                if (!suggestions || !searchInput) {
+                    return;
+                }
+
+                suggestions.hidden = true;
+                suggestions.innerHTML = '';
+                searchInput.setAttribute('aria-expanded', 'false');
+            };
+
+            const showSuggestions = function (results, query) {
+                if (!suggestions || !searchForm || !searchInput) {
+                    return;
+                }
+
+                const trimmedQuery = query.trim();
+
+                if (trimmedQuery === '') {
+                    hideSuggestions();
+                    return;
+                }
+
+                const rows = results.length
+                    ? results.map(function (result) {
+                        return '<a class="dashboard-suggestion-row" href="' + escapeHtml(result.url) + '" role="option">'
+                            + '<span>' + escapeHtml(result.type) + '</span>'
+                            + '<strong>' + highlightMatch(result.title, trimmedQuery) + '</strong>'
+                            + '<small>' + escapeHtml(result.meta) + '</small>'
+                            + '</a>';
+                    }).join('')
+                    : '<div class="dashboard-suggestion-empty" role="option">'
+                        + '<strong>No matches found</strong>'
+                        + '<small>Try a group, resource, session, or discussion keyword.</small>'
+                        + '</div>';
+
+                suggestions.innerHTML = rows
+                    + '<button class="dashboard-suggestion-search" type="submit">'
+                    + 'Search StudyHub for "' + escapeHtml(trimmedQuery) + '"'
+                    + '</button>';
+                suggestions.hidden = false;
+                searchInput.setAttribute('aria-expanded', 'true');
+            };
+
+            const fetchSuggestions = function () {
+                if (!searchForm || !searchInput) {
+                    return;
+                }
+
+                const query = searchInput.value.trim();
+
+                if (query === '') {
+                    hideSuggestions();
+                    return;
+                }
+
+                if (activeFetch) {
+                    activeFetch.abort();
+                }
+
+                activeFetch = new AbortController();
+                const url = new URL(searchForm.action, window.location.origin);
+                url.searchParams.set('q', query);
+                url.searchParams.set('live_search', '1');
+
+                fetch(url.toString(), {
+                    headers: { 'Accept': 'application/json' },
+                    signal: activeFetch.signal,
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Search request failed');
+                        }
+
+                        return response.json();
+                    })
+                    .then(function (payload) {
+                        if (searchInput.value.trim() === payload.query) {
+                            showSuggestions(payload.results || [], payload.query || query);
+                        }
+                    })
+                    .catch(function (error) {
+                        if (error.name !== 'AbortError') {
+                            hideSuggestions();
+                        }
+                    });
+            };
+
+            if (searchForm && searchInput && suggestions) {
+                searchInput.addEventListener('input', function () {
+                    window.clearTimeout(searchTimer);
+                    searchTimer = window.setTimeout(fetchSuggestions, 180);
+                });
+
+                searchInput.addEventListener('focus', function () {
+                    if (searchInput.value.trim() !== '' && suggestions.innerHTML.trim() !== '') {
+                        suggestions.hidden = false;
+                        searchInput.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
                 searchInput.addEventListener('keydown', function (event) {
                     if (event.key === 'Enter' && searchInput.value.trim() !== '') {
                         searchForm.requestSubmit ? searchForm.requestSubmit() : searchForm.submit();
+                    }
+
+                    if (event.key === 'Escape') {
+                        hideSuggestions();
+                    }
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!searchForm.contains(event.target)) {
+                        hideSuggestions();
                     }
                 });
             }

@@ -9,7 +9,7 @@
 @section('page')
     <div class="theme-page-header">
         <h2 class="page-title">Theme</h2>
-        <p class="page-subtitle">Switch your StudyHub workspace between light and dark mode.</p>
+        <p class="page-subtitle">Choose light or dark mode.</p>
     </div>
 
     <div class="theme-layout theme-layout-simple">
@@ -20,7 +20,7 @@
 
                 <section class="content-card theme-card theme-mode-card">
                     <div class="theme-section-head">
-                        <h3>Appearance</h3>
+                        <h3>Mode</h3>
                     </div>
 
                     <input name="appearance" type="hidden" value="{{ $appearance }}" data-student-theme-input>
@@ -33,8 +33,8 @@
                     </button>
 
                     <div class="theme-actions">
-                        <button class="action-button" type="submit" data-loading-label="Saving theme...">Save Theme</button>
-                        <a class="secondary-button" href="{{ route('studyhub.student.profile') }}">Back To Profile</a>
+                        <button class="action-button" type="submit" data-loading-label="Saving...">Save</button>
+                        <a class="secondary-button" href="{{ route('studyhub.student.profile') }}">Back</a>
                     </div>
                 </section>
             </form>
@@ -49,8 +49,8 @@
                 </div>
 
                 <div class="preview-card">
-                    <h4>Student Workspace</h4>
-                    <span class="preview-button">Preview Style</span>
+                    <h4>Workspace</h4>
+                    <span class="preview-button">Preview</span>
                 </div>
             </div>
         </aside>

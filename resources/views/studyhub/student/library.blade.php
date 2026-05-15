@@ -54,14 +54,14 @@
 @section('page')
     <div class="library-page">
         <div class="library-top-tools">
-            <form class="library-global-search" method="GET" action="{{ route('studyhub.student.library') }}">
+            <form class="library-global-search" method="GET" action="{{ route('studyhub.student.library') }}" data-library-search-form>
                 @if ($selectedFolder['type'] === 'folder')
                     <input type="hidden" name="folder" value="{{ $selectedFolder['id'] }}">
                 @elseif ($selectedFolder['type'] === 'unfiled')
                     <input type="hidden" name="folder" value="unfiled">
                 @endif
                 <span class="icon-box">{!! $icons['search'] !!}</span>
-                <input type="search" name="q" value="{{ $librarySearch }}" placeholder="Search files, notes, PDFs...">
+                <input type="search" name="q" value="{{ $librarySearch }}" placeholder="Search files, notes, PDFs..." data-library-search>
             </form>
         </div>
 
@@ -89,9 +89,9 @@
                     </div>
                 </header>
 
-                <form class="library-filter-bar" method="GET" action="{{ route('studyhub.student.library') }}">
+                <form class="library-filter-bar" method="GET" action="{{ route('studyhub.student.library') }}" data-library-filter-form>
                     <label class="library-inline-search">
-                        <input type="search" name="q" value="{{ $librarySearch }}" placeholder="Search in library...">
+                        <input type="search" name="q" value="{{ $librarySearch }}" placeholder="Search in library..." data-library-search>
                         <span class="icon-box">{!! $icons['search'] !!}</span>
                     </label>
                     <select name="folder" aria-label="Filter by folder" data-library-auto-submit>
@@ -126,9 +126,9 @@
                 </form>
 
                 <nav class="library-tab-strip" aria-label="Library filters">
-                    <a class="{{ $libraryFilters['item'] === 'all' && $libraryFilters['availability'] === 'all' ? 'active' : '' }}" href="{{ route('studyhub.student.library', array_filter(array_merge($libraryQueryBase, ['item' => null, 'availability' => null]), fn ($value) => $value !== null && $value !== '')) }}">{!! $icons['library'] !!}<span>All Files</span></a>
+                    <a class="{{ $libraryFilters['item'] === 'all' && $libraryFilters['availability'] === 'all' ? 'active' : '' }}" href="{{ route('studyhub.student.library', array_filter(array_merge($libraryQueryBase, ['item' => null, 'availability' => null]), fn ($value) => $value !== null && $value !== '')) }}">{!! $icons['library'] !!}<span>Saved</span></a>
+                    <a class="{{ $libraryFilters['item'] === 'uploaded' ? 'active' : '' }}" href="{{ route('studyhub.student.library', array_filter(array_merge($libraryQueryBase, ['item' => 'uploaded', 'availability' => null]), fn ($value) => $value !== null && $value !== '')) }}">{!! $icons['upload-cloud'] ?? $icons['plus'] !!}<span>Uploaded</span></a>
                     <a class="{{ $libraryFilters['item'] === 'recent' ? 'active' : '' }}" href="{{ route('studyhub.student.library', array_filter(array_merge($libraryQueryBase, ['item' => 'recent']), fn ($value) => $value !== null && $value !== '')) }}">{!! $icons['clock'] !!}<span>Recent</span></a>
-                    <a class="{{ $libraryFilters['availability'] === 'downloadable' ? 'active' : '' }}" href="{{ route('studyhub.student.library', array_filter(array_merge($libraryQueryBase, ['availability' => 'downloadable', 'item' => null]), fn ($value) => $value !== null && $value !== '')) }}">{!! $icons['download'] !!}<span>Downloads</span></a>
                 </nav>
 
                 <section class="library-section library-continue-section">
@@ -175,8 +175,16 @@
                                 @php
                                     $extension = strtoupper($resource['file_type'] ?: pathinfo($resource['name'], PATHINFO_EXTENSION) ?: 'FILE');
                                     $resourceTheme = $resourceThemeFor($resource, $extension);
+                                    $librarySearchText = strtolower(implode(' ', [
+                                        $resource['name'] ?? '',
+                                        $resource['group'] ?? '',
+                                        $resource['category'] ?? '',
+                                        $resource['uploaded_by'] ?? '',
+                                        $resource['saved_folder'] ?? '',
+                                        $extension,
+                                    ]));
                                 @endphp
-                                <article class="library-file-card" style="--resource-rgb: {{ $resourceTheme['rgb'] }}; --resource-soft-rgb: {{ $resourceTheme['soft'] }}; --resource-text: {{ $resourceTheme['text'] }};">
+                                <article class="library-file-card" style="--resource-rgb: {{ $resourceTheme['rgb'] }}; --resource-soft-rgb: {{ $resourceTheme['soft'] }}; --resource-text: {{ $resourceTheme['text'] }};" data-library-file-card data-library-search-text="{{ $librarySearchText }}">
                                     <div class="library-file-card-top">
                                         <span class="icon-box library-file-icon">{!! $icons['file'] !!}</span>
                                         <span class="library-file-type">{{ $extension }}</span>
@@ -215,8 +223,15 @@
                         </div>
                     @endif
 
+                    <div class="library-empty-state hidden" data-library-live-empty>
+                        <span class="icon-box">{!! $icons['search'] !!}</span>
+                        <strong>No saved resources match your search</strong>
+                        <p>Try a file name, group, folder, category, or uploader.</p>
+                        <a href="{{ route('studyhub.student.resources') }}">Browse Resources</a>
+                    </div>
+
                     @if (method_exists($savedResources, 'links'))
-                        <div class="library-pagination">
+                        <div class="library-pagination" data-library-pagination>
                             {{ $savedResources->links() }}
                         </div>
                     @endif
@@ -251,7 +266,7 @@
                                     <span>{{ $folder['name'] }}</span>
                                     <strong>{{ $folder['saved_count'] }}</strong>
                                 </a>
-                                <form method="POST" action="{{ route('studyhub.student.library.folders.delete', $folder['id']) }}">
+                                <form method="POST" action="{{ route('studyhub.student.library.folders.delete', $folder['id']) }}" onsubmit="return confirm('Delete this folder? Saved resources will stay in your library.')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" aria-label="Delete {{ $folder['name'] }} folder">&times;</button>
@@ -395,10 +410,15 @@
         document.addEventListener('DOMContentLoaded', function () {
             const modal = document.querySelector('[data-library-upload-modal]');
             const folderModal = document.querySelector('[data-library-folder-modal]');
-            const filterForm = document.querySelector('.library-filter-bar');
+            const filterForm = document.querySelector('[data-library-filter-form]');
+            const searchInputs = Array.from(document.querySelectorAll('[data-library-search]'));
             const grid = document.querySelector('[data-library-files-grid]');
+            const libraryCards = Array.from(document.querySelectorAll('[data-library-file-card]'));
+            const libraryLiveEmpty = document.querySelector('[data-library-live-empty]');
+            const libraryPagination = document.querySelector('[data-library-pagination]');
             const gridButton = document.querySelector('[data-library-grid-view]');
             const listButton = document.querySelector('[data-library-list-view]');
+            let librarySearchTimer = null;
 
             if (modal) {
                 window.StudyHubUI.bindModalTriggers({
@@ -429,6 +449,48 @@
                     filterForm.submit();
                 });
             });
+
+            const applyLibraryLiveSearch = function (sourceInput) {
+                const searchTerm = (sourceInput?.value || '').trim().toLowerCase();
+                let visibleCount = 0;
+
+                searchInputs.forEach(function (input) {
+                    if (input !== sourceInput) {
+                        input.value = sourceInput?.value || '';
+                    }
+                });
+
+                libraryCards.forEach(function (card) {
+                    const isVisible = searchTerm === '' || (card.dataset.librarySearchText || '').includes(searchTerm);
+                    card.classList.toggle('is-hidden', ! isVisible);
+
+                    if (isVisible) {
+                        visibleCount += 1;
+                    }
+                });
+
+                libraryLiveEmpty?.classList.toggle('hidden', searchTerm === '' || visibleCount > 0);
+                libraryPagination?.classList.toggle('is-hidden', searchTerm !== '');
+            };
+
+            searchInputs.forEach(function (input) {
+                input.addEventListener('input', function () {
+                    window.clearTimeout(librarySearchTimer);
+                    librarySearchTimer = window.setTimeout(function () {
+                        applyLibraryLiveSearch(input);
+                    }, 80);
+                });
+
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+            applyLibraryLiveSearch(searchInputs.find(function (input) {
+                return input.value.trim() !== '';
+            }) || searchInputs[0]);
 
             const setLibraryView = function (view) {
                 const isList = view === 'list';

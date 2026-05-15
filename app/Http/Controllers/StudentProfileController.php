@@ -11,7 +11,6 @@ class StudentProfileController extends StudyHubController
     public function show(): View
     {
         $joinedGroups = $this->getJoinedGroups();
-        $resources = $this->getStudentResources();
         $discussions = $this->getStudentDiscussions();
         $sessions = $this->getStudentSessions();
         $profile = $this->getStudentProfile();
@@ -20,7 +19,6 @@ class StudentProfileController extends StudyHubController
             'studentProfileForm' => $profile,
             'profileStats' => [
                 ['label' => 'Groups', 'value' => count($joinedGroups), 'hint' => 'joined'],
-                ['label' => 'Resources', 'value' => collect($resources)->where('uploaded_by', $profile['display_name'])->count(), 'hint' => 'uploaded'],
                 ['label' => 'Posts', 'value' => collect($discussions)->where('author', $profile['display_name'])->count(), 'hint' => 'started'],
                 ['label' => 'Sessions', 'value' => collect($sessions)->where('phase', 'upcoming')->count(), 'hint' => 'upcoming'],
             ],
