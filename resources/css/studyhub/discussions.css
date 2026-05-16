@@ -2630,11 +2630,23 @@
     background: #ffffff;
 }
 
+.thread-image-attachment a {
+    display: block;
+    color: inherit;
+    cursor: zoom-in;
+}
+
 .thread-image-attachment img {
     width: 100%;
-    max-height: 420px;
+    max-height: 680px;
     display: block;
-    object-fit: cover;
+    object-fit: contain;
+    background: #ffffff;
+}
+
+.thread-image-attachment a:focus-visible {
+    outline: 3px solid rgba(9, 166, 75, 0.42);
+    outline-offset: -3px;
 }
 
 .thread-image-attachment figcaption {
@@ -4129,8 +4141,8 @@
     }
 
     .student-dashboard-shell .thread-image-attachment img {
-        max-height: 220px !important;
-        object-fit: cover !important;
+        max-height: 520px !important;
+        object-fit: contain !important;
     }
 
     .student-dashboard-shell .thread-image-attachment figcaption {

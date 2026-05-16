@@ -205,7 +205,7 @@ class StudentGroupController extends StudyHubController
 
     private function chatPayload(?int $activeThreadId = null): array
     {
-        $threads = $this->getStudentChatThreads();
+        $threads = $this->getStudentChatThreads($activeThreadId);
 
         return [
             'threads' => $threads,

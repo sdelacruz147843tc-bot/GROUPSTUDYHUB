@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class StudyGroup extends Model
 {
@@ -52,6 +53,11 @@ class StudyGroup extends Model
     public function chatMessages(): HasMany
     {
         return $this->hasMany(GroupChatMessage::class, 'study_group_id');
+    }
+
+    public function latestChatMessage(): HasOne
+    {
+        return $this->hasOne(GroupChatMessage::class, 'study_group_id')->latestOfMany();
     }
 
     public function chatReads(): HasMany

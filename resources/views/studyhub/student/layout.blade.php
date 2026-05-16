@@ -440,6 +440,7 @@
             const chatClose = document.querySelector('[data-student-chat-close]');
             const chatMobileQuery = window.matchMedia('(max-width: 720px)');
             const csrfToken = @json(csrf_token());
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             let chatRefreshTimer = null;
             let chatIsSyncing = false;
 
@@ -473,6 +474,23 @@
                 const count = Number(value) || 0;
                 badge.textContent = count;
                 badge.hidden = count <= 0;
+            }
+
+            function scrollMessagesToBottom(messageList, force) {
+                if (! messageList) {
+                    return;
+                }
+
+                const isNearBottom = messageList.scrollTop + messageList.clientHeight >= messageList.scrollHeight - 80;
+
+                if (! force && ! isNearBottom) {
+                    return;
+                }
+
+                messageList.scrollTo({
+                    top: messageList.scrollHeight,
+                    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                });
             }
 
             function messageHtml(message) {
@@ -546,7 +564,7 @@
                             messageList.innerHTML = count > 0 ? thread.messages.map(messageHtml).join('') : emptyChatHtml();
 
                             if (wasNearBottom || conversation.classList.contains('is-active')) {
-                                messageList.scrollTop = messageList.scrollHeight;
+                                scrollMessagesToBottom(messageList, true);
                             }
                         }
                     }
@@ -554,7 +572,7 @@
             }
 
             function refreshChats() {
-                if (! chatMenu?.dataset.chatRefreshUrl || chatIsSyncing) {
+                if (! chatMenu?.dataset.chatRefreshUrl || chatIsSyncing || document.hidden) {
                     return Promise.resolve();
                 }
 
@@ -576,6 +594,9 @@
                         return response.ok ? response.json() : null;
                     })
                     .then(applyChatPayload)
+                    .catch(function () {
+                        return null;
+                    })
                     .finally(function () {
                         chatIsSyncing = false;
                     });
@@ -611,7 +632,12 @@
                     .then(function (response) {
                         return response.ok ? response.json() : null;
                     })
-                    .then(applyChatPayload);
+                    .then(applyChatPayload)
+                    .catch(function () {
+                        setBadgeValue(threadBadge, previousUnread);
+                        setBadgeValue(globalBadge, previousTotal);
+                        threadButton?.classList.toggle('has-unread', previousUnread > 0);
+                    });
             }
 
             function startChatPolling() {
@@ -620,7 +646,7 @@
                 }
 
                 refreshChats();
-                chatRefreshTimer = window.setInterval(refreshChats, 5000);
+                chatRefreshTimer = window.setInterval(refreshChats, 15000);
             }
 
             function stopChatPolling() {
@@ -750,6 +776,8 @@
                         }
 
                         submitButton.disabled = true;
+                        submitButton.setAttribute('aria-busy', 'true');
+                        form.classList.add('is-sending');
 
                         fetch(form.action, {
                             method: 'POST',
@@ -766,10 +794,16 @@
                             .then(function (payload) {
                                 textarea.value = '';
                                 applyChatPayload(payload);
+                                scrollMessagesToBottom(form.closest('[data-student-chat-conversation]')?.querySelector('[data-student-chat-messages]'), true);
                                 markChatRead(form.dataset.studentChatForm);
+                            })
+                            .catch(function () {
+                                textarea.focus();
                             })
                             .finally(function () {
                                 submitButton.disabled = false;
+                                submitButton.removeAttribute('aria-busy');
+                                form.classList.remove('is-sending');
                             });
                     });
                 });
@@ -783,13 +817,19 @@
                     }
                 }
 
-                startChatPolling();
-
                 chatMobileQuery.addEventListener('change', function () {
                     document.body.classList.toggle('student-chat-is-open', chatMenu.classList.contains('is-open') && isMobileChat());
 
                     if (! isMobileChat()) {
                         chatMenu.classList.remove('is-viewing-chat');
+                    }
+                });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (document.hidden) {
+                        stopChatPolling();
+                    } else {
+                        startChatPolling();
                     }
                 });
             }

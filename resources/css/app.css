@@ -1574,6 +1574,68 @@ html.dark {
     }
 }
 
+@media (max-width: 760px) {
+    .library-page .library-file-card,
+    .library-page .library-files-grid.is-list .library-file-card {
+        grid-template-columns: 42px minmax(0, 1fr) !important;
+        align-items: start !important;
+        gap: 9px 12px !important;
+        min-height: 130px !important;
+        padding: 14px !important;
+    }
+
+    .library-page .library-file-icon {
+        grid-column: 1 !important;
+        grid-row: 1 / span 3 !important;
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .library-page .library-file-type {
+        left: 14px !important;
+        bottom: auto !important;
+        top: 58px !important;
+    }
+
+    .library-page .library-file-card h4,
+    .library-page .library-file-card p,
+    .library-page .library-file-card small {
+        grid-column: 2 !important;
+        min-width: 0 !important;
+    }
+
+    .library-page .library-card-actions {
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+        gap: 8px !important;
+    }
+
+    .library-page .library-card-actions a:nth-of-type(2) {
+        display: none !important;
+    }
+
+    .library-page .library-card-actions form,
+    .library-page .library-card-actions button {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .library-page .library-card-actions a,
+    .library-page .library-card-actions button {
+        min-height: 36px !important;
+        border-radius: 9px !important;
+        padding: 0 10px !important;
+        font-size: 0.68rem !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+    }
+}
+
 /* StudyHub login mobile fit */
 @media (max-width: 820px) {
     .login-shell.studyhub-shell {

@@ -4,10 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\ActivityLog;
 use App\Models\Discussion;
+use App\Models\DiscussionHelpfulVote;
 use App\Models\DiscussionNotificationPreference;
 use App\Models\DiscussionReply;
-use App\Models\GroupChatMessage;
-use App\Models\GroupChatRead;
 use App\Models\StudyGroup;
 use App\Models\StudyResource;
 use App\Models\StudySession;
@@ -238,8 +237,7 @@ class DatabaseSeeder extends Seeder
         });
 
         ActivityLog::query()->delete();
-        GroupChatRead::query()->delete();
-        GroupChatMessage::query()->delete();
+        DiscussionHelpfulVote::query()->delete();
         DiscussionNotificationPreference::query()->delete();
         DiscussionReply::query()->delete();
         Discussion::query()->delete();
@@ -285,6 +283,18 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
+        $seedDiscussionImage = function (string $name, string $color): array {
+            $path = 'studyhub-discussion-images/seeded/'.$name.'.svg';
+
+            Storage::disk('local')->put($path, '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760"><rect width="1200" height="760" rx="42" fill="'.$color.'"/><circle cx="210" cy="180" r="92" fill="#ffffff" opacity=".24"/><path d="M120 610 390 360l180 150 150-120 360 220H120Z" fill="#ffffff" opacity=".42"/><path d="M164 116h872" stroke="#ffffff" stroke-width="32" stroke-linecap="round" opacity=".5"/><path d="M164 194h520" stroke="#ffffff" stroke-width="26" stroke-linecap="round" opacity=".35"/></svg>');
+
+            return [
+                'path' => $path,
+                'name' => $name.'.svg',
+                'mime_type' => 'image/svg+xml',
+            ];
+        };
+
         $discussions = collect([
             [
                 'title' => 'Finals prep: which topics should we prioritize?',
@@ -293,6 +303,10 @@ class DatabaseSeeder extends Seeder
                 'author' => 'Alex Student',
                 'views' => 228,
                 'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('physics-formula-board', '#4f46e5'),
+                    $seedDiscussionImage('physics-review-plan', '#0891b2'),
+                ],
                 'last_active_at' => now()->subMinutes(2),
                 'replies' => [
                     [
@@ -326,6 +340,9 @@ class DatabaseSeeder extends Seeder
                 'author' => 'Mia Cruz',
                 'views' => 74,
                 'trending' => false,
+                'images' => [
+                    $seedDiscussionImage('capstone-demo-flow', '#f97316'),
+                ],
                 'last_active_at' => now()->subMinutes(25),
                 'replies' => [
                     ['author' => 'Alex Student', 'body' => 'I will handle the system demo and make sure the discussion hub flow is ready.', 'created_at' => now()->subMinutes(32)],
@@ -364,19 +381,141 @@ class DatabaseSeeder extends Seeder
                 'author' => 'Mike Johnson',
                 'views' => 312,
                 'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('calculus-series-notes', '#16a34a'),
+                ],
                 'last_active_at' => now()->subHours(2),
                 'replies' => [
                     ['author' => 'Lisa Park', 'body' => 'Past papers helped me the most. Focus on time-limited practice.', 'created_at' => now()->subHour()],
                 ],
             ],
+            [
+                'title' => 'Can someone check this ERD relationship?',
+                'body' => 'I am unsure if the enrollment table should hold status and joined date, or if those belong on a separate history table.',
+                'group' => 'Database Systems',
+                'author' => 'Lisa Park',
+                'views' => 134,
+                'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('database-erd-sketch', '#0ea5e9'),
+                ],
+                'last_active_at' => now()->subMinutes(16),
+                'replies' => [
+                    ['author' => 'Noah Tan', 'body' => 'Status fits on the pivot table if you only need the current membership state.', 'created_at' => now()->subMinutes(22)],
+                    ['author' => 'Alex Wong', 'body' => 'Use a history table if you need audit-friendly changes over time.', 'created_at' => now()->subMinutes(16)],
+                ],
+            ],
+            [
+                'title' => 'Best way to explain train/test split?',
+                'body' => 'I need a simple explanation for our ML presentation that avoids too much math but still sounds correct.',
+                'group' => 'Machine Learning Basics',
+                'author' => 'Rachel Green',
+                'views' => 97,
+                'trending' => false,
+                'last_active_at' => now()->subHours(3),
+                'replies' => [
+                    ['author' => 'Mia Cruz', 'body' => 'You can describe it as practicing on one pile of examples and checking understanding on another unseen pile.', 'created_at' => now()->subHours(3)],
+                ],
+            ],
+            [
+                'title' => 'Prototype spacing feedback before critique',
+                'body' => 'The mobile screen feels crowded around the primary action. Which spacing option reads cleaner?',
+                'group' => 'UI UX Design Studio',
+                'author' => 'Alex Wong',
+                'views' => 183,
+                'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('ux-spacing-option-a', '#8b5cf6'),
+                    $seedDiscussionImage('ux-spacing-option-b', '#ec4899'),
+                ],
+                'last_active_at' => now()->subMinutes(48),
+                'replies' => [
+                    ['author' => 'Mia Cruz', 'body' => 'Option B gives the button more breathing room without making the card feel empty.', 'created_at' => now()->subMinutes(52)],
+                    ['author' => 'Sarah Chen', 'body' => 'I agree. The hierarchy is clearer when the label has more vertical spacing.', 'created_at' => now()->subMinutes(48)],
+                ],
+            ],
+            [
+                'title' => 'Quick vocabulary rotation for Thursday',
+                'body' => 'Can each person bring five verbs and one short dialogue prompt? We can rotate partners every ten minutes.',
+                'group' => 'Language Exchange Circle',
+                'author' => 'Mia Cruz',
+                'views' => 66,
+                'trending' => false,
+                'last_active_at' => now()->subHours(5),
+                'replies' => [
+                    ['author' => 'Noah Tan', 'body' => 'I can prepare travel and restaurant prompts.', 'created_at' => now()->subHours(5)],
+                ],
+            ],
+            [
+                'title' => 'Dashboard chart choice: bar or line?',
+                'body' => 'For weekly sales grouped by category, would a grouped bar chart be easier to read than a line chart?',
+                'group' => 'Business Analytics Lab',
+                'author' => 'David Kim',
+                'views' => 118,
+                'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('analytics-chart-comparison', '#0284c7'),
+                ],
+                'last_active_at' => now()->subHours(7),
+                'replies' => [
+                    ['author' => 'Lisa Park', 'body' => 'Grouped bars are better if category comparison matters more than trend shape.', 'created_at' => now()->subHours(7)],
+                    ['author' => 'Rachel Green', 'body' => 'Line chart works if the story is movement over time, but it may get noisy with many categories.', 'created_at' => now()->subHours(6)],
+                ],
+            ],
+            [
+                'title' => 'Threat modeling checklist order',
+                'body' => 'Should we identify assets before entry points, or start from possible attackers and work backward?',
+                'group' => 'Cybersecurity Review Team',
+                'author' => 'Noah Tan',
+                'views' => 141,
+                'trending' => false,
+                'last_active_at' => now()->subHours(8),
+                'replies' => [
+                    ['author' => 'David Kim', 'body' => 'I would start with assets so the rest of the model stays grounded.', 'created_at' => now()->subHours(8)],
+                ],
+            ],
+            [
+                'title' => 'React form validation pattern',
+                'body' => 'I am deciding between validating on blur or on submit for the project form. Which feels better for users?',
+                'group' => 'Web Development',
+                'author' => 'Emma Davis',
+                'views' => 105,
+                'trending' => false,
+                'last_active_at' => now()->subHours(10),
+                'replies' => [
+                    ['author' => 'David Kim', 'body' => 'Validate on blur for specific fields, then show a final summary on submit.', 'created_at' => now()->subHours(10)],
+                ],
+            ],
+            [
+                'title' => 'Heap practice question set',
+                'body' => 'I collected five heap operations that usually trip me up. Can we solve these before tree rotations?',
+                'group' => 'Data Structures Study',
+                'author' => 'Mike Johnson',
+                'views' => 172,
+                'trending' => true,
+                'images' => [
+                    $seedDiscussionImage('heap-practice-notes', '#0f766e'),
+                ],
+                'last_active_at' => now()->subHours(12),
+                'replies' => [
+                    ['author' => 'Rachel Green', 'body' => 'Yes. The delete-min trace is the one I want to walk through slowly.', 'created_at' => now()->subHours(12)],
+                    ['author' => 'Alex Student', 'body' => 'I can bring a whiteboard version so everyone can follow each swap.', 'created_at' => now()->subHours(11)],
+                ],
+            ],
         ])->map(function (array $discussion) use ($groups, $sampleUsers, $student) {
             $author = $discussion['author'] === 'Alex Student' ? $student : $sampleUsers[$discussion['author']];
+            $images = $discussion['images'] ?? [];
+            $firstImage = $images[0] ?? null;
 
             $record = Discussion::create([
                 'group_id' => $groups[$discussion['group']]->id,
                 'author_id' => $author->id,
                 'title' => $discussion['title'],
                 'body' => $discussion['body'],
+                'image_path' => $firstImage['path'] ?? null,
+                'image_original_name' => $firstImage['name'] ?? null,
+                'image_mime_type' => $firstImage['mime_type'] ?? null,
+                'images' => $images ?: null,
                 'views' => $discussion['views'],
                 'trending' => $discussion['trending'],
                 'last_active_at' => $discussion['last_active_at'],
@@ -408,6 +547,37 @@ class DatabaseSeeder extends Seeder
             });
 
             return $record;
+        });
+
+        $helpfulVoters = collect([
+            'Sarah Chen',
+            'Mike Johnson',
+            'Emma Davis',
+            'John Smith',
+            'Lisa Park',
+            'David Kim',
+            'Rachel Green',
+            'Alex Wong',
+            'Mia Cruz',
+            'Noah Tan',
+            'Alex Student',
+        ]);
+
+        $discussions->values()->each(function (Discussion $discussion, int $index) use ($helpfulVoters, $sampleUsers, $student) {
+            $voteCount = min($helpfulVoters->count(), 2 + (($index * 3) % 7));
+
+            $helpfulVoters
+                ->skip($index % $helpfulVoters->count())
+                ->concat($helpfulVoters->take($index % $helpfulVoters->count()))
+                ->take($voteCount)
+                ->each(function (string $name) use ($discussion, $sampleUsers, $student) {
+                    $user = $name === 'Alex Student' ? $student : $sampleUsers[$name];
+
+                    DiscussionHelpfulVote::query()->updateOrCreate([
+                        'discussion_id' => $discussion->id,
+                        'user_id' => $user->id,
+                    ]);
+                });
         });
 
         if ($presentationDiscussion = Discussion::query()->where('title', 'Finals prep: which topics should we prioritize?')->first()) {
@@ -574,23 +744,7 @@ class DatabaseSeeder extends Seeder
             $session->attendees()->sync($attendeeIds);
         });
 
-        collect([
-            ['group' => 'Physics Review Circle', 'author' => 'Sarah Chen', 'body' => 'I uploaded the formula map. Can someone check the momentum section?', 'created_at' => now()->subMinutes(42)],
-            ['group' => 'Physics Review Circle', 'author' => 'Alex Student', 'body' => 'I can review it before our session and add sample problems.', 'created_at' => now()->subMinutes(35)],
-            ['group' => 'Capstone Study Group', 'author' => 'Mia Cruz', 'body' => 'Please drop defense questions here so we can assign answers.', 'created_at' => now()->subMinutes(28)],
-            ['group' => 'Capstone Study Group', 'author' => 'Noah Tan', 'body' => 'I will prepare the target users answer and add it to the checklist.', 'created_at' => now()->subMinutes(17)],
-            ['group' => 'Computer Science 301', 'author' => 'Sarah Chen', 'body' => 'Graph algorithms review starts with Dijkstra then DP examples.', 'created_at' => now()->subMinutes(22)],
-        ])->each(function (array $chat) use ($groups, $sampleUsers, $student) {
-            $author = $chat['author'] === 'Alex Student' ? $student : $sampleUsers[$chat['author']];
-
-            GroupChatMessage::create([
-                'study_group_id' => $groups[$chat['group']]->id,
-                'user_id' => $author->id,
-                'body' => $chat['body'],
-                'created_at' => $chat['created_at'],
-                'updated_at' => $chat['created_at'],
-            ]);
-        });
+        $this->call(GroupChatSeeder::class);
 
         collect([
             ['type' => 'discussion_posted', 'title' => 'Discussion posted', 'description' => 'Alex Student started a finals prep thread in Physics Review Circle.', 'group' => 'Physics Review Circle', 'subject' => $discussions->firstWhere('title', 'Finals prep: which topics should we prioritize?'), 'created_at' => now()->subMinutes(35)],

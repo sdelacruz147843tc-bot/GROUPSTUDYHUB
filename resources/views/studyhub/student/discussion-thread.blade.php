@@ -49,7 +49,9 @@
             <div class="thread-image-gallery {{ ($discussion['image_count'] ?? 0) > 1 ? 'is-gallery' : '' }}">
                 @foreach ($discussion['images'] ?? [] as $image)
                     <figure class="thread-image-attachment">
-                        <img src="{{ $image['url'] }}" alt="{{ $image['name'] ?: $discussion['title'] }}">
+                        <a href="{{ $image['url'] }}" target="_blank" rel="noopener" aria-label="Open {{ $image['name'] ?: $discussion['title'] }} image">
+                            <img src="{{ $image['url'] }}" alt="{{ $image['name'] ?: $discussion['title'] }}">
+                        </a>
                     </figure>
                 @endforeach
             </div>

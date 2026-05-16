@@ -83,12 +83,13 @@ abstract class StudyHubController extends Controller
     {
         $studentProfile = $this->getStudentProfile();
         $studentTheme = $this->getStudentTheme($studentProfile['theme'], $studentProfile['surface_style']);
+        $studentChatThreads = $this->getStudentChatThreads($this->activeStudentChatThreadId());
 
         return view($view, array_merge($data, [
             'studentProfile' => $studentProfile,
             'studentTheme' => $studentTheme,
-            'studentChatThreads' => $this->getStudentChatThreads(),
-            'studentUnreadChatCount' => $this->getUnreadChatCountForStudent(),
+            'studentChatThreads' => $studentChatThreads,
+            'studentUnreadChatCount' => collect($studentChatThreads)->sum(fn (array $thread) => (int) ($thread['unread_count'] ?? 0)),
             'icons' => config('studyhub.icons.student', []),
         ]));
     }
@@ -441,7 +442,7 @@ abstract class StudyHubController extends Controller
             ->all();
     }
 
-    protected function getStudentChatThreads(): array
+    protected function getStudentChatThreads(?int $activeThreadId = null): array
     {
         $user = $this->studentUser();
         $joinedGroupIds = $this->getJoinedGroupIds();
@@ -450,22 +451,26 @@ abstract class StudyHubController extends Controller
             return [];
         }
 
-        return StudyGroup::query()
+        $groups = StudyGroup::query()
             ->whereIn('id', $joinedGroupIds)
             ->with([
                 'chatReads' => fn ($query) => $query->where('user_id', $user->id),
+                'latestChatMessage.user',
             ])
             ->withMax('chatMessages', 'created_at')
             ->orderByDesc('chat_messages_max_created_at')
             ->orderBy('name')
-            ->get()
-            ->map(function (StudyGroup $group) use ($user) {
-                $latestMessage = $group->chatMessages()->with('user')->latest()->first();
-                $lastReadAt = $group->chatReads->first()?->last_read_at;
-                $unreadCount = $group->chatMessages()
-                    ->where('user_id', '<>', $user->id)
-                    ->when($lastReadAt, fn ($query) => $query->where('created_at', '>', $lastReadAt))
-                    ->count();
+            ->get();
+
+        $activeThreadId = $activeThreadId && in_array($activeThreadId, $joinedGroupIds, true)
+            ? $activeThreadId
+            : (int) ($groups->first()?->id ?? 0);
+
+        $unreadCounts = $this->unreadChatCountsForGroups($joinedGroupIds, $user->id);
+
+        return $groups
+            ->map(function (StudyGroup $group) use ($activeThreadId, $unreadCounts) {
+                $latestMessage = $group->latestChatMessage;
 
                 return [
                     'id' => $group->id,
@@ -474,8 +479,8 @@ abstract class StudyHubController extends Controller
                     'latest_author' => $latestMessage?->user?->display_name ?: $latestMessage?->user?->name ?: '',
                     'latest_body' => $latestMessage?->body ?: 'No messages yet',
                     'latest_time' => $latestMessage ? $this->humanizeTime($latestMessage->created_at) : '',
-                    'unread_count' => $unreadCount,
-                    'messages' => $this->getGroupChatMessages($group, 30),
+                    'unread_count' => (int) ($unreadCounts[$group->id] ?? 0),
+                    'messages' => (int) $group->id === $activeThreadId ? $this->getGroupChatMessages($group, 30) : [],
                 ];
             })
             ->all();
@@ -490,20 +495,39 @@ abstract class StudyHubController extends Controller
             return 0;
         }
 
-        return StudyGroup::query()
-            ->whereIn('id', $joinedGroupIds)
-            ->get()
-            ->sum(function (StudyGroup $group) use ($user) {
-                $lastReadAt = GroupChatRead::query()
-                    ->where('study_group_id', $group->id)
-                    ->where('user_id', $user->id)
-                    ->value('last_read_at');
+        return array_sum($this->unreadChatCountsForGroups($joinedGroupIds, $user->id));
+    }
 
-                return $group->chatMessages()
-                    ->where('user_id', '<>', $user->id)
-                    ->when($lastReadAt, fn ($query) => $query->where('created_at', '>', $lastReadAt))
-                    ->count();
-            });
+    protected function activeStudentChatThreadId(): ?int
+    {
+        $threadId = request()->integer('chat_thread_id') ?: (int) session('open_chat_thread_id', 0);
+
+        return $threadId > 0 ? $threadId : null;
+    }
+
+    protected function unreadChatCountsForGroups(array $groupIds, int $userId): array
+    {
+        if ($groupIds === []) {
+            return [];
+        }
+
+        return GroupChatMessage::query()
+            ->leftJoin('group_chat_reads', function ($join) use ($userId) {
+                $join->on('group_chat_reads.study_group_id', '=', 'group_chat_messages.study_group_id')
+                    ->where('group_chat_reads.user_id', '=', $userId);
+            })
+            ->whereIn('group_chat_messages.study_group_id', $groupIds)
+            ->where('group_chat_messages.user_id', '<>', $userId)
+            ->where(function ($query) {
+                $query
+                    ->whereNull('group_chat_reads.last_read_at')
+                    ->orWhereColumn('group_chat_messages.created_at', '>', 'group_chat_reads.last_read_at');
+            })
+            ->groupBy('group_chat_messages.study_group_id')
+            ->selectRaw('group_chat_messages.study_group_id, count(*) as unread_count')
+            ->pluck('unread_count', 'group_chat_messages.study_group_id')
+            ->map(fn ($count) => (int) $count)
+            ->all();
     }
 
     protected function markGroupChatRead(StudyGroup $group): void

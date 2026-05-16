@@ -216,7 +216,6 @@ new class extends Component
                                             </span>
                                             <span class="thread-child-time">{{ $childReply['time'] }}</span>
                                         </span>
-                                        <span class="thread-nested-badge">Nested reply</span>
                                     </div>
                                     <p class="thread-child-target">Replying to {{ $childReply['parent_author'] }}</p>
                                     <p class="thread-reply-body">{{ $childReply['body'] }}</p>
@@ -239,7 +238,7 @@ new class extends Component
         <div class="thread-card-header">
             <div class="thread-card-title-lockup">
                 <h3>{{ $parentReplyId ? 'Reply to '.$parentAuthor : 'Join the discussion' }}</h3>
-                <small>{{ $parentReplyId ? 'Nested reply' : 'Add your thought' }}</small>
+                <small>{{ $parentReplyId ? 'Reply directly' : 'Add your thought' }}</small>
             </div>
         </div>
 
